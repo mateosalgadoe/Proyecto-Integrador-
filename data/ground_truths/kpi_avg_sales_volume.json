@@ -1,0 +1,55 @@
+{
+  "kpi_name": "kpi_avg_sales_volume",
+  "columns": [
+    "city",
+    "n_sales",
+    "total_sales",
+    "avg_sale_volume",
+    "median_sale_volume",
+    "std_sale_volume"
+  ],
+  "type": "multi_value",
+  "stats": {
+    "n_sales": {
+      "min": 1.0,
+      "max": 3368.0,
+      "mean": 188.05,
+      "median": 3.0,
+      "std": 731.8778,
+      "type": "generic"
+    },
+    "total_sales": {
+      "min": 3748.18,
+      "max": 20537788.73,
+      "mean": 1151531.2355,
+      "median": 30732.295,
+      "std": 4455842.5953,
+      "type": "sum_total"
+    },
+    "avg_sale_volume": {
+      "min": 3748.18,
+      "max": 73276.4,
+      "mean": 13972.0005,
+      "median": 7198.4129,
+      "std": 16144.2786,
+      "type": "average"
+    },
+    "median_sale_volume": {
+      "min": 663.64,
+      "max": 73276.4,
+      "mean": 13225.928,
+      "median": 7009.72,
+      "std": 18262.1272,
+      "type": "generic"
+    },
+    "std_sale_volume": {
+      "min": 0.0,
+      "max": 24259.0599,
+      "mean": 5087.4378,
+      "median": 3414.1785,
+      "std": 6503.392,
+      "type": "generic"
+    }
+  },
+  "reference_metric": "median"
+}

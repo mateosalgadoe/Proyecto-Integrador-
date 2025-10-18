@@ -1,0 +1,37 @@
+{
+  "kpi_name": "kpi_closing_rate",
+  "columns": [
+    "city_clean",
+    "total_leads",
+    "total_conversions",
+    "closing_rate_pct"
+  ],
+  "type": "multi_value",
+  "stats": {
+    "total_leads": {
+      "min": 5.0,
+      "max": 10933.0,
+      "mean": 1158.4,
+      "median": 30.0,
+      "std": 2619.943,
+      "type": "sum_total"
+    },
+    "total_conversions": {
+      "min": 0.0,
+      "max": 2526.0,
+      "mean": 170.35,
+      "median": 0.0,
+      "std": 552.0612,
+      "type": "sum_total"
+    },
+    "closing_rate_pct": {
+      "min": 0.0,
+      "max": 23.1,
+      "mean": 2.518,
+      "median": 0.0,
+      "std": 5.5272,
+      "type": "generic"
+    }
+  },
+  "reference_metric": "median"
+}

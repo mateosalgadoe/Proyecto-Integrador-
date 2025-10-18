@@ -1,0 +1,19 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+a76c8b33-24f0-4e72-b487-6cad19dcc8be,2025-10-18T03:09:56.761636+00:00,2025-10-18T03:11:35.785589+00:00,execution_accuracy,correct,1.0,La diferencia entre la respuesta del modelo y el valor de referencia es menor al 20%.,2249,313,¿Cuál es el volumen global de ventas promedio?,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+a76c8b33-24f0-4e72-b487-6cad19dcc8be,2025-10-18T03:09:56.761636+00:00,2025-10-18T03:11:35.785589+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,1850,383,¿Cuál es el volumen global de ventas promedio?,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"

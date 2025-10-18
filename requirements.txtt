@@ -1,0 +1,39 @@
+# Conexión a Postgres
+psycopg2-binary==2.9.10
+
+# Manejo de variables de entorno
+python-dotenv==1.0.1
+
+# LangChain + LangGraph (núcleo de agentes)
+langchain==0.3.24
+langchain-community==0.3.23
+langchain-core==0.3.56
+langchain-openai==0.3.14
+langgraph==0.4.0
+
+# OpenAI API
+openai==1.76.0
+
+# Dependencias auxiliares
+tqdm==4.67.1
+requests==2.32.3
+numpy==2.2.5
+pydantic==2.11.3
+SQLAlchemy==2.0.40
+uvicorn==0.30.6  # si luego quieres exponer tu agente como servicio API
+fastapi==0.115.4 # opcional, si planeas microservicio en el futuro
+
+#anthropic
+anthropic
+
+#contexto empresarial
+yfinance
+wbdata
+pandas
+yahooquery
+requests
+
+langchain-anthropic
+langchain-google-genai
+
+

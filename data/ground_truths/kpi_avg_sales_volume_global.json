@@ -1,0 +1,9 @@
+{
+  "kpi_name": "kpi_avg_sales_volume_global",
+  "columns": [
+    "avg_sales_volume_global"
+  ],
+  "type": "single_value",
+  "reference_metric": "single",
+  "value": 1141162.06
+}

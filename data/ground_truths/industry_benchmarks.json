@@ -1,0 +1,56 @@
+{
+  "kpi_name": "industry_benchmarks",
+  "columns": [
+    "sector",
+    "gdp_growth_pct",
+    "sales_growth_sector_pct",
+    "avg_ticket_growth_sector_pct",
+    "inflation_pct",
+    "unemployment_pct",
+    "reference_date"
+  ],
+  "type": "multi_value",
+  "stats": {
+    "gdp_growth_pct": {
+      "min": 2.8,
+      "max": 2.8,
+      "mean": 2.8,
+      "median": 2.8,
+      "std": 0.0,
+      "type": "generic"
+    },
+    "sales_growth_sector_pct": {
+      "min": -0.02,
+      "max": -0.02,
+      "mean": -0.02,
+      "median": -0.02,
+      "std": 0.0,
+      "type": "generic"
+    },
+    "avg_ticket_growth_sector_pct": {
+      "min": 2.4,
+      "max": 2.4,
+      "mean": 2.4,
+      "median": 2.4,
+      "std": 0.0,
+      "type": "average"
+    },
+    "inflation_pct": {
+      "min": 2.95,
+      "max": 2.95,
+      "mean": 2.95,
+      "median": 2.95,
+      "std": 0.0,
+      "type": "generic"
+    },
+    "unemployment_pct": {
+      "min": 4.11,
+      "max": 4.11,
+      "mean": 4.11,
+      "median": 4.11,
+      "std": 0.0,
+      "type": "generic"
+    }
+  },
+  "reference_metric": "median"
+}

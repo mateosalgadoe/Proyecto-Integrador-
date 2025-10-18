@@ -1,0 +1,14 @@
+# Ignorar entornos virtuales y dependencias
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Ignorar archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar datos temporales
+*.log
+*.tmp
+.env/

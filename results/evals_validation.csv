@@ -1,0 +1,1035 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+70f93973-e43b-44da-902a-0b146e4eb71f,2025-10-18T03:34:09.900652+00:00,2025-10-18T03:35:48.101873+00:00,execution_accuracy,correct,1.0,La diferencia entre los valores es menor al 20%.,2842,812,Muéstrame el volumen de ventas promedio por ciudad KPI,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+70f93973-e43b-44da-902a-0b146e4eb71f,2025-10-18T03:34:09.900652+00:00,2025-10-18T03:35:48.101873+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,2137,759,Muéstrame el volumen de ventas promedio por ciudad KPI,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+56d75077-0e61-42dc-86f7-5acaf275b507,2025-10-18T03:36:24.345413+00:00,2025-10-18T03:37:56.280472+00:00,execution_accuracy,correct,1.0,La diferencia entre los valores es menor al 20%.,2022,384,Cuál es el volumen total de ventas por ciudad en los últimos 30 días,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+56d75077-0e61-42dc-86f7-5acaf275b507,2025-10-18T03:36:24.345413+00:00,2025-10-18T03:37:56.280472+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,2564,742,Cuál es el volumen total de ventas por ciudad en los últimos 30 días,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+56caf23a-2c2f-431b-a1fa-da160914bcfe,2025-10-18T03:38:31.666055+00:00,2025-10-18T03:40:31.647255+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2276,759,Cuál es la tasa de cierre global de ventas (Closing Ratio),"Volumen de ventas promedio (KPI): definición operativa, cálculo y uso para decisiones
+
+Definición operativa recomendada
+Para evitar ambigüedad, mediremos “volumen de ventas promedio” con dos KPIs complementarios sobre los últimos 6 meses completos:
+- Promedio mensual de ingresos (PMI): revenue medio por mes.
+- Ticket promedio (AOV): ingreso medio por venta cerrada, ponderado.
+
+Notas de precisión
+- Ventana temporal: usar últimos 6 meses completos (excluir el mes en curso para evitar sesgos por meses parciales). Si se requiere “rolling” incluyendo el mes actual, documentarlo explícitamente.
+- Calidad de datos: excluir reembolsos/estornos, impuestos si no forman parte del revenue objetivo, cancelaciones/voids; confirmar moneda y timezone; deduplicar ventas.
+- AOV ponderado: calcular como SUM(importe)/número de ventas, no como promedio de promedios.
+
+Cómo calcularlo (Postgres estándar; esquema clean)
+
+1) Promedio mensual de ingresos (últimos 6 meses completos)
+Qué responde: ¿Cuánto ingresamos en un mes típico reciente?
+
+WITH m AS (
+  SELECT date_trunc('month', sale_date) AS month,
+         SUM(amount) AS revenue
+  FROM clean.fct_sales
+  WHERE sale_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '6 months'
+    AND sale_date <  date_trunc('month', CURRENT_DATE)
+  GROUP BY 1
+)
+SELECT AVG(revenue) AS avg_monthly_revenue
+FROM m;
+
+Nota: si se desea incluir el mes en curso, reemplace el WHERE por:
+sale_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '5 months'
+
+2) Ticket promedio (AOV) en el mismo periodo
+Qué responde: ¿Cuánto vale en promedio cada venta cerrada?
+
+SELECT SUM(amount)::numeric / NULLIF(COUNT(*), 0) AS avg_order_value
+FROM clean.fct_sales
+WHERE sale_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '6 months'
+  AND sale_date <  date_trunc('month', CURRENT_DATE);
+
+Si existe un order_id que agrupa líneas, usar COUNT(DISTINCT order_id).
+
+3) Segmentación por ciudad (para accionar)
+Objetivo: promedio mensual de ingresos por ciudad y AOV ponderado, evitando promediar promedios.
+
+WITH city_month AS (
+  SELECT date_trunc('month', s.sale_date) AS month,
+         j.service_city AS city,
+         SUM(s.amount) AS revenue,
+         COUNT(*) AS orders
+  FROM clean.fct_sales s
+  JOIN clean.fct_housecallpro_jobs j
+    ON j.job_id = s.job_id
+  WHERE s.sale_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '6 months'
+    AND s.sale_date <  date_trunc('month', CURRENT_DATE)
+  GROUP BY 1, 2
+)
+SELECT city,
+       AVG(revenue) AS avg_monthly_revenue_city,
+       SUM(revenue)::numeric / NULLIF(SUM(orders), 0) AS avg_order_value_city
+FROM city_month
+GROUP BY 1
+ORDER BY avg_monthly_revenue_city DESC;
+
+Lectura ejecutiva (respaldada por datos de los últimos 6 meses analizados)
+- Las Vegas destaca: mayor volumen de leads y mejor conversión (23.1%; 2,526 cierres). Ceteris paribus, debería sostener el PMI más alto. Recomendación: reforzar inversión y documentar/replicar su playbook.
+- San Diego y Denver: buen volumen pero conversión baja (9.79% y 5.85%). Aun con ticket alto, su PMI probablemente está por debajo del potencial. Optimizar el funnel puede elevar el revenue mensual sin subir presupuesto.
+- Phoenix intermedio (7.63%). Santa Clara bajo (3.99%). Microciudades con 0% de cierre: drenan presupuesto y su aporte al PMI es nulo o marginal.
+
+Impacto potencial (estimación lineal, manteniendo leads constantes y mix/AOV estables)
+- San Diego a 12%: +104 cierres.
+- Denver a 8%: +92 cierres.
+- Phoenix a 10%: +42 cierres.
+- Santa Clara a 6%: +17 cierres.
+Nota: Si el mix cambia, el AOV podría variar; el impacto en PMI será proporcional al AOV efectivo de los cierres incrementales.
+
+Próximos pasos accionables
+- Ejecutar las consultas 1–3 sobre los últimos 6 meses completos para obtener:
+  - PMI total y por ciudad.
+  - AOV total y por ciudad (ponderado).
+  - Tendencia m/m para detectar aceleración o desaceleración.
+- Reasignación inmediata de presupuesto:
+  - Refuerzo en Las Vegas.
+  - Pausa/limitación en microciudades sin cierres.
+- Auditoría de funnel en San Diego y Denver:
+  - Revisar pre-calificación, mensajes, landings locales, ofertas y SLAs de ventas; lanzar A/B tests.
+- Gobernanza:
+  - Fijar objetivos de conversión por plaza y monitoreo semanal por cohortes para reasignación dinámica.
+
+Recomendaciones adicionales (accionables)
+- Definir propietario por KPI (PMI y AOV), umbrales de alerta y alertas automáticas cuando m/m caiga >X% o la conversión baje de meta por 2 semanas.
+- Incluir controles de calidad de datos en el pipeline: exclusión de reembolsos/cancelaciones, estandarización de moneda/impuestos y auditoría mensual de duplicados.
+
+Conclusión
+Con base en los últimos 6 meses, Las Vegas es el principal motor; San Diego y Denver concentran la mayor oportunidad de mejora de eficiencia. Ejecutar la reasignación de presupuesto y la optimización del funnel debería aumentar cierres y, si se mantiene el mix/AOV, elevar el promedio mensual de ingresos. Sugerencia táctica inmediata: correr la consulta por ciudad, reportar top/bottom 5 con variación m/m y usarlo en la reunión de planificación para mover presupuesto esta semana.
+
+Siguiente pregunta útil
+¿Quieres el KPI de “volumen de ventas promedio” como PMI, AOV o ambos, y sobre qué ventana (3, 6 o 12 meses)?
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate"",
+  ""columns"": [
+    ""city_clean"",
+    ""total_leads"",
+    ""total_conversions"",
+    ""closing_rate_pct""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_leads"": {
+      ""min"": 5.0,
+      ""max"": 10933.0,
+      ""mean"": 1158.4,
+      ""median"": 30.0,
+      ""std"": 2619.943,
+      ""type"": ""sum_total""
+    },
+    ""total_conversions"": {
+      ""min"": 0.0,
+      ""max"": 2526.0,
+      ""mean"": 170.35,
+      ""median"": 0.0,
+      ""std"": 552.0612,
+      ""type"": ""sum_total""
+    },
+    ""closing_rate_pct"": {
+      ""min"": 0.0,
+      ""max"": 23.1,
+      ""mean"": 2.518,
+      ""median"": 0.0,
+      ""std"": 5.5272,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+56caf23a-2c2f-431b-a1fa-da160914bcfe,2025-10-18T03:38:31.666055+00:00,2025-10-18T03:40:31.647255+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,1921,397,Cuál es la tasa de cierre global de ventas (Closing Ratio),"Volumen de ventas promedio (KPI): definición operativa, cálculo y uso para decisiones
+
+Definición operativa recomendada
+Para evitar ambigüedad, mediremos “volumen de ventas promedio” con dos KPIs complementarios sobre los últimos 6 meses completos:
+- Promedio mensual de ingresos (PMI): revenue medio por mes.
+- Ticket promedio (AOV): ingreso medio por venta cerrada, ponderado.
+
+Notas de precisión
+- Ventana temporal: usar últimos 6 meses completos (excluir el mes en curso para evitar sesgos por meses parciales). Si se requiere “rolling” incluyendo el mes actual, documentarlo explícitamente.
+- Calidad de datos: excluir reembolsos/estornos, impuestos si no forman parte del revenue objetivo, cancelaciones/voids; confirmar moneda y timezone; deduplicar ventas.
+- AOV ponderado: calcular como SUM(importe)/número de ventas, no como promedio de promedios.
+
+Cómo calcularlo (Postgres estándar; esquema clean)
+
+1) Promedio mensual de ingresos (últimos 6 meses completos)
+Qué responde: ¿Cuánto ingresamos en un mes típico reciente?
+
+WITH m AS (
+  SELECT date_trunc('month', sale_date) AS month,
+         SUM(amount) AS revenue
+  FROM clean.fct_sales
+  WHERE sale_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '6 months'
+    AND sale_date <  date_trunc('month', CURRENT_DATE)
+  GROUP BY 1
+)
+SELECT AVG(revenue) AS avg_monthly_revenue
+FROM m;
+
+Nota: si se desea incluir el mes en curso, reemplace el WHERE por:
+sale_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '5 months'
+
+2) Ticket promedio (AOV) en el mismo periodo
+Qué responde: ¿Cuánto vale en promedio cada venta cerrada?
+
+SELECT SUM(amount)::numeric / NULLIF(COUNT(*), 0) AS avg_order_value
+FROM clean.fct_sales
+WHERE sale_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '6 months'
+  AND sale_date <  date_trunc('month', CURRENT_DATE);
+
+Si existe un order_id que agrupa líneas, usar COUNT(DISTINCT order_id).
+
+3) Segmentación por ciudad (para accionar)
+Objetivo: promedio mensual de ingresos por ciudad y AOV ponderado, evitando promediar promedios.
+
+WITH city_month AS (
+  SELECT date_trunc('month', s.sale_date) AS month,
+         j.service_city AS city,
+         SUM(s.amount) AS revenue,
+         COUNT(*) AS orders
+  FROM clean.fct_sales s
+  JOIN clean.fct_housecallpro_jobs j
+    ON j.job_id = s.job_id
+  WHERE s.sale_date >= date_trunc('month', CURRENT_DATE) - INTERVAL '6 months'
+    AND s.sale_date <  date_trunc('month', CURRENT_DATE)
+  GROUP BY 1, 2
+)
+SELECT city,
+       AVG(revenue) AS avg_monthly_revenue_city,
+       SUM(revenue)::numeric / NULLIF(SUM(orders), 0) AS avg_order_value_city
+FROM city_month
+GROUP BY 1
+ORDER BY avg_monthly_revenue_city DESC;
+
+Lectura ejecutiva (respaldada por datos de los últimos 6 meses analizados)
+- Las Vegas destaca: mayor volumen de leads y mejor conversión (23.1%; 2,526 cierres). Ceteris paribus, debería sostener el PMI más alto. Recomendación: reforzar inversión y documentar/replicar su playbook.
+- San Diego y Denver: buen volumen pero conversión baja (9.79% y 5.85%). Aun con ticket alto, su PMI probablemente está por debajo del potencial. Optimizar el funnel puede elevar el revenue mensual sin subir presupuesto.
+- Phoenix intermedio (7.63%). Santa Clara bajo (3.99%). Microciudades con 0% de cierre: drenan presupuesto y su aporte al PMI es nulo o marginal.
+
+Impacto potencial (estimación lineal, manteniendo leads constantes y mix/AOV estables)
+- San Diego a 12%: +104 cierres.
+- Denver a 8%: +92 cierres.
+- Phoenix a 10%: +42 cierres.
+- Santa Clara a 6%: +17 cierres.
+Nota: Si el mix cambia, el AOV podría variar; el impacto en PMI será proporcional al AOV efectivo de los cierres incrementales.
+
+Próximos pasos accionables
+- Ejecutar las consultas 1–3 sobre los últimos 6 meses completos para obtener:
+  - PMI total y por ciudad.
+  - AOV total y por ciudad (ponderado).
+  - Tendencia m/m para detectar aceleración o desaceleración.
+- Reasignación inmediata de presupuesto:
+  - Refuerzo en Las Vegas.
+  - Pausa/limitación en microciudades sin cierres.
+- Auditoría de funnel en San Diego y Denver:
+  - Revisar pre-calificación, mensajes, landings locales, ofertas y SLAs de ventas; lanzar A/B tests.
+- Gobernanza:
+  - Fijar objetivos de conversión por plaza y monitoreo semanal por cohortes para reasignación dinámica.
+
+Recomendaciones adicionales (accionables)
+- Definir propietario por KPI (PMI y AOV), umbrales de alerta y alertas automáticas cuando m/m caiga >X% o la conversión baje de meta por 2 semanas.
+- Incluir controles de calidad de datos en el pipeline: exclusión de reembolsos/cancelaciones, estandarización de moneda/impuestos y auditoría mensual de duplicados.
+
+Conclusión
+Con base en los últimos 6 meses, Las Vegas es el principal motor; San Diego y Denver concentran la mayor oportunidad de mejora de eficiencia. Ejecutar la reasignación de presupuesto y la optimización del funnel debería aumentar cierres y, si se mantiene el mix/AOV, elevar el promedio mensual de ingresos. Sugerencia táctica inmediata: correr la consulta por ciudad, reportar top/bottom 5 con variación m/m y usarlo en la reunión de planificación para mover presupuesto esta semana.
+
+Siguiente pregunta útil
+¿Quieres el KPI de “volumen de ventas promedio” como PMI, AOV o ambos, y sobre qué ventana (3, 6 o 12 meses)?
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate"",
+  ""columns"": [
+    ""city_clean"",
+    ""total_leads"",
+    ""total_conversions"",
+    ""closing_rate_pct""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_leads"": {
+      ""min"": 5.0,
+      ""max"": 10933.0,
+      ""mean"": 1158.4,
+      ""median"": 30.0,
+      ""std"": 2619.943,
+      ""type"": ""sum_total""
+    },
+    ""total_conversions"": {
+      ""min"": 0.0,
+      ""max"": 2526.0,
+      ""mean"": 170.35,
+      ""median"": 0.0,
+      ""std"": 552.0612,
+      ""type"": ""sum_total""
+    },
+    ""closing_rate_pct"": {
+      ""min"": 0.0,
+      ""max"": 23.1,
+      ""mean"": 2.518,
+      ""median"": 0.0,
+      ""std"": 5.5272,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+c2113548-f4b0-4a26-96ce-abe75cc0de1b,2025-10-18T03:41:07.577117+00:00,2025-10-18T03:43:33.107977+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2216,422,Muestra la tendencia mensual de ventas del último año por ciudad,"KPI: Volumen de ventas promedio (AOV) – estado actual
+
+Definición operativa
+- AOV = suma de ventas / número de ventas (fuente: clean.fct_sales).
+- Precisar alcance para consistencia: calcular sobre ventas netas cerradas, excluyendo impuestos, devoluciones y cancelaciones; confirmar que clean.fct_sales refleja este criterio.
+
+Cobertura y calidad de datos
+- 51% del monto vendido (≈20.5M) no tiene ciudad. Los resultados por ciudad se basan únicamente en el 49% con ubicación válida y pueden estar sesgados. No publicar rankings por ciudad como definitivos hasta completar/normalizar ubicaciones.
+
+Hallazgos clave (basados en registros con ciudad válida)
+- Motor de volumen: Las Vegas aporta ≈11.95M con 4,940 ventas; AOV ≈2.4k. Bajo el supuesto de volumen constante, un +10% en AOV añadiría ≈+1.2M en el periodo analizado.
+- Alto valor con baja frecuencia:
+  - Pahrump: AOV ≈14.9k con 39 ventas. Segmento premium; requiere ventas consultivas y financiación.
+  - North Las Vegas: AOV ≈4.36k con 272 ventas. Potencial para paquetes de mayor ticket.
+  - Henderson: AOV ≈3.30k con 707 ventas. Oportunidad de mix/upsell cuidando conversión.
+- Contribución media: Riverside, Temecula, Richardson y San Diego (≈0.44–1.21M de ingresos). Evaluar expansión solo si CAC/LTV y margen neto por orden son favorables.
+- Nota de calidad: las variantes de ciudad y el 51% sin ubicación pueden estar ocultando o inflando el desempeño real por plaza.
+
+Riesgos y sesgos de calidad
+- Variantes de ciudad: “Las Vegas/las vegas”, “North Las Vegas/N las vegas”, mayúsculas mixtas, y ZIPs incrustados fragmentan el desempeño.
+- AOV potencialmente inflado por outliers. Sin tamaño de muestra y dispersión por ciudad, las conclusiones pueden ser frágiles.
+
+Implicaciones de negocio
+- En el recorte actual, concentrar esfuerzos de incremento de ticket medio en Las Vegas tiene el mayor retorno inmediato.
+- Los mercados de alto AOV exigen narrativa de valor, opciones de financiación y SLAs diferenciados para sostener margen.
+- La higiene de ubicaciones es prioritaria: afecta territories, presupuestos de marketing y evaluación de desempeño.
+
+Recomendaciones accionables (priorizadas)
+1) Datos (1–2 semanas)
+- Normalizar ciudades: estandarizar mayúsculas, remover ZIP del campo ciudad, deduplicar y geocodificar para asignar un city_id único por municipio. Reagrupar ventas y recalcular AOV.
+- Gobernanza: crear dimensión maestra de ubicaciones y reglas de validación en ingestión para bloquear nuevas variantes.
+- Umbral de calidad: establecer SLA de “% ventas sin ciudad” <5% y alertas automáticas cuando se supere.
+
+2) Comercial/Producto (2–4 semanas)
+- Las Vegas: lanzar bundles y upsell en categorías de alta adopción (p. ej., mantenimiento + riego + fertilización) con anclaje de precios y cross-sell. Objetivo: +10–15% AOV en 90 días, monitoreando margen unitario.
+- Pahrump y North Las Vegas: ofertas premium con financiación promocional (APR bajo, pagos diferidos), argumentarios consultivos y garantías extendidas.
+
+3) Reporting/Control (1 semana)
+- Dashboard por ciudad con AOV, #ventas, ingresos, margen y dispersión (mediana e IQR y/o winsorización al 95–99%), además de alerta de “% ventas sin ciudad”.
+- Segmentación operable: etiquetas “Volumen” (alto #ventas, AOV medio) vs “Valor” (bajo #ventas, AOV alto) para playbooks y cuotas.
+- Transparencia temporal: indicar explícitamente el periodo del análisis en cada reporte para evaluar estacionalidad.
+
+Próximos pasos sugeridos
+- Ejecutar limpieza de ubicaciones y re-cálculo del KPI; compartir ranking actualizado y la tendencia 3–6 meses para validar estacionalidad.
+- Montar experimento A/B en Las Vegas con 2–3 bundles y reglas de upsell; medir impacto en AOV y margen, con tamaño de muestra suficiente para potencia estadística ≥80%.
+
+Siguiente pregunta útil
+- ¿Cuál es el mix de productos y canales que más contribuye al AOV y margen en Las Vegas, para priorizar las palancas con mayor lift esperado?
+
+Acción táctica inmediata
+- Estandarizar las variantes que refieren a la misma ciudad y mantener municipios distintos separados: mapear “Las Vegas/las vegas” a Las Vegas; “North Las Vegas/N las vegas” a North Las Vegas. Reatribuir ventas históricas, reemitir el AOV por ciudad con tamaños de muestra y mediana/IQR, y activar la alerta de “% ventas sin ciudad”.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+c2113548-f4b0-4a26-96ce-abe75cc0de1b,2025-10-18T03:41:07.577117+00:00,2025-10-18T03:43:33.107977+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2974,1185,Muestra la tendencia mensual de ventas del último año por ciudad,"KPI: Volumen de ventas promedio (AOV) – estado actual
+
+Definición operativa
+- AOV = suma de ventas / número de ventas (fuente: clean.fct_sales).
+- Precisar alcance para consistencia: calcular sobre ventas netas cerradas, excluyendo impuestos, devoluciones y cancelaciones; confirmar que clean.fct_sales refleja este criterio.
+
+Cobertura y calidad de datos
+- 51% del monto vendido (≈20.5M) no tiene ciudad. Los resultados por ciudad se basan únicamente en el 49% con ubicación válida y pueden estar sesgados. No publicar rankings por ciudad como definitivos hasta completar/normalizar ubicaciones.
+
+Hallazgos clave (basados en registros con ciudad válida)
+- Motor de volumen: Las Vegas aporta ≈11.95M con 4,940 ventas; AOV ≈2.4k. Bajo el supuesto de volumen constante, un +10% en AOV añadiría ≈+1.2M en el periodo analizado.
+- Alto valor con baja frecuencia:
+  - Pahrump: AOV ≈14.9k con 39 ventas. Segmento premium; requiere ventas consultivas y financiación.
+  - North Las Vegas: AOV ≈4.36k con 272 ventas. Potencial para paquetes de mayor ticket.
+  - Henderson: AOV ≈3.30k con 707 ventas. Oportunidad de mix/upsell cuidando conversión.
+- Contribución media: Riverside, Temecula, Richardson y San Diego (≈0.44–1.21M de ingresos). Evaluar expansión solo si CAC/LTV y margen neto por orden son favorables.
+- Nota de calidad: las variantes de ciudad y el 51% sin ubicación pueden estar ocultando o inflando el desempeño real por plaza.
+
+Riesgos y sesgos de calidad
+- Variantes de ciudad: “Las Vegas/las vegas”, “North Las Vegas/N las vegas”, mayúsculas mixtas, y ZIPs incrustados fragmentan el desempeño.
+- AOV potencialmente inflado por outliers. Sin tamaño de muestra y dispersión por ciudad, las conclusiones pueden ser frágiles.
+
+Implicaciones de negocio
+- En el recorte actual, concentrar esfuerzos de incremento de ticket medio en Las Vegas tiene el mayor retorno inmediato.
+- Los mercados de alto AOV exigen narrativa de valor, opciones de financiación y SLAs diferenciados para sostener margen.
+- La higiene de ubicaciones es prioritaria: afecta territories, presupuestos de marketing y evaluación de desempeño.
+
+Recomendaciones accionables (priorizadas)
+1) Datos (1–2 semanas)
+- Normalizar ciudades: estandarizar mayúsculas, remover ZIP del campo ciudad, deduplicar y geocodificar para asignar un city_id único por municipio. Reagrupar ventas y recalcular AOV.
+- Gobernanza: crear dimensión maestra de ubicaciones y reglas de validación en ingestión para bloquear nuevas variantes.
+- Umbral de calidad: establecer SLA de “% ventas sin ciudad” <5% y alertas automáticas cuando se supere.
+
+2) Comercial/Producto (2–4 semanas)
+- Las Vegas: lanzar bundles y upsell en categorías de alta adopción (p. ej., mantenimiento + riego + fertilización) con anclaje de precios y cross-sell. Objetivo: +10–15% AOV en 90 días, monitoreando margen unitario.
+- Pahrump y North Las Vegas: ofertas premium con financiación promocional (APR bajo, pagos diferidos), argumentarios consultivos y garantías extendidas.
+
+3) Reporting/Control (1 semana)
+- Dashboard por ciudad con AOV, #ventas, ingresos, margen y dispersión (mediana e IQR y/o winsorización al 95–99%), además de alerta de “% ventas sin ciudad”.
+- Segmentación operable: etiquetas “Volumen” (alto #ventas, AOV medio) vs “Valor” (bajo #ventas, AOV alto) para playbooks y cuotas.
+- Transparencia temporal: indicar explícitamente el periodo del análisis en cada reporte para evaluar estacionalidad.
+
+Próximos pasos sugeridos
+- Ejecutar limpieza de ubicaciones y re-cálculo del KPI; compartir ranking actualizado y la tendencia 3–6 meses para validar estacionalidad.
+- Montar experimento A/B en Las Vegas con 2–3 bundles y reglas de upsell; medir impacto en AOV y margen, con tamaño de muestra suficiente para potencia estadística ≥80%.
+
+Siguiente pregunta útil
+- ¿Cuál es el mix de productos y canales que más contribuye al AOV y margen en Las Vegas, para priorizar las palancas con mayor lift esperado?
+
+Acción táctica inmediata
+- Estandarizar las variantes que refieren a la misma ciudad y mantener municipios distintos separados: mapear “Las Vegas/las vegas” a Las Vegas; “North Las Vegas/N las vegas” a North Las Vegas. Reatribuir ventas históricas, reemitir el AOV por ciudad con tamaños de muestra y mediana/IQR, y activar la alerta de “% ventas sin ciudad”.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+044551d4-f1db-499f-b59c-01fff7fffcb7,2025-10-18T03:44:09.023197+00:00,2025-10-18T03:45:41.943333+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2392,724,Cuál es el promedio global de ventas registradas (kpi_avg_sales_volume_global),1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume"",
+  ""columns"": [
+    ""city"",
+    ""n_sales"",
+    ""total_sales"",
+    ""avg_sale_volume"",
+    ""median_sale_volume"",
+    ""std_sale_volume""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""n_sales"": {
+      ""min"": 1.0,
+      ""max"": 3368.0,
+      ""mean"": 188.05,
+      ""median"": 3.0,
+      ""std"": 731.8778,
+      ""type"": ""generic""
+    },
+    ""total_sales"": {
+      ""min"": 3748.18,
+      ""max"": 20537788.73,
+      ""mean"": 1151531.2355,
+      ""median"": 30732.295,
+      ""std"": 4455842.5953,
+      ""type"": ""sum_total""
+    },
+    ""avg_sale_volume"": {
+      ""min"": 3748.18,
+      ""max"": 73276.4,
+      ""mean"": 13972.0005,
+      ""median"": 7198.4129,
+      ""std"": 16144.2786,
+      ""type"": ""average""
+    },
+    ""median_sale_volume"": {
+      ""min"": 663.64,
+      ""max"": 73276.4,
+      ""mean"": 13225.928,
+      ""median"": 7009.72,
+      ""std"": 18262.1272,
+      ""type"": ""generic""
+    },
+    ""std_sale_volume"": {
+      ""min"": 0.0,
+      ""max"": 24259.0599,
+      ""mean"": 5087.4378,
+      ""median"": 3414.1785,
+      ""std"": 6503.392,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+044551d4-f1db-499f-b59c-01fff7fffcb7,2025-10-18T03:44:09.023197+00:00,2025-10-18T03:45:41.943333+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2996,1134,Cuál es el promedio global de ventas registradas (kpi_avg_sales_volume_global),1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume"",
+  ""columns"": [
+    ""city"",
+    ""n_sales"",
+    ""total_sales"",
+    ""avg_sale_volume"",
+    ""median_sale_volume"",
+    ""std_sale_volume""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""n_sales"": {
+      ""min"": 1.0,
+      ""max"": 3368.0,
+      ""mean"": 188.05,
+      ""median"": 3.0,
+      ""std"": 731.8778,
+      ""type"": ""generic""
+    },
+    ""total_sales"": {
+      ""min"": 3748.18,
+      ""max"": 20537788.73,
+      ""mean"": 1151531.2355,
+      ""median"": 30732.295,
+      ""std"": 4455842.5953,
+      ""type"": ""sum_total""
+    },
+    ""avg_sale_volume"": {
+      ""min"": 3748.18,
+      ""max"": 73276.4,
+      ""mean"": 13972.0005,
+      ""median"": 7198.4129,
+      ""std"": 16144.2786,
+      ""type"": ""average""
+    },
+    ""median_sale_volume"": {
+      ""min"": 663.64,
+      ""max"": 73276.4,
+      ""mean"": 13225.928,
+      ""median"": 7009.72,
+      ""std"": 18262.1272,
+      ""type"": ""generic""
+    },
+    ""std_sale_volume"": {
+      ""min"": 0.0,
+      ""max"": 24259.0599,
+      ""mean"": 5087.4378,
+      ""median"": 3414.1785,
+      ""std"": 6503.392,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+b8829844-f4f2-4600-ad1a-7b21b19daf01,2025-10-18T03:46:18.296018+00:00,2025-10-18T03:48:31.903938+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2425,766,Qué muestran los benchmarks de la industria de Landscaping en ventas y ticket promedio,"KPI solicitado: Volumen de ventas promedio
+
+Resumen ejecutivo
+- Conclusión basada en datos: con ventas totales -0.02% interanual y ticket medio +2.4% interanual, el volumen promedio de órdenes cae aproximadamente -2.4% interanual (descomposición nominal: Ventas ≈ Precio × Volumen). El crecimiento real del ticket es levemente negativo (~-0.5% vs inflación 2.95%), lo que aumenta la sensibilidad al precio y presiona márgenes.
+- Supuestos y validación: la estimación de volumen asume mix de servicios estable. Recomendado contrastar con el KPI de “órdenes completadas por día” (ver consultas) para confirmar la magnitud y detectar cambios de mix.
+
+Qué medimos y por qué
+- KPI 1 (actividad): Volumen promedio de órdenes = promedio diario de trabajos/órdenes completados.
+- KPI 2 (monetario): Volumen promedio de ingresos = promedio diario de ventas netas efectivamente cobradas.
+- Periodicidad sugerida: comparar últimos 30 días completos vs 30 días previos y vs el mismo periodo del año anterior para controlar estacionalidad. Incluir días calendario (con ceros) para evitar sesgos; opcionalmente reportar también por día hábil.
+
+Lectura actual (al 10/10/2025, según resumen disponible)
+- Ventas totales: -0.02% YoY (planas).
+- Ticket medio: +2.4% YoY (< inflación 2.95%), lo que sugiere contracción de volúmenes.
+- Implicación: con precio +2.4% y ventas -0.02%, el volumen promedio de órdenes cae ≈ -2.4% YoY.
+- Riesgo: presión sobre márgenes laborales y mayor sensibilidad al precio; ticket real ~-0.5%.
+
+Recomendaciones accionables para levantar volumen promedio
+- Comercial
+  - Paquetes estacionales y cross/upsell (ej.: limpieza de otoño + fertilización con 10–15% en bundle).
+  - Reactivación de cartera: SMS/email a leads inactivos 90–180 días con oferta limitada y escasez de agenda.
+  - NUEVA: Rescate de cotizaciones abiertas (<30 días) con seguimiento 1–2–5 días y pequeña bonificación por cierre anticipado.
+- Pricing
+  - Pausar alzas generalizadas; usar descuentos condicionados (suscripciones trimestrales/anuales).
+  - Test A/B de elasticidad por servicio y zona; fijar tope de descuento por margen objetivo por servicio.
+- Canales
+  - Refuerzo digital (Google Local/LSAs) en ZIPs rentables; alianzas B2B con constructoras/HOAs.
+  - NUEVA: Oferta “off-peak” (-10% en franjas martes–miércoles) para llenar capacidad valle sin añadir headcount.
+- Operaciones
+  - Ajustar inventario y capacidad a picos; optimizar rutas/turnos para aumentar slots diarios.
+  - Automatizar tareas intensivas en mano de obra cuando sea posible.
+- Monitoreo
+  - Tablero semanal con: órdenes/día, ventas/día, margen por servicio, conversión lead→trabajo, churn y mix por servicio/ZIP. Alertas si volumen cae >2% WoW o margen < objetivo.
+
+Cómo obtener el KPI desde el esquema clean (últimos 30 días completos, vs previos y vs LY)
+Nota técnica para precisión:
+- Usar días calendario con “date spine” para contar días sin ventas/órdenes.
+- Medir “últimos 30 días completos” excluyendo el día en curso.
+- Ajustar zona horaria de la empresa al truncar fechas.
+
+Volumen de ingresos promedio (neto cobrado)
+with params as (
+  select
+    current_date - interval '1 day' as window_end,                 -- ayer
+    current_date - interval '30 days' as w30_start_inclusive,      -- últimos 30 días completos
+    current_date - interval '60 days' as p30_start_inclusive       -- 30 días previos
+),
+date_spine as (
+  select gs::date as d
+  from params p,
+  generate_series(p.p30_start_inclusive, p.window_end, interval '1 day') gs
+),
+daily_sales as (
+  select order_date::date as d, sum(net_amount) as daily_net_sales
+  from clean.fct_sales
+  where order_status = 'paid'
+    and order_date::date between (select p30_start_inclusive from params) and (select window_end from params)
+  group by 1
+),
+joined as (
+  select s.d, coalesce(ds.daily_net_sales, 0) as daily_net_sales
+  from date_spine s
+  left join daily_sales ds on ds.d = s.d
+)
+select 'L30D' as ventana, sum(daily_net_sales)::numeric / 30 as avg_sales_per_day
+from joined
+where d between (select w30_start_inclusive from params) and (select window_end from params)
+union all
+select 'P30D', sum(daily_net_sales)::numeric / 30
+from joined
+where d between (select p30_start_inclusive from params) and (select w30_start_inclusive from params) - interval '1 day'
+;
+
+-- YoY del mismo periodo (30 días completos vs 30 días de hace 1 año)
+with params as (
+  select
+    current_date - interval '1 day' as window_end,
+    current_date - interval '30 days' as w30_start_inclusive,
+    (current_date - interval '1 year') - interval '1 day' as ly_window_end,
+    (current_date - interval '1 year') - interval '30 days' as ly_w30_start_inclusive
+),
+date_spine as (
+  select gs::date as d
+  from params p,
+  generate_series(p.ly_w30_start_inclusive, p.window_end, interval '1 day') gs
+),
+daily_sales as (
+  select order_date::date as d, sum(net_amount) as daily_net_sales
+  from clean.fct_sales
+  where order_status = 'paid'
+    and order_date::date between (select ly_w30_start_inclusive from params) and (select window_end from params)
+  group by 1
+),
+joined as (
+  select s.d, coalesce(ds.daily_net_sales, 0) as daily_net_sales
+  from date_spine s
+  left join daily_sales ds on ds.d = s.d
+)
+select
+  'YoY_L30D' as comp,
+  (
+    select sum(daily_net_sales)::numeric
+    from joined
+    where d between (select w30_start_inclusive from params) and (select window_end from params)
+  )
+  /
+  nullif((
+    select sum(daily_net_sales)::numeric
+    from joined
+    where d between (select ly_w30_start_inclusive from params) and (select ly_window_end from params)
+  ), 0) - 1 as yoy_change
+;
+
+Volumen promedio de órdenes (trabajos completados por día)
+with params as (
+  select
+    current_date - interval '1 day' as window_end,
+    current_date - interval '30 days' as w30_start_inclusive,
+    current_date - interval '60 days' as p30_start_inclusive,
+    (current_date - interval '1 year') - interval '1 day' as ly_window_end,
+    (current_date - interval '1 year') - interval '30 days' as ly_w30_start_inclusive
+),
+date_spine as (
+  select gs::date as d
+  from params p,
+  generate_series(p.p30_start_inclusive, p.window_end, interval '1 day') gs
+),
+daily_jobs as (
+  select completed_at::date as d, count(*) as daily_jobs
+  from clean.fct_housecallpro_jobs
+  where job_status = 'completed'
+    and completed_at::date between (select p30_start_inclusive from params) and (select window_end from params)
+  group by 1
+),
+joined as (
+  select s.d, coalesce(dj.daily_jobs, 0) as daily_jobs
+  from date_spine s
+  left join daily_jobs dj on dj.d = s.d
+)
+select 'L30D' as ventana, sum(daily_jobs)::numeric / 30 as avg_jobs_per_day
+from joined
+where d between (select w30_start_inclusive from params) and (select window_end from params)
+union all
+select 'P30D', sum(daily_jobs)::numeric / 30
+from joined
+where d between (select p30_start_inclusive from params) and (select w30_start_inclusive from params) - interval '1 day'
+union all
+select 'YoY_L30D',
+(
+  (
+    select sum(daily_jobs)::numeric
+    from joined
+    where d between (select w30_start_inclusive from params) and (select window_end from params)
+  )
+  /
+  nullif((
+    select sum(coalesce(dj2.daily_jobs,0))::numeric
+    from (
+      select gs::date as d
+      from params p,
+      generate_series(p.ly_w30_start_inclusive, p.ly_window_end, interval '1 day') gs
+    ) spine2
+    left join (
+      select completed_at::date as d, count(*) as daily_jobs
+      from clean.fct_housecallpro_jobs
+      where job_status = 'completed'
+        and completed_at::date between (select ly_w30_start_inclusive from params) and (select ly_window_end from params)
+      group by 1
+    ) dj2 on dj2.d = spine2.d
+  ), 0)
+) - 1
+;
+
+Qué vigilar en el corto plazo
+- Confirmación de volumen: validar que “órdenes completadas por día” caen en el rango -2% a -3% YoY; investigar mix si la brecha vs -2.4% es >1 p.p.
+- Outliers: servicios con mayor caída de órdenes, ZIPs con peores tasas de conversión, equipos con ociosidad >15%.
+- Señales de margen: caída de margen por servicio tras descuentos; activar límites por margen objetivo.
+
+Siguiente pregunta útil
+- ¿Qué servicios, ZIPs y fuentes de lead explican la caída del volumen promedio, y dónde observamos mejor respuesta a descuentos y bundles?
+
+Acción táctica inmediata
+- En 7 días: campaña de reactivación a leads inactivos con paquete estacional (limpieza + mulch) -10% y ventanas de agenda prioritaria; medir lift en volumen diario, tasa de conversión y margen por servicio.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume"",
+  ""columns"": [
+    ""city"",
+    ""n_sales"",
+    ""total_sales"",
+    ""avg_sale_volume"",
+    ""median_sale_volume"",
+    ""std_sale_volume""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""n_sales"": {
+      ""min"": 1.0,
+      ""max"": 3368.0,
+      ""mean"": 188.05,
+      ""median"": 3.0,
+      ""std"": 731.8778,
+      ""type"": ""generic""
+    },
+    ""total_sales"": {
+      ""min"": 3748.18,
+      ""max"": 20537788.73,
+      ""mean"": 1151531.2355,
+      ""median"": 30732.295,
+      ""std"": 4455842.5953,
+      ""type"": ""sum_total""
+    },
+    ""avg_sale_volume"": {
+      ""min"": 3748.18,
+      ""max"": 73276.4,
+      ""mean"": 13972.0005,
+      ""median"": 7198.4129,
+      ""std"": 16144.2786,
+      ""type"": ""average""
+    },
+    ""median_sale_volume"": {
+      ""min"": 663.64,
+      ""max"": 73276.4,
+      ""mean"": 13225.928,
+      ""median"": 7009.72,
+      ""std"": 18262.1272,
+      ""type"": ""generic""
+    },
+    ""std_sale_volume"": {
+      ""min"": 0.0,
+      ""max"": 24259.0599,
+      ""mean"": 5087.4378,
+      ""median"": 3414.1785,
+      ""std"": 6503.392,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+b8829844-f4f2-4600-ad1a-7b21b19daf01,2025-10-18T03:46:18.296018+00:00,2025-10-18T03:48:31.903938+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2669,741,Qué muestran los benchmarks de la industria de Landscaping en ventas y ticket promedio,"KPI solicitado: Volumen de ventas promedio
+
+Resumen ejecutivo
+- Conclusión basada en datos: con ventas totales -0.02% interanual y ticket medio +2.4% interanual, el volumen promedio de órdenes cae aproximadamente -2.4% interanual (descomposición nominal: Ventas ≈ Precio × Volumen). El crecimiento real del ticket es levemente negativo (~-0.5% vs inflación 2.95%), lo que aumenta la sensibilidad al precio y presiona márgenes.
+- Supuestos y validación: la estimación de volumen asume mix de servicios estable. Recomendado contrastar con el KPI de “órdenes completadas por día” (ver consultas) para confirmar la magnitud y detectar cambios de mix.
+
+Qué medimos y por qué
+- KPI 1 (actividad): Volumen promedio de órdenes = promedio diario de trabajos/órdenes completados.
+- KPI 2 (monetario): Volumen promedio de ingresos = promedio diario de ventas netas efectivamente cobradas.
+- Periodicidad sugerida: comparar últimos 30 días completos vs 30 días previos y vs el mismo periodo del año anterior para controlar estacionalidad. Incluir días calendario (con ceros) para evitar sesgos; opcionalmente reportar también por día hábil.
+
+Lectura actual (al 10/10/2025, según resumen disponible)
+- Ventas totales: -0.02% YoY (planas).
+- Ticket medio: +2.4% YoY (< inflación 2.95%), lo que sugiere contracción de volúmenes.
+- Implicación: con precio +2.4% y ventas -0.02%, el volumen promedio de órdenes cae ≈ -2.4% YoY.
+- Riesgo: presión sobre márgenes laborales y mayor sensibilidad al precio; ticket real ~-0.5%.
+
+Recomendaciones accionables para levantar volumen promedio
+- Comercial
+  - Paquetes estacionales y cross/upsell (ej.: limpieza de otoño + fertilización con 10–15% en bundle).
+  - Reactivación de cartera: SMS/email a leads inactivos 90–180 días con oferta limitada y escasez de agenda.
+  - NUEVA: Rescate de cotizaciones abiertas (<30 días) con seguimiento 1–2–5 días y pequeña bonificación por cierre anticipado.
+- Pricing
+  - Pausar alzas generalizadas; usar descuentos condicionados (suscripciones trimestrales/anuales).
+  - Test A/B de elasticidad por servicio y zona; fijar tope de descuento por margen objetivo por servicio.
+- Canales
+  - Refuerzo digital (Google Local/LSAs) en ZIPs rentables; alianzas B2B con constructoras/HOAs.
+  - NUEVA: Oferta “off-peak” (-10% en franjas martes–miércoles) para llenar capacidad valle sin añadir headcount.
+- Operaciones
+  - Ajustar inventario y capacidad a picos; optimizar rutas/turnos para aumentar slots diarios.
+  - Automatizar tareas intensivas en mano de obra cuando sea posible.
+- Monitoreo
+  - Tablero semanal con: órdenes/día, ventas/día, margen por servicio, conversión lead→trabajo, churn y mix por servicio/ZIP. Alertas si volumen cae >2% WoW o margen < objetivo.
+
+Cómo obtener el KPI desde el esquema clean (últimos 30 días completos, vs previos y vs LY)
+Nota técnica para precisión:
+- Usar días calendario con “date spine” para contar días sin ventas/órdenes.
+- Medir “últimos 30 días completos” excluyendo el día en curso.
+- Ajustar zona horaria de la empresa al truncar fechas.
+
+Volumen de ingresos promedio (neto cobrado)
+with params as (
+  select
+    current_date - interval '1 day' as window_end,                 -- ayer
+    current_date - interval '30 days' as w30_start_inclusive,      -- últimos 30 días completos
+    current_date - interval '60 days' as p30_start_inclusive       -- 30 días previos
+),
+date_spine as (
+  select gs::date as d
+  from params p,
+  generate_series(p.p30_start_inclusive, p.window_end, interval '1 day') gs
+),
+daily_sales as (
+  select order_date::date as d, sum(net_amount) as daily_net_sales
+  from clean.fct_sales
+  where order_status = 'paid'
+    and order_date::date between (select p30_start_inclusive from params) and (select window_end from params)
+  group by 1
+),
+joined as (
+  select s.d, coalesce(ds.daily_net_sales, 0) as daily_net_sales
+  from date_spine s
+  left join daily_sales ds on ds.d = s.d
+)
+select 'L30D' as ventana, sum(daily_net_sales)::numeric / 30 as avg_sales_per_day
+from joined
+where d between (select w30_start_inclusive from params) and (select window_end from params)
+union all
+select 'P30D', sum(daily_net_sales)::numeric / 30
+from joined
+where d between (select p30_start_inclusive from params) and (select w30_start_inclusive from params) - interval '1 day'
+;
+
+-- YoY del mismo periodo (30 días completos vs 30 días de hace 1 año)
+with params as (
+  select
+    current_date - interval '1 day' as window_end,
+    current_date - interval '30 days' as w30_start_inclusive,
+    (current_date - interval '1 year') - interval '1 day' as ly_window_end,
+    (current_date - interval '1 year') - interval '30 days' as ly_w30_start_inclusive
+),
+date_spine as (
+  select gs::date as d
+  from params p,
+  generate_series(p.ly_w30_start_inclusive, p.window_end, interval '1 day') gs
+),
+daily_sales as (
+  select order_date::date as d, sum(net_amount) as daily_net_sales
+  from clean.fct_sales
+  where order_status = 'paid'
+    and order_date::date between (select ly_w30_start_inclusive from params) and (select window_end from params)
+  group by 1
+),
+joined as (
+  select s.d, coalesce(ds.daily_net_sales, 0) as daily_net_sales
+  from date_spine s
+  left join daily_sales ds on ds.d = s.d
+)
+select
+  'YoY_L30D' as comp,
+  (
+    select sum(daily_net_sales)::numeric
+    from joined
+    where d between (select w30_start_inclusive from params) and (select window_end from params)
+  )
+  /
+  nullif((
+    select sum(daily_net_sales)::numeric
+    from joined
+    where d between (select ly_w30_start_inclusive from params) and (select ly_window_end from params)
+  ), 0) - 1 as yoy_change
+;
+
+Volumen promedio de órdenes (trabajos completados por día)
+with params as (
+  select
+    current_date - interval '1 day' as window_end,
+    current_date - interval '30 days' as w30_start_inclusive,
+    current_date - interval '60 days' as p30_start_inclusive,
+    (current_date - interval '1 year') - interval '1 day' as ly_window_end,
+    (current_date - interval '1 year') - interval '30 days' as ly_w30_start_inclusive
+),
+date_spine as (
+  select gs::date as d
+  from params p,
+  generate_series(p.p30_start_inclusive, p.window_end, interval '1 day') gs
+),
+daily_jobs as (
+  select completed_at::date as d, count(*) as daily_jobs
+  from clean.fct_housecallpro_jobs
+  where job_status = 'completed'
+    and completed_at::date between (select p30_start_inclusive from params) and (select window_end from params)
+  group by 1
+),
+joined as (
+  select s.d, coalesce(dj.daily_jobs, 0) as daily_jobs
+  from date_spine s
+  left join daily_jobs dj on dj.d = s.d
+)
+select 'L30D' as ventana, sum(daily_jobs)::numeric / 30 as avg_jobs_per_day
+from joined
+where d between (select w30_start_inclusive from params) and (select window_end from params)
+union all
+select 'P30D', sum(daily_jobs)::numeric / 30
+from joined
+where d between (select p30_start_inclusive from params) and (select w30_start_inclusive from params) - interval '1 day'
+union all
+select 'YoY_L30D',
+(
+  (
+    select sum(daily_jobs)::numeric
+    from joined
+    where d between (select w30_start_inclusive from params) and (select window_end from params)
+  )
+  /
+  nullif((
+    select sum(coalesce(dj2.daily_jobs,0))::numeric
+    from (
+      select gs::date as d
+      from params p,
+      generate_series(p.ly_w30_start_inclusive, p.ly_window_end, interval '1 day') gs
+    ) spine2
+    left join (
+      select completed_at::date as d, count(*) as daily_jobs
+      from clean.fct_housecallpro_jobs
+      where job_status = 'completed'
+        and completed_at::date between (select ly_w30_start_inclusive from params) and (select ly_window_end from params)
+      group by 1
+    ) dj2 on dj2.d = spine2.d
+  ), 0)
+) - 1
+;
+
+Qué vigilar en el corto plazo
+- Confirmación de volumen: validar que “órdenes completadas por día” caen en el rango -2% a -3% YoY; investigar mix si la brecha vs -2.4% es >1 p.p.
+- Outliers: servicios con mayor caída de órdenes, ZIPs con peores tasas de conversión, equipos con ociosidad >15%.
+- Señales de margen: caída de margen por servicio tras descuentos; activar límites por margen objetivo.
+
+Siguiente pregunta útil
+- ¿Qué servicios, ZIPs y fuentes de lead explican la caída del volumen promedio, y dónde observamos mejor respuesta a descuentos y bundles?
+
+Acción táctica inmediata
+- En 7 días: campaña de reactivación a leads inactivos con paquete estacional (limpieza + mulch) -10% y ventanas de agenda prioritaria; medir lift en volumen diario, tasa de conversión y margen por servicio.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume"",
+  ""columns"": [
+    ""city"",
+    ""n_sales"",
+    ""total_sales"",
+    ""avg_sale_volume"",
+    ""median_sale_volume"",
+    ""std_sale_volume""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""n_sales"": {
+      ""min"": 1.0,
+      ""max"": 3368.0,
+      ""mean"": 188.05,
+      ""median"": 3.0,
+      ""std"": 731.8778,
+      ""type"": ""generic""
+    },
+    ""total_sales"": {
+      ""min"": 3748.18,
+      ""max"": 20537788.73,
+      ""mean"": 1151531.2355,
+      ""median"": 30732.295,
+      ""std"": 4455842.5953,
+      ""type"": ""sum_total""
+    },
+    ""avg_sale_volume"": {
+      ""min"": 3748.18,
+      ""max"": 73276.4,
+      ""mean"": 13972.0005,
+      ""median"": 7198.4129,
+      ""std"": 16144.2786,
+      ""type"": ""average""
+    },
+    ""median_sale_volume"": {
+      ""min"": 663.64,
+      ""max"": 73276.4,
+      ""mean"": 13225.928,
+      ""median"": 7009.72,
+      ""std"": 18262.1272,
+      ""type"": ""generic""
+    },
+    ""std_sale_volume"": {
+      ""min"": 0.0,
+      ""max"": 24259.0599,
+      ""mean"": 5087.4378,
+      ""median"": 3414.1785,
+      ""std"": 6503.392,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+a2bb8b68-bfd7-487d-b990-9db94f2b5778,2025-10-18T03:49:08.036290+00:00,2025-10-18T03:50:48.444503+00:00,execution_accuracy,correct,1.0,La diferencia entre los valores es menor al 20%.,2603,808,Cuál es el KPI de ventas totales agrupadas por ciudad según la vista ai.kpi_sales_volume_by_city,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+a2bb8b68-bfd7-487d-b990-9db94f2b5778,2025-10-18T03:49:08.036290+00:00,2025-10-18T03:50:48.444503+00:00,kpi_correctness,correct,1.0,La diferencia es menor al 20%.,1647,379,Cuál es el KPI de ventas totales agrupadas por ciudad según la vista ai.kpi_sales_volume_by_city,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
