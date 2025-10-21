@@ -1,0 +1,153 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+24eecd3e-3392-4672-9d37-acf46132e6dc,2025-10-21T07:12:00.977157+00:00,2025-10-21T07:14:22.807166+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2470,540,¿Cuál es el closing rate global de RocknBlock?,"KPI: Volumen de ventas promedio (avg_sale_volume) — Resumen ejecutivo
+
+Conclusión validada
+- La concentración es alta y está impulsada por un outlier: Fridley (~73.3k) aporta ~33% del total; junto con Paramus (~36.2k) y Paradise (~31.9k) conforma un Top 3 que concentra ~63.6% del volumen. La distribución es sesgada (media ~22.2k vs mediana ~13.8k; 6 de 10 ciudades <15k).
+- Hay riesgo de sesgo por calidad de datos: duplicidades/variantes de ubicación (Henderson, Pahrump, Paramus, “N las vegas”) pueden fragmentar el desempeño y alterar el ranking.
+- Implicación: el rendimiento agregado depende desproporcionadamente de pocos mercados y puede estar sub o sobre-estimado por issues de normalización. Hasta limpiar ubicaciones y añadir contexto de dispersión/volumen, los rankings deben considerarse provisionales.
+
+Hallazgos clave
+- Outlier y concentración: Fridley duplica a Paramus (36.2k) y Paradise (31.9k). Top 3 ≈ 63.6% del total; concentración elevada para decisiones de asignación de recursos.
+- Sesgo de distribución: la brecha media–mediana y la mayoría de ciudades por debajo de 15k indican cola larga; el promedio puede estar influido por pocos tickets atípicos.
+- Riesgo de dato: variantes de nombres y posibles duplicados de ubicación afectan la comparabilidad entre ciudades.
+
+Implicaciones para el negocio
+- Dependencia de pocos mercados: una desaceleración en Fridley tendría impacto desproporcionado; conviene diversificar fuera del Top 3.
+- Subvaloración potencial de Henderson/Pahrump por fragmentación de nombres; la “cola” puede estar parcialmente inflada/deflactada por errores de ubicación.
+- Sin tamaño de muestra ni dispersión, un “promedio alto” puede ocultar volatilidad o atipicidad; se requiere contexto para priorizar bien.
+
+Acciones inmediatas (priorizadas)
+1) Higiene de datos (quick win)
+- Normalizar ubicaciones en clean: estandarizar mayúsculas, eliminar ZIP, mapear variantes (“N las vegas” → “North Las Vegas”) y generar un ID único (geocodificación + reglas de concordancia).
+- Crear dimensión maestra de ubicaciones y reglas de validación en la ingestión.
+- Recalcular avg_sale_volume tras la normalización; comparar cambios en ranking, participación del Top 3 y dispersión.
+
+2) Añadir contexto operativo al KPI
+- Para cada ciudad: incluir n de transacciones, mediana, P90 y tendencia 3–6 meses; reportar desviación o IQR.
+- Definir umbral mínimo de n para aparecer en el ranking; anotar unidad (USD) y nivel de agregación (por venta/período).
+
+3) Replicar lo que funciona en Fridley
+- Analizar drivers en clean:
+  - Mix y ticket: clean.fct_sales (categoría/servicio, ticket promedio, descuentos).
+  - Demanda y conversión: clean.dim_leads (fuente del lead, tasa lead→venta por ciudad).
+  - Ejecución/capacidad: clean.fct_housecallpro_jobs (tiempos, cancelaciones) y clean.dim_housecallpro_employees (cuadrillas activas).
+- Construir un “playbook Fridley” y pilotear en Paramus y Paradise con metas de +10–15% en 6–8 semanas.
+
+4) Gestionar la cola (<15k)
+- Ajustar mix/promos y pricing para elevar ticket sin fricción.
+- Verificar capacidad: si hay backlog, reforzar cuadrillas/turnos; si falta demanda, redirigir presupuesto a fuentes de leads con mejor CPA/ROAS local.
+
+Recomendaciones adicionales accionables
+- Estabilizar el KPI con métricas robustas: publicar por defecto mediana y P90 junto al promedio; winsorizar extremos si n < umbral.
+- Definir umbrales de alerta: concentración del Top 3 (>55%), n bajo, y tiempos de espera >3 días; activar revisiones y redistribución de presupuesto/capacidad cuando se crucen.
+
+Cómo lo mediremos (con datos del esquema clean)
+- Recalcular KPI por ciudad post-normalización en clean.fct_sales, agrupado por la nueva clave de ubicación.
+- Embudo por ciudad: leads (clean.dim_leads) → ventas (clean.fct_sales) → trabajos completados (clean.fct_housecallpro_jobs).
+- Capacidad/operación: trabajos por cuadrilla, días de espera, tasas de cancelación/reprogramación.
+- Éxito esperado: concentración del Top 3 <55%, P50 del avg_sale_volume +10%, conversión en Paramus/Paradise +3–5 pp, tiempo de espera <3 días en ciudades de la cola.
+
+Riesgos a monitorear
+- Cambios de ranking tras limpiar ubicaciones (Henderson/Pahrump podrían escalar).
+- Sesgos por bajo volumen y estacionalidad.
+- Promos sin capacidad suficiente elevan cancelaciones y erosionan NPS.
+
+Próximos pasos operativos
+- Semana 1: normalización de ubicaciones, dimensión maestra y validaciones; recalcular KPI y actualizar ranking con n, mediana y P90.
+- Semanas 2–3: deep dive Fridley y diseño del playbook; definir pilotos en Paramus/Paradise.
+- Semana 4: desplegar pilotos y ajustar staffing/agendamiento; tablero semanal de concentración, conversión y tiempos de espera.
+
+Siguiente pregunta útil
+- ¿Qué proporción de la ventaja de Fridley proviene de ticket promedio, mix de servicios o tasa de conversión de leads, y cuáles de esas palancas son replicables en Paramus/Paradise?
+
+Acción táctica inmediata
+- Ejecutar la normalización de ubicaciones en clean y publicar un reporte actualizado de avg_sale_volume por ciudad con n de transacciones, mediana y P90; usarlo para seleccionar 2 ciudades de la cola para una intervención rápida en mix/promos y capacidad.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate_global"",
+  ""columns"": [
+    ""total_conversions_global"",
+    ""total_leads_global"",
+    ""closing_rate_pct_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 12.05,
+  ""source_column"": ""closing_rate_pct_global""
+}"
+24eecd3e-3392-4672-9d37-acf46132e6dc,2025-10-21T07:12:00.977157+00:00,2025-10-21T07:14:22.807166+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2691,505,¿Cuál es el closing rate global de RocknBlock?,"KPI: Volumen de ventas promedio (avg_sale_volume) — Resumen ejecutivo
+
+Conclusión validada
+- La concentración es alta y está impulsada por un outlier: Fridley (~73.3k) aporta ~33% del total; junto con Paramus (~36.2k) y Paradise (~31.9k) conforma un Top 3 que concentra ~63.6% del volumen. La distribución es sesgada (media ~22.2k vs mediana ~13.8k; 6 de 10 ciudades <15k).
+- Hay riesgo de sesgo por calidad de datos: duplicidades/variantes de ubicación (Henderson, Pahrump, Paramus, “N las vegas”) pueden fragmentar el desempeño y alterar el ranking.
+- Implicación: el rendimiento agregado depende desproporcionadamente de pocos mercados y puede estar sub o sobre-estimado por issues de normalización. Hasta limpiar ubicaciones y añadir contexto de dispersión/volumen, los rankings deben considerarse provisionales.
+
+Hallazgos clave
+- Outlier y concentración: Fridley duplica a Paramus (36.2k) y Paradise (31.9k). Top 3 ≈ 63.6% del total; concentración elevada para decisiones de asignación de recursos.
+- Sesgo de distribución: la brecha media–mediana y la mayoría de ciudades por debajo de 15k indican cola larga; el promedio puede estar influido por pocos tickets atípicos.
+- Riesgo de dato: variantes de nombres y posibles duplicados de ubicación afectan la comparabilidad entre ciudades.
+
+Implicaciones para el negocio
+- Dependencia de pocos mercados: una desaceleración en Fridley tendría impacto desproporcionado; conviene diversificar fuera del Top 3.
+- Subvaloración potencial de Henderson/Pahrump por fragmentación de nombres; la “cola” puede estar parcialmente inflada/deflactada por errores de ubicación.
+- Sin tamaño de muestra ni dispersión, un “promedio alto” puede ocultar volatilidad o atipicidad; se requiere contexto para priorizar bien.
+
+Acciones inmediatas (priorizadas)
+1) Higiene de datos (quick win)
+- Normalizar ubicaciones en clean: estandarizar mayúsculas, eliminar ZIP, mapear variantes (“N las vegas” → “North Las Vegas”) y generar un ID único (geocodificación + reglas de concordancia).
+- Crear dimensión maestra de ubicaciones y reglas de validación en la ingestión.
+- Recalcular avg_sale_volume tras la normalización; comparar cambios en ranking, participación del Top 3 y dispersión.
+
+2) Añadir contexto operativo al KPI
+- Para cada ciudad: incluir n de transacciones, mediana, P90 y tendencia 3–6 meses; reportar desviación o IQR.
+- Definir umbral mínimo de n para aparecer en el ranking; anotar unidad (USD) y nivel de agregación (por venta/período).
+
+3) Replicar lo que funciona en Fridley
+- Analizar drivers en clean:
+  - Mix y ticket: clean.fct_sales (categoría/servicio, ticket promedio, descuentos).
+  - Demanda y conversión: clean.dim_leads (fuente del lead, tasa lead→venta por ciudad).
+  - Ejecución/capacidad: clean.fct_housecallpro_jobs (tiempos, cancelaciones) y clean.dim_housecallpro_employees (cuadrillas activas).
+- Construir un “playbook Fridley” y pilotear en Paramus y Paradise con metas de +10–15% en 6–8 semanas.
+
+4) Gestionar la cola (<15k)
+- Ajustar mix/promos y pricing para elevar ticket sin fricción.
+- Verificar capacidad: si hay backlog, reforzar cuadrillas/turnos; si falta demanda, redirigir presupuesto a fuentes de leads con mejor CPA/ROAS local.
+
+Recomendaciones adicionales accionables
+- Estabilizar el KPI con métricas robustas: publicar por defecto mediana y P90 junto al promedio; winsorizar extremos si n < umbral.
+- Definir umbrales de alerta: concentración del Top 3 (>55%), n bajo, y tiempos de espera >3 días; activar revisiones y redistribución de presupuesto/capacidad cuando se crucen.
+
+Cómo lo mediremos (con datos del esquema clean)
+- Recalcular KPI por ciudad post-normalización en clean.fct_sales, agrupado por la nueva clave de ubicación.
+- Embudo por ciudad: leads (clean.dim_leads) → ventas (clean.fct_sales) → trabajos completados (clean.fct_housecallpro_jobs).
+- Capacidad/operación: trabajos por cuadrilla, días de espera, tasas de cancelación/reprogramación.
+- Éxito esperado: concentración del Top 3 <55%, P50 del avg_sale_volume +10%, conversión en Paramus/Paradise +3–5 pp, tiempo de espera <3 días en ciudades de la cola.
+
+Riesgos a monitorear
+- Cambios de ranking tras limpiar ubicaciones (Henderson/Pahrump podrían escalar).
+- Sesgos por bajo volumen y estacionalidad.
+- Promos sin capacidad suficiente elevan cancelaciones y erosionan NPS.
+
+Próximos pasos operativos
+- Semana 1: normalización de ubicaciones, dimensión maestra y validaciones; recalcular KPI y actualizar ranking con n, mediana y P90.
+- Semanas 2–3: deep dive Fridley y diseño del playbook; definir pilotos en Paramus/Paradise.
+- Semana 4: desplegar pilotos y ajustar staffing/agendamiento; tablero semanal de concentración, conversión y tiempos de espera.
+
+Siguiente pregunta útil
+- ¿Qué proporción de la ventaja de Fridley proviene de ticket promedio, mix de servicios o tasa de conversión de leads, y cuáles de esas palancas son replicables en Paramus/Paradise?
+
+Acción táctica inmediata
+- Ejecutar la normalización de ubicaciones en clean y publicar un reporte actualizado de avg_sale_volume por ciudad con n de transacciones, mediana y P90; usarlo para seleccionar 2 ciudades de la cola para una intervención rápida en mix/promos y capacidad.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate_global"",
+  ""columns"": [
+    ""total_conversions_global"",
+    ""total_leads_global"",
+    ""closing_rate_pct_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 12.05,
+  ""source_column"": ""closing_rate_pct_global""
+}"

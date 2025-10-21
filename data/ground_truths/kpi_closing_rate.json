@@ -10,10 +10,10 @@
   "stats": {
     "total_leads": {
       "min": 5.0,
-      "max": 10933.0,
-      "mean": 1158.4,
-      "median": 30.0,
-      "std": 2619.943,
+      "max": 10984.0,
+      "mean": 1166.65,
+      "median": 27.0,
+      "std": 2634.8185,
       "type": "sum_total"
     },
     "total_conversions": {
@@ -26,10 +26,10 @@
     },
     "closing_rate_pct": {
       "min": 0.0,
-      "max": 23.1,
-      "mean": 2.518,
+      "max": 23.0,
+      "mean": 2.4915,
       "median": 0.0,
-      "std": 5.5272,
+      "std": 5.4902,
       "type": "generic"
     }
   },

@@ -1,0 +1,151 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+68177c5c-5b65-4dcb-b5b9-df636efbfb97,2025-10-21T07:44:59.019170+00:00,2025-10-21T07:46:53.398510+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2059,593,¿Cuál es el closing rate global de RocknBlock?,1141162.06,"{
+  ""kpi_name"": ""kpi_closing_rate_global"",
+  ""columns"": [
+    ""total_conversions_global"",
+    ""total_leads_global"",
+    ""closing_rate_pct_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 12.05,
+  ""source_column"": ""closing_rate_pct_global""
+}"
+68177c5c-5b65-4dcb-b5b9-df636efbfb97,2025-10-21T07:44:59.019170+00:00,2025-10-21T07:46:53.398510+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2276,614,¿Cuál es el closing rate global de RocknBlock?,1141162.06,"{
+  ""kpi_name"": ""kpi_closing_rate_global"",
+  ""columns"": [
+    ""total_conversions_global"",
+    ""total_leads_global"",
+    ""closing_rate_pct_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 12.05,
+  ""source_column"": ""closing_rate_pct_global""
+}"
+c5e25deb-f044-4310-a8ea-a81682aeb4e4,2025-10-21T07:47:30.045936+00:00,2025-10-21T07:49:14.997345+00:00,execution_accuracy,correct,1.0,La diferencia es menor al 20%.,1404,319,¿Cuál es el promedio global de ventas de RocknBlock?,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+c5e25deb-f044-4310-a8ea-a81682aeb4e4,2025-10-21T07:47:30.045936+00:00,2025-10-21T07:49:14.997345+00:00,kpi_correctness,correct,1.0,La diferencia entre la respuesta del modelo y el valor de referencia es menor al 20%.,1766,319,¿Cuál es el promedio global de ventas de RocknBlock?,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+306686a6-3d3b-4080-a1df-c84e3aa49039,2025-10-21T07:49:48.290554+00:00,2025-10-21T07:51:57.673387+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2363,926,¿Cuáles son los benchmarks de crecimiento de PIB en la industria de landscaping?,"KPI: Volumen de ventas promedio por ciudad
+- Promedio muestral ≈ 22.2k; mediana ≈ 13.8k.
+- Top 3: Fridley 73.3k; Paramus 36.2k; Paradise 31.9k.
+
+Hallazgos clave
+- Alta concentración: Fridley es 3.3x el promedio y 5.3x la mediana, señal de dependencia en pocos mercados.
+- Asimetría: Paramus y Paradise también están muy por encima del promedio.
+- Posible clúster en Nevada: Paradise, Henderson, North Las Vegas y Mountain Springs sugieren un mercado integrado en el área de Las Vegas.
+
+Riesgos de calidad de datos e impacto potencial
+- Duplicados/variantes no estandarizadas: “Pahrump” vs “pahrump”; “Henderson, NV. 89012” vs “henderson”; “paramus” en minúsculas; “N las vegas” abreviado.
+- Efecto de consolidación:
+  - Henderson ≈ 20.76k + 7.25k = 28.01k.
+  - Pahrump ≈ 14.91k + 12.70k = 27.61k.
+  - Área Las Vegas (Paradise + North Las Vegas + Mountain Springs + Henderson consolidado) ≈ 76.6k, potencialmente por encima de Fridley (73.3k), lo que alteraría el ranking.
+- Falta el número de transacciones por ciudad: un promedio alto con N bajo es volátil y puede inducir a conclusiones erróneas.
+
+Implicaciones operativas
+- Explotar el outlier positivo (Fridley): identificar drivers (mix, canal, partner, ticket/upsell) y diseñar réplica en Paramus y Paradise.
+- Enfoque regional: tratar Las Vegas como un mercado único (Henderson, North Las Vegas, Paradise), unificando cobertura y priorizando cross-sell y bundles locales.
+- Underperformers relativos (corte actual): St. George, North Las Vegas y Mountain Springs (<40% del promedio). Revisar pricing, surtido, cobertura comercial y fricción operativa.
+
+Acciones inmediatas (2 semanas)
+- Estandarizar ubicaciones: normalizar “city” con diccionario canónico + fuzzy matching, separar ZIP/estado y geocodificar. Recalcular el KPI y el ranking.
+- Añadir contexto al KPI: incluir número de operaciones, volumen total y dispersión (desviación estándar y coeficiente de variación) por ciudad para evaluar estabilidad.
+- Reemitir ranking:
+  - Ciudades consolidadas y/o por área metropolitana.
+  - Cortes por canal y mix de producto.
+- Diseño de pruebas:
+  - Fridley/Paramus: campañas de expansión de cartera y upsell.
+  - Las Vegas metro: piloto de cobertura unificada y bundles locales.
+
+Recomendaciones adicionales
+- Incorporar una dimensión de “área metropolitana/CBSA” en el modelo de datos, con reglas de agregación automáticas y auditoría semanal de duplicados/variantes.
+- Definir umbrales de calidad para actuar sobre el KPI (ej. alertar si coeficiente de variación > 0.6 o si N < 10) y evitar decisiones basadas en promedios inestables.
+
+Conclusión
+El desempeño está fuertemente concentrado. Con la consolidación estimada, el área de Las Vegas alcanza ≈ 76.6k y puede superar a Fridley (73.3k), lo que respalda que Nevada está probablemente subestimada por la falta de estandarización. Prioridades: higiene de datos y recálculo del KPI; en paralelo, desplegar iniciativas focalizadas en Las Vegas como mercado integrado y replicar el playbook de Fridley en plazas afines.
+
+Pregunta siguiente sugerida
+- ¿Cuántas operaciones y qué dispersión (p. ej., desviación estándar/coeficiente de variación) tiene cada ciudad para evaluar la estabilidad del promedio?
+
+Acción táctica
+- Implementar de inmediato la normalización de “city” y reemitir el ranking por área metropolitana; en paralelo, preparar un piloto de cobertura unificada en Las Vegas y una campaña de upsell en Fridley.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+306686a6-3d3b-4080-a1df-c84e3aa49039,2025-10-21T07:49:48.290554+00:00,2025-10-21T07:51:57.673387+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,1696,461,¿Cuáles son los benchmarks de crecimiento de PIB en la industria de landscaping?,"KPI: Volumen de ventas promedio por ciudad
+- Promedio muestral ≈ 22.2k; mediana ≈ 13.8k.
+- Top 3: Fridley 73.3k; Paramus 36.2k; Paradise 31.9k.
+
+Hallazgos clave
+- Alta concentración: Fridley es 3.3x el promedio y 5.3x la mediana, señal de dependencia en pocos mercados.
+- Asimetría: Paramus y Paradise también están muy por encima del promedio.
+- Posible clúster en Nevada: Paradise, Henderson, North Las Vegas y Mountain Springs sugieren un mercado integrado en el área de Las Vegas.
+
+Riesgos de calidad de datos e impacto potencial
+- Duplicados/variantes no estandarizadas: “Pahrump” vs “pahrump”; “Henderson, NV. 89012” vs “henderson”; “paramus” en minúsculas; “N las vegas” abreviado.
+- Efecto de consolidación:
+  - Henderson ≈ 20.76k + 7.25k = 28.01k.
+  - Pahrump ≈ 14.91k + 12.70k = 27.61k.
+  - Área Las Vegas (Paradise + North Las Vegas + Mountain Springs + Henderson consolidado) ≈ 76.6k, potencialmente por encima de Fridley (73.3k), lo que alteraría el ranking.
+- Falta el número de transacciones por ciudad: un promedio alto con N bajo es volátil y puede inducir a conclusiones erróneas.
+
+Implicaciones operativas
+- Explotar el outlier positivo (Fridley): identificar drivers (mix, canal, partner, ticket/upsell) y diseñar réplica en Paramus y Paradise.
+- Enfoque regional: tratar Las Vegas como un mercado único (Henderson, North Las Vegas, Paradise), unificando cobertura y priorizando cross-sell y bundles locales.
+- Underperformers relativos (corte actual): St. George, North Las Vegas y Mountain Springs (<40% del promedio). Revisar pricing, surtido, cobertura comercial y fricción operativa.
+
+Acciones inmediatas (2 semanas)
+- Estandarizar ubicaciones: normalizar “city” con diccionario canónico + fuzzy matching, separar ZIP/estado y geocodificar. Recalcular el KPI y el ranking.
+- Añadir contexto al KPI: incluir número de operaciones, volumen total y dispersión (desviación estándar y coeficiente de variación) por ciudad para evaluar estabilidad.
+- Reemitir ranking:
+  - Ciudades consolidadas y/o por área metropolitana.
+  - Cortes por canal y mix de producto.
+- Diseño de pruebas:
+  - Fridley/Paramus: campañas de expansión de cartera y upsell.
+  - Las Vegas metro: piloto de cobertura unificada y bundles locales.
+
+Recomendaciones adicionales
+- Incorporar una dimensión de “área metropolitana/CBSA” en el modelo de datos, con reglas de agregación automáticas y auditoría semanal de duplicados/variantes.
+- Definir umbrales de calidad para actuar sobre el KPI (ej. alertar si coeficiente de variación > 0.6 o si N < 10) y evitar decisiones basadas en promedios inestables.
+
+Conclusión
+El desempeño está fuertemente concentrado. Con la consolidación estimada, el área de Las Vegas alcanza ≈ 76.6k y puede superar a Fridley (73.3k), lo que respalda que Nevada está probablemente subestimada por la falta de estandarización. Prioridades: higiene de datos y recálculo del KPI; en paralelo, desplegar iniciativas focalizadas en Las Vegas como mercado integrado y replicar el playbook de Fridley en plazas afines.
+
+Pregunta siguiente sugerida
+- ¿Cuántas operaciones y qué dispersión (p. ej., desviación estándar/coeficiente de variación) tiene cada ciudad para evaluar la estabilidad del promedio?
+
+Acción táctica
+- Implementar de inmediato la normalización de “city” y reemitir el ranking por área metropolitana; en paralelo, preparar un piloto de cobertura unificada en Las Vegas y una campaña de upsell en Fridley.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"

@@ -1,0 +1,16 @@
+{
+  "since": "2025-10-21T02:12:53.559854+00:00",
+  "until": null,
+  "counts": {
+    "total_traces": 1,
+    "total_rows": 2,
+    "execution_accuracy_rows": 1,
+    "kpi_correctness_rows": 1
+  },
+  "metrics": {
+    "execution_accuracy": 0.0,
+    "kpi_correctness": 0.0,
+    "consistency_score": null,
+    "rmse": 20.95
+  }
+}

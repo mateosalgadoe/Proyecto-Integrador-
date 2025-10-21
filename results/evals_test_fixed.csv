@@ -1,0 +1,469 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+e78c292f-5a00-4e02-bc24-d8b6024ba8fd,2025-10-18T06:52:34.414371+00:00,2025-10-18T06:54:08.182755+00:00,execution_accuracy,correct,1.0,La diferencia entre los valores es menor al 20%.,2466,919,Volumen global de ventas promedio,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+e78c292f-5a00-4e02-bc24-d8b6024ba8fd,2025-10-18T06:52:34.414371+00:00,2025-10-18T06:54:08.182755+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,2184,517,Volumen global de ventas promedio,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+bd5deb6f-0039-45be-a20e-8fbf9ca2cc39,2025-10-18T06:55:29.407322+00:00,2025-10-18T06:56:54.672298+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2192,520,¿Cuál es el promedio de ventas?,1141162.06,"Resultado clave
+- KPI kpi_avg_sales_volume_global: 1141162.06 (promedio global de volumen de ventas).
+
+Interpretación ejecutiva
+- El valor 1141162.06 representa el nivel promedio actual del volumen de ventas global.
+- Al no contar con serie histórica, objetivo, unidad de medida ni periodo de referencia, no es posible determinar crecimiento, estacionalidad, eficiencia o cumplimiento de metas.
+
+Siguientes pasos recomendados
+- Confirmar unidad (moneda/ítems) y periodo de cálculo del promedio.
+- Definir línea base y objetivo para evaluar desempeño.
+- Desglosar el promedio por región, producto y canal para detectar concentraciones o riesgos.
+- Incorporar serie temporal para monitorear tendencias y volatilidad.
+- Establecer umbrales de alerta y frecuencia de actualización para una supervisión continua."
+bd5deb6f-0039-45be-a20e-8fbf9ca2cc39,2025-10-18T06:55:29.407322+00:00,2025-10-18T06:56:54.672298+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,65719,55121,¿Cuál es el promedio de ventas?,1141162.06,"Resultado clave
+- KPI kpi_avg_sales_volume_global: 1141162.06 (promedio global de volumen de ventas).
+
+Interpretación ejecutiva
+- El valor 1141162.06 representa el nivel promedio actual del volumen de ventas global.
+- Al no contar con serie histórica, objetivo, unidad de medida ni periodo de referencia, no es posible determinar crecimiento, estacionalidad, eficiencia o cumplimiento de metas.
+
+Siguientes pasos recomendados
+- Confirmar unidad (moneda/ítems) y periodo de cálculo del promedio.
+- Definir línea base y objetivo para evaluar desempeño.
+- Desglosar el promedio por región, producto y canal para detectar concentraciones o riesgos.
+- Incorporar serie temporal para monitorear tendencias y volatilidad.
+- Establecer umbrales de alerta y frecuencia de actualización para una supervisión continua."
+9f88fdc4-b0b2-4ff3-beb3-740b85ec29dc,2025-10-18T06:57:43.373670+00:00,2025-10-18T06:59:24.688213+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,7420,3279,Benchmarks de industria de landscaping,"Resumen ejecutivo
+- KPI solicitado: promedio de venta por ciudad (AOV por operación).
+- Hechos del corte actual (pre-limpieza de ciudades):
+  - Fridley es un outlier con ≈73.3k, muy por encima del promedio (~22.2k) y la mediana (~13.8k).
+  - Le siguen Paramus (≈36.2k) y Paradise (≈31.9k).
+  - Se detecta fragmentación en el área Las Vegas (Paradise, Henderson, North Las Vegas, Mountain Springs). Tras estandarizar preliminarmente nombres, Henderson sube a ≈28.0k y el clúster Las Vegas sumaría ~76.6k si se considerara de forma agregada. Nota: esta “suma de promedios” no es un AOV válido; requiere recálculo ponderado por número de operaciones.
+- Conclusión sustentada: hoy Fridley lidera el ranking de AOV por ciudad con los datos sin consolidar. Hipótesis a validar en 14 días: el clúster Las Vegas podría liderar en AOV ponderado y/o volumen total tras la normalización de ciudades y el recálculo con conteos.
+
+Qué significa para el negocio
+- Dos frentes prioritarios:
+  1) Fridley como playbook de alto valor: entender drivers (canal, mix, pricing, upsell) y replicar.
+  2) Las Vegas como “mercado unificado” a cubrir de manera integrada si los datos consolidados confirman liderazgo en AOV ponderado y/o volumen total.
+- Evitar decisiones basadas solo en promedios: sin el número de operaciones por ciudad, el AOV puede sobreponderar tickets atípicos. Definir umbrales de estabilidad (p. ej., N≥30 operaciones y coeficiente de variación [CV] ≤1.0) antes de escalar.
+
+Riesgos de calidad de datos que afectan el ranking
+- Duplicados y fragmentación por no estandarizar “city”: “Pahrump” vs “pahrump”; “Henderson, NV. 89012” vs “henderson”; “paramus” en minúsculas; “N las vegas”.
+- Impacto: al consolidar, Henderson y Pahrump suben; el clúster Las Vegas puede pasar a líder real.
+- KPI sin contexto: no incluye número de operaciones, volumen total, dispersión (CV), ni robustez (mediana/IQR).
+
+Recomendaciones accionables
+- Prioridad 1: Higiene de datos y recálculo del KPI.
+  - Normalizar “city” en clean con diccionario canónico, estándar USPS/US Census, geocodificación (lat/long) y mapeo a CBSA/MSA; separar calle/ciudad/estado/ZIP.
+  - Fuzzy matching con umbral y revisión humana para casos ambiguos; unit tests para prevenir regresiones.
+  - Recalcular por ciudad y por área metropolitana: AOV (media y mediana), número de operaciones, volumen total y dispersión (desviación estándar y CV). Publicar el glosario del KPI.
+  - Entregable: ranking consolidado y cortes por canal y mix de producto usando clean.fct_sales y clean.dim_leads.
+- Prioridad 2: Dos iniciativas comerciales con medición rigurosa.
+  - Fridley y Paramus: campañas de expansión/upsell basadas en el mix ganador de Fridley (canal, paquetes, pricing y upsell).
+  - Las Vegas metro (Paradise, Henderson, North Las Vegas, Mountain Springs): piloto de cobertura unificada con bundles locales, ruteo y presencia integrada; medir cross-sell y consistencia del ticket.
+- Recomendaciones adicionales (nuevas):
+  - Establecer guardrails analíticos: no priorizar una ciudad si N<30 operaciones o CV>1.0; usar medias recortadas (p. ej., 5%) o winsorización para rankings operativos.
+  - Definir decisión condicional: priorizar Las Vegas como mercado unificado solo si, tras consolidación, supera a Fridley en AOV ponderado y volumen total durante 4 semanas consecutivas.
+
+Plan de ejecución
+- Próximas 2 semanas
+  - Estandarizar ubicaciones en clean:
+    - Crear dimensión canónica de ciudades/áreas metropolitanas (con FIPS/CBSA) y backfill sobre clean.dim_leads y clean.fct_sales.
+    - Validar consolidaciones críticas: Henderson, Pahrump, North Las Vegas.
+  - Reemitir el KPI:
+    - Por ciudad y por metro: AOV (media/mediana), número de operaciones, volumen total, desviación estándar y CV.
+    - Cortes por canal y mix de producto para identificar qué replicar de Fridley y de Las Vegas.
+  - Pruebas rápidas:
+    - Fridley/Paramus: ofertas de upsell (mantenimiento + proyecto) a cartera activa.
+    - Las Vegas: agenda unificada y bundles; alinear mensajes y precios entre zonas.
+  - Sanity checks:
+    - Sensibilidad del ranking excluyendo el top 1% de tickets.
+    - AOV ponderado vs no ponderado; estabilidad semana a semana.
+- Semanas 4–8
+  - Industrializar la normalización de ciudades en el ETL de clean con validaciones automáticas.
+  - Alinear capacidad con demanda:
+    - Con clean.fct_housecallpro_jobs y clean.dim_housecallpro_employees, ajustar cuadrillas, ruteo y ventanas de servicio para Las Vegas y Fridley.
+  - Escalar el playbook probado a ciudades con mix y condiciones similares.
+
+Métricas a monitorear
+- Por ciudad/metro: AOV (media y mediana), número de operaciones, volumen total y CV.
+- Conversión lead→venta (clean.dim_leads con clean.fct_sales).
+- Operaciones: jobs completados, tiempos de servicio y utilización de empleados (clean.fct_housecallpro_jobs, clean.dim_housecallpro_employees).
+- Por prueba: uplift en AOV y en tasa de conversión vs control; estabilidad del AOV (CV) y consistencia de ticket.
+
+Contexto sectorial
+- Macro (EE. UU.): N/A para PIB, inflación y desempleo.
+- Comparables a 6 meses: SITE +8.57%, TBLD +21.31%, TREX -3.76%. Marco mixto: priorizar eficiencia por mercado y replicabilidad de playbooks.
+
+Decisión recomendada
+- Aprobar hoy la limpieza/normalización de ciudades y los pilotos comerciales en Fridley y Las Vegas. Condicionar la priorización del “mercado unificado Las Vegas” a que, tras el recálculo con datos consolidados, supere a Fridley en AOV ponderado y volumen total durante al menos 4 semanas, cumpliendo además N≥30 y CV≤1.0.
+
+Siguiente pregunta útil
+- ¿El “promedio” se define por operación o por cliente y cuál es la distribución (N y CV) de operaciones por ciudad? Esto determina la estabilidad del ranking y la asignación de recursos.
+
+Acción táctica
+- Implementar de inmediato la normalización de ciudades en clean (diccionario + USPS + fuzzy matching), recalcular el ranking con conteo de operaciones y publicar en 14 días un corte por metro; lanzar el piloto de cobertura unificada en Las Vegas con medición semanal y guardrails de N y CV.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+9f88fdc4-b0b2-4ff3-beb3-740b85ec29dc,2025-10-18T06:57:43.373670+00:00,2025-10-18T06:59:24.688213+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,3797,809,Benchmarks de industria de landscaping,"Resumen ejecutivo
+- KPI solicitado: promedio de venta por ciudad (AOV por operación).
+- Hechos del corte actual (pre-limpieza de ciudades):
+  - Fridley es un outlier con ≈73.3k, muy por encima del promedio (~22.2k) y la mediana (~13.8k).
+  - Le siguen Paramus (≈36.2k) y Paradise (≈31.9k).
+  - Se detecta fragmentación en el área Las Vegas (Paradise, Henderson, North Las Vegas, Mountain Springs). Tras estandarizar preliminarmente nombres, Henderson sube a ≈28.0k y el clúster Las Vegas sumaría ~76.6k si se considerara de forma agregada. Nota: esta “suma de promedios” no es un AOV válido; requiere recálculo ponderado por número de operaciones.
+- Conclusión sustentada: hoy Fridley lidera el ranking de AOV por ciudad con los datos sin consolidar. Hipótesis a validar en 14 días: el clúster Las Vegas podría liderar en AOV ponderado y/o volumen total tras la normalización de ciudades y el recálculo con conteos.
+
+Qué significa para el negocio
+- Dos frentes prioritarios:
+  1) Fridley como playbook de alto valor: entender drivers (canal, mix, pricing, upsell) y replicar.
+  2) Las Vegas como “mercado unificado” a cubrir de manera integrada si los datos consolidados confirman liderazgo en AOV ponderado y/o volumen total.
+- Evitar decisiones basadas solo en promedios: sin el número de operaciones por ciudad, el AOV puede sobreponderar tickets atípicos. Definir umbrales de estabilidad (p. ej., N≥30 operaciones y coeficiente de variación [CV] ≤1.0) antes de escalar.
+
+Riesgos de calidad de datos que afectan el ranking
+- Duplicados y fragmentación por no estandarizar “city”: “Pahrump” vs “pahrump”; “Henderson, NV. 89012” vs “henderson”; “paramus” en minúsculas; “N las vegas”.
+- Impacto: al consolidar, Henderson y Pahrump suben; el clúster Las Vegas puede pasar a líder real.
+- KPI sin contexto: no incluye número de operaciones, volumen total, dispersión (CV), ni robustez (mediana/IQR).
+
+Recomendaciones accionables
+- Prioridad 1: Higiene de datos y recálculo del KPI.
+  - Normalizar “city” en clean con diccionario canónico, estándar USPS/US Census, geocodificación (lat/long) y mapeo a CBSA/MSA; separar calle/ciudad/estado/ZIP.
+  - Fuzzy matching con umbral y revisión humana para casos ambiguos; unit tests para prevenir regresiones.
+  - Recalcular por ciudad y por área metropolitana: AOV (media y mediana), número de operaciones, volumen total y dispersión (desviación estándar y CV). Publicar el glosario del KPI.
+  - Entregable: ranking consolidado y cortes por canal y mix de producto usando clean.fct_sales y clean.dim_leads.
+- Prioridad 2: Dos iniciativas comerciales con medición rigurosa.
+  - Fridley y Paramus: campañas de expansión/upsell basadas en el mix ganador de Fridley (canal, paquetes, pricing y upsell).
+  - Las Vegas metro (Paradise, Henderson, North Las Vegas, Mountain Springs): piloto de cobertura unificada con bundles locales, ruteo y presencia integrada; medir cross-sell y consistencia del ticket.
+- Recomendaciones adicionales (nuevas):
+  - Establecer guardrails analíticos: no priorizar una ciudad si N<30 operaciones o CV>1.0; usar medias recortadas (p. ej., 5%) o winsorización para rankings operativos.
+  - Definir decisión condicional: priorizar Las Vegas como mercado unificado solo si, tras consolidación, supera a Fridley en AOV ponderado y volumen total durante 4 semanas consecutivas.
+
+Plan de ejecución
+- Próximas 2 semanas
+  - Estandarizar ubicaciones en clean:
+    - Crear dimensión canónica de ciudades/áreas metropolitanas (con FIPS/CBSA) y backfill sobre clean.dim_leads y clean.fct_sales.
+    - Validar consolidaciones críticas: Henderson, Pahrump, North Las Vegas.
+  - Reemitir el KPI:
+    - Por ciudad y por metro: AOV (media/mediana), número de operaciones, volumen total, desviación estándar y CV.
+    - Cortes por canal y mix de producto para identificar qué replicar de Fridley y de Las Vegas.
+  - Pruebas rápidas:
+    - Fridley/Paramus: ofertas de upsell (mantenimiento + proyecto) a cartera activa.
+    - Las Vegas: agenda unificada y bundles; alinear mensajes y precios entre zonas.
+  - Sanity checks:
+    - Sensibilidad del ranking excluyendo el top 1% de tickets.
+    - AOV ponderado vs no ponderado; estabilidad semana a semana.
+- Semanas 4–8
+  - Industrializar la normalización de ciudades en el ETL de clean con validaciones automáticas.
+  - Alinear capacidad con demanda:
+    - Con clean.fct_housecallpro_jobs y clean.dim_housecallpro_employees, ajustar cuadrillas, ruteo y ventanas de servicio para Las Vegas y Fridley.
+  - Escalar el playbook probado a ciudades con mix y condiciones similares.
+
+Métricas a monitorear
+- Por ciudad/metro: AOV (media y mediana), número de operaciones, volumen total y CV.
+- Conversión lead→venta (clean.dim_leads con clean.fct_sales).
+- Operaciones: jobs completados, tiempos de servicio y utilización de empleados (clean.fct_housecallpro_jobs, clean.dim_housecallpro_employees).
+- Por prueba: uplift en AOV y en tasa de conversión vs control; estabilidad del AOV (CV) y consistencia de ticket.
+
+Contexto sectorial
+- Macro (EE. UU.): N/A para PIB, inflación y desempleo.
+- Comparables a 6 meses: SITE +8.57%, TBLD +21.31%, TREX -3.76%. Marco mixto: priorizar eficiencia por mercado y replicabilidad de playbooks.
+
+Decisión recomendada
+- Aprobar hoy la limpieza/normalización de ciudades y los pilotos comerciales en Fridley y Las Vegas. Condicionar la priorización del “mercado unificado Las Vegas” a que, tras el recálculo con datos consolidados, supere a Fridley en AOV ponderado y volumen total durante al menos 4 semanas, cumpliendo además N≥30 y CV≤1.0.
+
+Siguiente pregunta útil
+- ¿El “promedio” se define por operación o por cliente y cuál es la distribución (N y CV) de operaciones por ciudad? Esto determina la estabilidad del ranking y la asignación de recursos.
+
+Acción táctica
+- Implementar de inmediato la normalización de ciudades en clean (diccionario + USPS + fuzzy matching), recalcular el ranking con conteo de operaciones y publicar en 14 días un corte por metro; lanzar el piloto de cobertura unificada en Las Vegas con medición semanal y guardrails de N y CV.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+5944bdf3-9938-49b5-8b95-1ea6abab5683,2025-10-18T07:00:06.297471+00:00,2025-10-18T07:01:47.395786+00:00,execution_accuracy,incorrect,0.0,"La diferencia entre los valores es mayor al 40%, lo que excede el umbral de 'incorrecto'.",2846,413,Tendencia mensual de ventas,"Resumen ejecutivo
+- Hecho: no se puede calcular el KPI “volumen de ventas promedio” porque la consulta a clean.fct_sales devuelve “No se encontraron resultados o el dataset está vacío”.
+- Consecuencia: se pierde visibilidad del desempeño comercial y no es posible evaluar tendencias ni compararse contra objetivos.
+- Contexto externo (referencial, no sustituto del KPI interno): variación sectorial 6M mixta a 2025-10-14 — SITE +8.57%, TBLD +21.31%, TREX -3.76%.
+
+Implicaciones
+- Decisiones de pricing, staffing y ruteo con alta incertidumbre.
+- Posibles incidencias en ingestión, permisos o filtros (especialmente de fechas) en clean.fct_sales.
+- Necesidad de estandarizar la definición del KPI para evitar cálculos inconsistentes.
+
+Causas probables y verificación mínima
+- Tabla/fuente vacía o con filtros que devuelven cero filas.
+- Fallo en pipeline/credenciales o en particionado por fecha.
+- Verificaciones inmediatas: existencia de la tabla/vista, conteo de filas > 0, última fecha con datos, estado de la última carga, y revisión de filtros aplicados en la consulta (fechas/estados).
+
+Definición operativa del KPI (a acordar)
+- Magnitud: ventas netas (con impuestos excluidos y descuentos incluidos) o ticket promedio por transacción.
+- Periodicidad: promedio mensual/semanal o por trabajo.
+- Alcance: incluir/excluir cancelaciones, devoluciones y trabajos no facturados.
+- Fecha de referencia: fecha de factura vs. fecha de cobro.
+- Ejemplo de lectura: “Promedio mensual de ventas netas = sum(ventas netas) del mes / número de meses en la ventana” o “Ticket promedio = sum(ventas netas) / número de transacciones”. Seleccionar una sola variante.
+
+Recomendaciones inmediatas (priorizadas)
+1) Restablecer la fuente y proteger la frescura
+   - Confirmar existencia, filas y última fecha con datos en clean.fct_sales; revisar credenciales, particiones y filtros.
+   - Reejecutar la carga si está vacía y ajustar filtros restrictivos.
+   - Implementar alerta de “tabla vacía” y control de frescura con umbral SLA; si row_count=0 o frescura >SLA, bloquear paneles dependientes (quality gate).
+
+2) Cerrar y oficializar la definición del KPI
+   - Acordar magnitud, periodicidad, alcance y fecha de referencia.
+   - Documentar fórmula y reglas de exclusión en un data contract; versionar el cálculo en el modelo semántico y panel.
+
+Plan de contingencia (hasta restablecer fct_sales)
+- Estimar ticket/volumen operativo con fct_housecallpro_jobs y tasas lead→venta con dim_leads.
+- Etiquetar como “provisional, no auditable”; no reportar metas oficiales hasta restituir la fuente principal.
+
+Entregables al restablecer datos
+- Serie del KPI a 3/6/12 meses y comparación vs objetivo interno.
+- Desglose por canal, tipo de servicio y técnico (dim_housecallpro_employees) para acciones de performance.
+
+Próximo paso
+- ¿Confirmamos la definición y el periodo del KPI de “volumen de ventas promedio” (p. ej., promedio mensual de ventas netas) para parametrizar el cálculo y su SLA?
+
+Acción táctica de hoy
+- Validar filas y última fecha con datos en clean.fct_sales; si está vacío, reejecutar la carga y retirar filtros restrictivos. Luego recalcular el KPI y publicar el panel con tendencia y desgloses clave.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+5944bdf3-9938-49b5-8b95-1ea6abab5683,2025-10-18T07:00:06.297471+00:00,2025-10-18T07:01:47.395786+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,4292,1008,Tendencia mensual de ventas,"Resumen ejecutivo
+- Hecho: no se puede calcular el KPI “volumen de ventas promedio” porque la consulta a clean.fct_sales devuelve “No se encontraron resultados o el dataset está vacío”.
+- Consecuencia: se pierde visibilidad del desempeño comercial y no es posible evaluar tendencias ni compararse contra objetivos.
+- Contexto externo (referencial, no sustituto del KPI interno): variación sectorial 6M mixta a 2025-10-14 — SITE +8.57%, TBLD +21.31%, TREX -3.76%.
+
+Implicaciones
+- Decisiones de pricing, staffing y ruteo con alta incertidumbre.
+- Posibles incidencias en ingestión, permisos o filtros (especialmente de fechas) en clean.fct_sales.
+- Necesidad de estandarizar la definición del KPI para evitar cálculos inconsistentes.
+
+Causas probables y verificación mínima
+- Tabla/fuente vacía o con filtros que devuelven cero filas.
+- Fallo en pipeline/credenciales o en particionado por fecha.
+- Verificaciones inmediatas: existencia de la tabla/vista, conteo de filas > 0, última fecha con datos, estado de la última carga, y revisión de filtros aplicados en la consulta (fechas/estados).
+
+Definición operativa del KPI (a acordar)
+- Magnitud: ventas netas (con impuestos excluidos y descuentos incluidos) o ticket promedio por transacción.
+- Periodicidad: promedio mensual/semanal o por trabajo.
+- Alcance: incluir/excluir cancelaciones, devoluciones y trabajos no facturados.
+- Fecha de referencia: fecha de factura vs. fecha de cobro.
+- Ejemplo de lectura: “Promedio mensual de ventas netas = sum(ventas netas) del mes / número de meses en la ventana” o “Ticket promedio = sum(ventas netas) / número de transacciones”. Seleccionar una sola variante.
+
+Recomendaciones inmediatas (priorizadas)
+1) Restablecer la fuente y proteger la frescura
+   - Confirmar existencia, filas y última fecha con datos en clean.fct_sales; revisar credenciales, particiones y filtros.
+   - Reejecutar la carga si está vacía y ajustar filtros restrictivos.
+   - Implementar alerta de “tabla vacía” y control de frescura con umbral SLA; si row_count=0 o frescura >SLA, bloquear paneles dependientes (quality gate).
+
+2) Cerrar y oficializar la definición del KPI
+   - Acordar magnitud, periodicidad, alcance y fecha de referencia.
+   - Documentar fórmula y reglas de exclusión en un data contract; versionar el cálculo en el modelo semántico y panel.
+
+Plan de contingencia (hasta restablecer fct_sales)
+- Estimar ticket/volumen operativo con fct_housecallpro_jobs y tasas lead→venta con dim_leads.
+- Etiquetar como “provisional, no auditable”; no reportar metas oficiales hasta restituir la fuente principal.
+
+Entregables al restablecer datos
+- Serie del KPI a 3/6/12 meses y comparación vs objetivo interno.
+- Desglose por canal, tipo de servicio y técnico (dim_housecallpro_employees) para acciones de performance.
+
+Próximo paso
+- ¿Confirmamos la definición y el periodo del KPI de “volumen de ventas promedio” (p. ej., promedio mensual de ventas netas) para parametrizar el cálculo y su SLA?
+
+Acción táctica de hoy
+- Validar filas y última fecha con datos en clean.fct_sales; si está vacío, reejecutar la carga y retirar filtros restrictivos. Luego recalcular el KPI y publicar el panel con tendencia y desgloses clave.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+6dc1bfa8-5338-440c-95eb-ea5e3734dcca,2025-10-18T07:02:29.718897+00:00,2025-10-18T07:04:36.256536+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,3556,708,Tasa de cierre global,"Resumen ejecutivo
+- El KPI solicitado (volumen de ventas promedio) no está disponible en los resultados entregados; aparece como N/A. Sí contamos con kpi_closing_rate por ciudad (conversions/leads).
+- Con base en estos datos, Las Vegas presenta el mejor desempeño tanto en eficiencia (23.10%) como en volumen (10,933 leads; 2,526 conversiones). San Diego y Denver concentran volumen con eficiencias sub-10%, por lo que son las principales palancas de mejora.
+
+Ranking por tasa de cierre (hechos)
+- Las Vegas: 23.10% — leads 10,933; conversiones 2,526
+- San Diego: 9.79% — leads 4,708; conversiones 461
+- Phoenix: 7.63% — leads 1,756; conversiones 134
+- Denver: 5.85% — leads 4,306; conversiones 252
+- Santa Clara: 3.99% — leads 853; conversiones 34
+
+Implicancias y foco
+- Benchmark operativo: Las Vegas combina máxima eficiencia y mayor escala; usar como referencia de procesos.
+- Oportunidad prioritaria: Subir Denver al 10% implicaría ~431 conversiones (+179 vs actual). En San Diego, pasar de 9.79% a 10% suma ~10 conversiones. Estos impactos respaldan priorizar optimizaciones en Denver y, en segundo término, San Diego.
+- Baja prioridad relativa: Santa Clara tiene bajo volumen y eficiencia; mantener inversión acotada a pruebas controladas hasta evidenciar mejoras.
+
+Recomendaciones accionables
+- Estandarizar y pilotear el playbook de Las Vegas en Denver (y luego San Diego): tiempos de respuesta <5 min, cadencia de 6–8 contactos en 7 días, scripts de discovery, propuesta y pricing validados; objetivo: ≥10% en 4–6 semanas, medido por cohorte.
+- Auditoría del embudo en Denver: revisar fuentes de leads, tiempo hasta primer contacto, tasa de contacto y no-show; ejecutar A/B de oferta y secuencias de seguimiento para cerrar la brecha de conversión identificada.
+
+Siguiente paso para el KPI solicitado
+- Alinear definición y periodo de “volumen de ventas promedio” y calcularlo desde clean.fct_sales con desglose por ciudad y total. Opciones de definición:
+  - Promedio mensual de ventas: sum(ventas) en el periodo / número de meses.
+  - Ticket promedio: sum(importe) / número de ventas.
+
+Pregunta siguiente
+- ¿Cuál de las definiciones anteriores aplicamos y para qué periodo (por ejemplo, últimos 3, 6 o 12 meses)?
+
+Acción táctica
+- Implementar el cálculo en clean.fct_sales según la definición acordada y publicar el corte por ciudad, añadiendo la tasa de cierre como referencia para priorizar acciones.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate"",
+  ""columns"": [
+    ""city_clean"",
+    ""total_leads"",
+    ""total_conversions"",
+    ""closing_rate_pct""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_leads"": {
+      ""min"": 5.0,
+      ""max"": 10933.0,
+      ""mean"": 1158.4,
+      ""median"": 30.0,
+      ""std"": 2619.943,
+      ""type"": ""sum_total""
+    },
+    ""total_conversions"": {
+      ""min"": 0.0,
+      ""max"": 2526.0,
+      ""mean"": 170.35,
+      ""median"": 0.0,
+      ""std"": 552.0612,
+      ""type"": ""sum_total""
+    },
+    ""closing_rate_pct"": {
+      ""min"": 0.0,
+      ""max"": 23.1,
+      ""mean"": 2.518,
+      ""median"": 0.0,
+      ""std"": 5.5272,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+6dc1bfa8-5338-440c-95eb-ea5e3734dcca,2025-10-18T07:02:29.718897+00:00,2025-10-18T07:04:36.256536+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,1950,410,Tasa de cierre global,"Resumen ejecutivo
+- El KPI solicitado (volumen de ventas promedio) no está disponible en los resultados entregados; aparece como N/A. Sí contamos con kpi_closing_rate por ciudad (conversions/leads).
+- Con base en estos datos, Las Vegas presenta el mejor desempeño tanto en eficiencia (23.10%) como en volumen (10,933 leads; 2,526 conversiones). San Diego y Denver concentran volumen con eficiencias sub-10%, por lo que son las principales palancas de mejora.
+
+Ranking por tasa de cierre (hechos)
+- Las Vegas: 23.10% — leads 10,933; conversiones 2,526
+- San Diego: 9.79% — leads 4,708; conversiones 461
+- Phoenix: 7.63% — leads 1,756; conversiones 134
+- Denver: 5.85% — leads 4,306; conversiones 252
+- Santa Clara: 3.99% — leads 853; conversiones 34
+
+Implicancias y foco
+- Benchmark operativo: Las Vegas combina máxima eficiencia y mayor escala; usar como referencia de procesos.
+- Oportunidad prioritaria: Subir Denver al 10% implicaría ~431 conversiones (+179 vs actual). En San Diego, pasar de 9.79% a 10% suma ~10 conversiones. Estos impactos respaldan priorizar optimizaciones en Denver y, en segundo término, San Diego.
+- Baja prioridad relativa: Santa Clara tiene bajo volumen y eficiencia; mantener inversión acotada a pruebas controladas hasta evidenciar mejoras.
+
+Recomendaciones accionables
+- Estandarizar y pilotear el playbook de Las Vegas en Denver (y luego San Diego): tiempos de respuesta <5 min, cadencia de 6–8 contactos en 7 días, scripts de discovery, propuesta y pricing validados; objetivo: ≥10% en 4–6 semanas, medido por cohorte.
+- Auditoría del embudo en Denver: revisar fuentes de leads, tiempo hasta primer contacto, tasa de contacto y no-show; ejecutar A/B de oferta y secuencias de seguimiento para cerrar la brecha de conversión identificada.
+
+Siguiente paso para el KPI solicitado
+- Alinear definición y periodo de “volumen de ventas promedio” y calcularlo desde clean.fct_sales con desglose por ciudad y total. Opciones de definición:
+  - Promedio mensual de ventas: sum(ventas) en el periodo / número de meses.
+  - Ticket promedio: sum(importe) / número de ventas.
+
+Pregunta siguiente
+- ¿Cuál de las definiciones anteriores aplicamos y para qué periodo (por ejemplo, últimos 3, 6 o 12 meses)?
+
+Acción táctica
+- Implementar el cálculo en clean.fct_sales según la definición acordada y publicar el corte por ciudad, añadiendo la tasa de cierre como referencia para priorizar acciones.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate"",
+  ""columns"": [
+    ""city_clean"",
+    ""total_leads"",
+    ""total_conversions"",
+    ""closing_rate_pct""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_leads"": {
+      ""min"": 5.0,
+      ""max"": 10933.0,
+      ""mean"": 1158.4,
+      ""median"": 30.0,
+      ""std"": 2619.943,
+      ""type"": ""sum_total""
+    },
+    ""total_conversions"": {
+      ""min"": 0.0,
+      ""max"": 2526.0,
+      ""mean"": 170.35,
+      ""median"": 0.0,
+      ""std"": 552.0612,
+      ""type"": ""sum_total""
+    },
+    ""closing_rate_pct"": {
+      ""min"": 0.0,
+      ""max"": 23.1,
+      ""mean"": 2.518,
+      ""median"": 0.0,
+      ""std"": 5.5272,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+b5337265-e070-498c-8bd2-db95c96b333e,2025-10-18T07:05:18.806951+00:00,2025-10-18T07:06:55.381577+00:00,execution_accuracy,correct,1.0,La diferencia entre la salida y la referencia es menor al 20%.,3511,333,Volumen global de ventas promedio,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+b5337265-e070-498c-8bd2-db95c96b333e,2025-10-18T07:05:18.806951+00:00,2025-10-18T07:06:55.381577+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,3301,870,Volumen global de ventas promedio,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"

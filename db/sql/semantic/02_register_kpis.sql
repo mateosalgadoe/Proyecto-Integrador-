@@ -98,6 +98,38 @@ VALUES (
 )
 ON CONFLICT (table_name) DO NOTHING;
 
+
+
+
+
+
+-- =========================================================
+-- 4 KPI 4: Closing Rate Global (Agregado)
+-- =========================================================
+
+DROP VIEW IF EXISTS ai.kpi_closing_rate_global CASCADE;
+
+CREATE OR REPLACE VIEW ai.kpi_closing_rate_global AS
+SELECT 
+    SUM(total_conversions) AS total_conversions_global,
+    SUM(total_leads) AS total_leads_global,
+    ROUND(
+        (SUM(total_conversions)::FLOAT / NULLIF(SUM(total_leads), 0) * 100)::numeric,
+        2
+    ) AS closing_rate_pct_global
+FROM ai.kpi_closing_rate;
+
+INSERT INTO ai.table_context (table_name, table_type, business_domain, description)
+VALUES (
+    'kpi_closing_rate_global',
+    'kpi',
+    'Leads / Ventas',
+    'Tasa de cierre global agregada calculada sobre todas las ciudades combinadas'
+)
+ON CONFLICT (table_name) DO NOTHING;
+
+
+
 -- =========================================================
 -- Verificación de registro
 -- =========================================================

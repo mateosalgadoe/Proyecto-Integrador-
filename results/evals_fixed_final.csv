@@ -1,0 +1,391 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+a4043caa-2e37-4d14-998d-6a5d709a3795,2025-10-21T04:11:31.721021+00:00,2025-10-21T04:13:45.778000+00:00,execution_accuracy,correct,1.0,La diferencia entre los valores es menor al 20%.,2555,862,Benchmarks de industria,2.8,"{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+a4043caa-2e37-4d14-998d-6a5d709a3795,2025-10-21T04:11:31.721021+00:00,2025-10-21T04:13:45.778000+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,2775,1137,Benchmarks de industria,2.8,"{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+194066ea-96ce-40a4-8170-cb8055211fd0,2025-10-21T04:14:20.923096+00:00,2025-10-21T04:15:46.448449+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2555,536,Tendencia mensual,"Resumen ejecutivo
+- Conclusión: hoy no es posible reportar el KPI “volumen de ventas promedio” porque el cálculo falló con el error “local variable 'rows' referenced before assignment” y no se generó salida. Esta conclusión se sustenta en el error de ejecución y la ausencia de resultados del proceso.
+- Contexto externo (últimos 6 meses, fuente: Yahoo Finance): SITE +8.57%, TBLD +21.31%, TREX -3.76%. El entorno es mixto; este dato no sustituye el KPI interno y refuerza la necesidad de medirlo con consistencia para anticipar cambios de demanda.
+
+Qué significa el error y cómo resolverlo de inmediato
+- Causa probable: en el flujo que consulta el esquema clean, la variable rows no se asigna cuando la consulta falla o retorna 0 filas, y luego se intenta usar sin haberse definido.
+- Corrección técnica inmediata:
+  1) Inicializar rows = [] antes de ejecutar la consulta.
+  2) Envolver la ejecución SQL en try/except y, ante error o resultado vacío, retornar explícitamente KPI nulo con estado “sin datos”, sin continuar el flujo.
+  3) Validar que la consulta apunte a clean y que filtros de fechas/condiciones no dejen el conjunto vacío.
+  4) Añadir aserción: si count == 0, terminar en estado controlado con log claro.
+- Criterios de aceptación:
+  - Si hay datos, el flujo publica el KPI y su comparación vs. periodo previo.
+  - Si no hay datos o hay error, publica estado “sin datos” y alerta; no rompe el pipeline.
+
+Definición recomendada del KPI (para eliminar ambigüedad)
+- Definición oficial a elegir (recomendado decidir una y documentarla):
+  - Ticket promedio: suma de ventas netas en moneda / número de ventas del periodo.
+  - Alternativa: promedio diario de ventas (conteo) en el último periodo completo.
+- Estándares de cálculo para precisión:
+  - Periodo: último mes completo; comparación vs. mes completo previo.
+  - Alcance: solo ventas cerradas; excluir cancelaciones y devoluciones.
+  - Moneda e impuestos: especificar moneda base y si es neto de impuestos/retornos.
+  - Zona horaria: fijar TZ operativa para cortes diarios.
+
+Plan de acción para obtener el KPI y usarlo en decisiones
+1) Corregir el flujo KPI como arriba y reejecutar contra clean.fct_sales.
+2) Publicar dos vistas en el dashboard:
+   - Ticket promedio del último mes completo y su variación vs. mes previo.
+   - Promedio diario de ventas (conteo) del último mes y su variación.
+3) Segmentar el KPI por:
+   - Fuente de lead (dim_leads) para identificar canales con mayor ticket.
+   - Tipo de trabajo y técnico/cuadrilla (fct_housecallpro_jobs, dim_housecallpro_employees) para palancas de mix y productividad.
+4) Umbrales de alerta: si el ticket promedio cae > X% vs. la media móvil de 3 meses, disparar revisión de pricing/discounts.
+
+Riesgos si no se corrige
+- Sin un KPI confiable, se deteriora la capacidad para ajustar precios, asignar cuadrillas y optimizar marketing en un entorno sectorial mixto (SITE +8.57%, TBLD +21.31%, TREX -3.76%).
+
+Decisión requerida
+- Definir oficialmente qué entendemos por “volumen de ventas promedio” (ticket promedio en moneda vs. promedio diario de ventas en conteo) y el periodo estándar (p. ej., último mes completo).
+
+Acción táctica inmediata
+- Asignar hoy a un desarrollador para parchear el grafo KPI (manejo de resultados vacíos y errores de rows), reejecutar sobre el esquema clean y publicar el resultado junto con su variación vs. el periodo previo en el dashboard operativo.
+
+Recomendaciones accionables adicionales
+- Añadir prueba de humo en el scheduler: antes de calcular, verificar count > 0 en la fuente; si no, etiquetar “sin datos” y alertar por Slack/Email.
+- Realizar backfill de 12 meses una vez corregido para establecer línea base y activar monitoreo con alertas sobre desviaciones significativas.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+194066ea-96ce-40a4-8170-cb8055211fd0,2025-10-21T04:14:20.923096+00:00,2025-10-21T04:15:46.448449+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,1770,341,Tendencia mensual,"Resumen ejecutivo
+- Conclusión: hoy no es posible reportar el KPI “volumen de ventas promedio” porque el cálculo falló con el error “local variable 'rows' referenced before assignment” y no se generó salida. Esta conclusión se sustenta en el error de ejecución y la ausencia de resultados del proceso.
+- Contexto externo (últimos 6 meses, fuente: Yahoo Finance): SITE +8.57%, TBLD +21.31%, TREX -3.76%. El entorno es mixto; este dato no sustituye el KPI interno y refuerza la necesidad de medirlo con consistencia para anticipar cambios de demanda.
+
+Qué significa el error y cómo resolverlo de inmediato
+- Causa probable: en el flujo que consulta el esquema clean, la variable rows no se asigna cuando la consulta falla o retorna 0 filas, y luego se intenta usar sin haberse definido.
+- Corrección técnica inmediata:
+  1) Inicializar rows = [] antes de ejecutar la consulta.
+  2) Envolver la ejecución SQL en try/except y, ante error o resultado vacío, retornar explícitamente KPI nulo con estado “sin datos”, sin continuar el flujo.
+  3) Validar que la consulta apunte a clean y que filtros de fechas/condiciones no dejen el conjunto vacío.
+  4) Añadir aserción: si count == 0, terminar en estado controlado con log claro.
+- Criterios de aceptación:
+  - Si hay datos, el flujo publica el KPI y su comparación vs. periodo previo.
+  - Si no hay datos o hay error, publica estado “sin datos” y alerta; no rompe el pipeline.
+
+Definición recomendada del KPI (para eliminar ambigüedad)
+- Definición oficial a elegir (recomendado decidir una y documentarla):
+  - Ticket promedio: suma de ventas netas en moneda / número de ventas del periodo.
+  - Alternativa: promedio diario de ventas (conteo) en el último periodo completo.
+- Estándares de cálculo para precisión:
+  - Periodo: último mes completo; comparación vs. mes completo previo.
+  - Alcance: solo ventas cerradas; excluir cancelaciones y devoluciones.
+  - Moneda e impuestos: especificar moneda base y si es neto de impuestos/retornos.
+  - Zona horaria: fijar TZ operativa para cortes diarios.
+
+Plan de acción para obtener el KPI y usarlo en decisiones
+1) Corregir el flujo KPI como arriba y reejecutar contra clean.fct_sales.
+2) Publicar dos vistas en el dashboard:
+   - Ticket promedio del último mes completo y su variación vs. mes previo.
+   - Promedio diario de ventas (conteo) del último mes y su variación.
+3) Segmentar el KPI por:
+   - Fuente de lead (dim_leads) para identificar canales con mayor ticket.
+   - Tipo de trabajo y técnico/cuadrilla (fct_housecallpro_jobs, dim_housecallpro_employees) para palancas de mix y productividad.
+4) Umbrales de alerta: si el ticket promedio cae > X% vs. la media móvil de 3 meses, disparar revisión de pricing/discounts.
+
+Riesgos si no se corrige
+- Sin un KPI confiable, se deteriora la capacidad para ajustar precios, asignar cuadrillas y optimizar marketing en un entorno sectorial mixto (SITE +8.57%, TBLD +21.31%, TREX -3.76%).
+
+Decisión requerida
+- Definir oficialmente qué entendemos por “volumen de ventas promedio” (ticket promedio en moneda vs. promedio diario de ventas en conteo) y el periodo estándar (p. ej., último mes completo).
+
+Acción táctica inmediata
+- Asignar hoy a un desarrollador para parchear el grafo KPI (manejo de resultados vacíos y errores de rows), reejecutar sobre el esquema clean y publicar el resultado junto con su variación vs. el periodo previo en el dashboard operativo.
+
+Recomendaciones accionables adicionales
+- Añadir prueba de humo en el scheduler: antes de calcular, verificar count > 0 en la fuente; si no, etiquetar “sin datos” y alertar por Slack/Email.
+- Realizar backfill de 12 meses una vez corregido para establecer línea base y activar monitoreo con alertas sobre desviaciones significativas.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+fd8e8535-e111-46a4-9feb-8af93b3c880e,2025-10-21T04:16:22.979479+00:00,2025-10-21T04:18:11.164419+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2054,631,Tasa de cierre,"Resumen ejecutivo del KPI solicitado
+
+- KPI solicitado (volumen de ventas promedio): No disponible en los datos actuales (valor principal: N/A).
+- KPI disponible y relevante para evaluar desempeño comercial: kpi_closing_rate (tasa de cierre de leads a conversiones).
+
+Hallazgos clave del kpi_closing_rate (mismo periodo para todos los mercados)
+- Las Vegas es el outlier positivo: 23.03% (10,968 leads; 2,526 conversiones). Lidera en tasa y en volumen absoluto de conversiones.
+- San Diego ocupa el segundo lugar: 9.75% (4,730; 461). Sólido, con amplio margen respecto a Las Vegas.
+- Phoenix y Denver muestran desempeño medio-bajo: 7.47% (1,794; 134) y 5.83% (4,323; 252). Denver recibe más leads que Phoenix, pero convierte peor.
+- Santa Clara es el rezagado: 3.94% (862; 34), con la menor tasa y el menor volumen.
+
+Conclusión apoyada en datos
+- La estructura de tasas y volúmenes sugiere maximizar retorno asignando recursos a mercados con mejor conversión (Las Vegas, San Diego), optimizar el embudo donde hay alto flujo pero baja tasa (Denver) y corregir de raíz calidad/proceso en el mercado de menor desempeño (Santa Clara).
+- Potencial cuantificado: si Denver elevara su tasa al nivel de Phoenix (7.47%), sumaría ~71 conversiones adicionales en el periodo (proyección: 4,323 × 7.47% ≈ 323 vs. 252 actuales). Si Santa Clara alcanzara la tasa de Denver (5.83%), agregaría ~16 conversiones (50 vs. 34).
+
+Implicaciones operativas
+- Reorientar inversión de demanda y capacidad operativa hacia mercados con mayor retorno esperado: priorizar Las Vegas y San Diego.
+- En Denver, optimizar calificación de leads y tiempos de respuesta para capturar mejoras rápidas dada la alta base de leads.
+- En Santa Clara, auditar de inmediato la calidad de fuentes y la ejecución comercial (guiones, seguimiento) antes de seguir invirtiendo.
+
+Recomendaciones accionables inmediatas
+- Replicar el playbook de Las Vegas: analizar fuentes de leads, oferta, primer tiempo de respuesta y guiones; escalar un piloto controlado en San Diego y Denver.
+- Auditoría de Santa Clara: pausar o ajustar fuentes de peor desempeño; reforzar capacitación y estandarizar seguimiento para elevar la tasa del 3.94%.
+- Enfoque en lead handling en Denver: con 4,323 leads y 252 conversiones (5.83%), mejoras en contacto y seguimiento pueden capturar valor rápido.
+- Reasignación táctica de presupuesto por 30 días: transferir 15–20% del gasto de generación de Santa Clara hacia San Diego; medir impacto en CAC y closing_rate antes de consolidar el cambio.
+- Prueba A/B de calificación y SLA de primera respuesta en Denver: implementar versión “estricta” de scoring y un SLA de primera respuesta definido y medible; comparar uplift de conversión vs. control.
+
+Limitaciones y requerimiento de datos
+- El “volumen de ventas promedio” no está disponible en este corte (N/A). Para calcularlo con precisión, extraerlo desde clean.fct_sales con una definición acordada (por venta, por mes o por cliente, desglosado por mercado y periodo).
+
+Pregunta siguiente sugerida
+- ¿Confirmamos la definición y el periodo del “volumen de ventas promedio” (por venta/por mes/por cliente) y el desglose por mercado para calcularlo desde clean.fct_sales?
+
+Acción táctica inmediata
+- Lanzar en 7 días un piloto del “playbook Las Vegas” en San Diego: estandarizar tiempos de primera respuesta y guiones, y medir el uplift en closing_rate frente a la línea base del 9.75% durante 2 semanas.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate"",
+  ""columns"": [
+    ""city_clean"",
+    ""total_leads"",
+    ""total_conversions"",
+    ""closing_rate_pct""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_leads"": {
+      ""min"": 5.0,
+      ""max"": 10968.0,
+      ""mean"": 1163.15,
+      ""median"": 27.0,
+      ""std"": 2629.9518,
+      ""type"": ""sum_total""
+    },
+    ""total_conversions"": {
+      ""min"": 0.0,
+      ""max"": 2526.0,
+      ""mean"": 170.35,
+      ""median"": 0.0,
+      ""std"": 552.0612,
+      ""type"": ""sum_total""
+    },
+    ""closing_rate_pct"": {
+      ""min"": 0.0,
+      ""max"": 23.03,
+      ""mean"": 2.501,
+      ""median"": 0.0,
+      ""std"": 5.503,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+fd8e8535-e111-46a4-9feb-8af93b3c880e,2025-10-21T04:16:22.979479+00:00,2025-10-21T04:18:11.164419+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2471,1001,Tasa de cierre,"Resumen ejecutivo del KPI solicitado
+
+- KPI solicitado (volumen de ventas promedio): No disponible en los datos actuales (valor principal: N/A).
+- KPI disponible y relevante para evaluar desempeño comercial: kpi_closing_rate (tasa de cierre de leads a conversiones).
+
+Hallazgos clave del kpi_closing_rate (mismo periodo para todos los mercados)
+- Las Vegas es el outlier positivo: 23.03% (10,968 leads; 2,526 conversiones). Lidera en tasa y en volumen absoluto de conversiones.
+- San Diego ocupa el segundo lugar: 9.75% (4,730; 461). Sólido, con amplio margen respecto a Las Vegas.
+- Phoenix y Denver muestran desempeño medio-bajo: 7.47% (1,794; 134) y 5.83% (4,323; 252). Denver recibe más leads que Phoenix, pero convierte peor.
+- Santa Clara es el rezagado: 3.94% (862; 34), con la menor tasa y el menor volumen.
+
+Conclusión apoyada en datos
+- La estructura de tasas y volúmenes sugiere maximizar retorno asignando recursos a mercados con mejor conversión (Las Vegas, San Diego), optimizar el embudo donde hay alto flujo pero baja tasa (Denver) y corregir de raíz calidad/proceso en el mercado de menor desempeño (Santa Clara).
+- Potencial cuantificado: si Denver elevara su tasa al nivel de Phoenix (7.47%), sumaría ~71 conversiones adicionales en el periodo (proyección: 4,323 × 7.47% ≈ 323 vs. 252 actuales). Si Santa Clara alcanzara la tasa de Denver (5.83%), agregaría ~16 conversiones (50 vs. 34).
+
+Implicaciones operativas
+- Reorientar inversión de demanda y capacidad operativa hacia mercados con mayor retorno esperado: priorizar Las Vegas y San Diego.
+- En Denver, optimizar calificación de leads y tiempos de respuesta para capturar mejoras rápidas dada la alta base de leads.
+- En Santa Clara, auditar de inmediato la calidad de fuentes y la ejecución comercial (guiones, seguimiento) antes de seguir invirtiendo.
+
+Recomendaciones accionables inmediatas
+- Replicar el playbook de Las Vegas: analizar fuentes de leads, oferta, primer tiempo de respuesta y guiones; escalar un piloto controlado en San Diego y Denver.
+- Auditoría de Santa Clara: pausar o ajustar fuentes de peor desempeño; reforzar capacitación y estandarizar seguimiento para elevar la tasa del 3.94%.
+- Enfoque en lead handling en Denver: con 4,323 leads y 252 conversiones (5.83%), mejoras en contacto y seguimiento pueden capturar valor rápido.
+- Reasignación táctica de presupuesto por 30 días: transferir 15–20% del gasto de generación de Santa Clara hacia San Diego; medir impacto en CAC y closing_rate antes de consolidar el cambio.
+- Prueba A/B de calificación y SLA de primera respuesta en Denver: implementar versión “estricta” de scoring y un SLA de primera respuesta definido y medible; comparar uplift de conversión vs. control.
+
+Limitaciones y requerimiento de datos
+- El “volumen de ventas promedio” no está disponible en este corte (N/A). Para calcularlo con precisión, extraerlo desde clean.fct_sales con una definición acordada (por venta, por mes o por cliente, desglosado por mercado y periodo).
+
+Pregunta siguiente sugerida
+- ¿Confirmamos la definición y el periodo del “volumen de ventas promedio” (por venta/por mes/por cliente) y el desglose por mercado para calcularlo desde clean.fct_sales?
+
+Acción táctica inmediata
+- Lanzar en 7 días un piloto del “playbook Las Vegas” en San Diego: estandarizar tiempos de primera respuesta y guiones, y medir el uplift en closing_rate frente a la línea base del 9.75% durante 2 semanas.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate"",
+  ""columns"": [
+    ""city_clean"",
+    ""total_leads"",
+    ""total_conversions"",
+    ""closing_rate_pct""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_leads"": {
+      ""min"": 5.0,
+      ""max"": 10968.0,
+      ""mean"": 1163.15,
+      ""median"": 27.0,
+      ""std"": 2629.9518,
+      ""type"": ""sum_total""
+    },
+    ""total_conversions"": {
+      ""min"": 0.0,
+      ""max"": 2526.0,
+      ""mean"": 170.35,
+      ""median"": 0.0,
+      ""std"": 552.0612,
+      ""type"": ""sum_total""
+    },
+    ""closing_rate_pct"": {
+      ""min"": 0.0,
+      ""max"": 23.03,
+      ""mean"": 2.501,
+      ""median"": 0.0,
+      ""std"": 5.503,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+4e713512-888c-41d5-bd8b-d6dfe2c7f98d,2025-10-21T04:18:46.068826+00:00,2025-10-21T04:20:01.747427+00:00,execution_accuracy,correct,1.0,La diferencia entre los valores es menor al 20%.,2322,605,Volumen global,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+4e713512-888c-41d5-bd8b-d6dfe2c7f98d,2025-10-21T04:18:46.068826+00:00,2025-10-21T04:20:01.747427+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,5355,592,Volumen global,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"

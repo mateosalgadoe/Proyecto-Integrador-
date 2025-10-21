@@ -1,0 +1,247 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+2083ce4f-8ced-4110-8ad4-ddb8abb2510a,2025-10-21T18:48:14.075580+00:00,2025-10-21T18:50:31.202171+00:00,execution_accuracy,correct,1.0,La diferencia entre la salida y la referencia es menor al 20%.,2385,749,¿Cuál es el closing rate global de RocknBlock?,"Resumen ejecutivo
+- Closing rate global: 12.00% sobre 28,381 leads, con 3,407 conversiones. La aritmética es consistente (3,407 / 28,381 ≈ 12.00%, redondeado a dos decimales).
+- KPI solicitado (volumen de ventas promedio): no se encuentra en los resultados. Falta el cálculo de avg_sale_volume y su segmentación para comparativas y tendencia.
+- Conclusión fundamentada: hoy sabemos que 12% de los leads cierran (3,407 ventas), pero no dónde ni por qué. Sin el avg_sale_volume y sin cortes por segmento, no es posible priorizar palancas comerciales ni medir impacto económico por ciudad/fuente/servicio.
+
+Implicaciones de negocio
+- El crecimiento depende de dos palancas verificables con datos: 1) calidad y volumen de leads; 2) eficacia comercial/operativa para convertirlos.
+- Sin histórico ni segmentación (ciudad, fuente de lead, servicio), no se puede identificar dónde se gana o pierde conversión ni si el 12.00% mejora o se deteriora en el tiempo.
+
+Qué hacer ahora (priorizado y accionable)
+1) Entregar el KPI solicitado (avg_sale_volume)
+- Calcular avg_sale_volume en clean.fct_sales y publicarlo a nivel global y por ciudad. Reportar media, mediana (P50), P90 y n para contexto.
+- Normalizar ubicaciones en clean antes del cálculo (evitar variantes de nombre) y publicar ranking por ciudad con n mínimo.
+
+2) Dar contexto al closing rate
+- Desglosar el 12.00% por: ciudad, fuente de lead (clean.dim_leads), servicio/categoría (clean.fct_sales) y estado del trabajo (clean.fct_housecallpro_jobs).
+- Definir umbrales de confiabilidad (n mínimo) y una tendencia de 3–6 meses. Alinear cohortes por fecha de lead con una ventana de conversión (p. ej., 30–45 días) para evitar sesgos por rezago.
+
+3) Preparar palancas de mejora
+- Embudo ciudad x fuente: identificar combinaciones con buen volumen y bajo cierre para optimizar mensajes/ofertas o reasignar presupuesto.
+- Operación: revisar capacidad y tiempos de agenda (housecallpro) antes de impulsar promociones para no erosionar la conversión ni aumentar cancelaciones.
+
+Cómo lo mediremos (con datos del esquema clean)
+- Definiciones y fórmula:
+  - Closing rate = ventas cerradas / leads, con ventas provenientes de clean.fct_sales y leads de clean.dim_leads, alineados por cohorte de creación del lead y ventana de conversión definida.
+  - Volumen de ventas promedio (avg_sale_volume): promedio del importe de venta en clean.fct_sales, especificando moneda, impuestos/propinas/discounts incluidos o excluidos, y estandarización por ubicación.
+- Reportes:
+  - Closing rate por segmento: ciudad, fuente de lead, servicio; pipeline leads → ventas → trabajos completados (clean.fct_housecallpro_jobs) para validar fulfillment.
+  - Avg_sale_volume: media, mediana (P50), P90 y n por ciudad y global, post-normalización de ubicaciones.
+- Indicadores de éxito sugeridos:
+  - +3–5 pp de conversión en plazas objetivo.
+  - +10% en el P50 de avg_sale_volume.
+  - Reducción del tiempo de espera a <3 días en ciudades de cola.
+
+Riesgos a monitorear
+- Sesgo por bajo volumen en cortes finos: evitar decisiones con n pequeño sin evaluar variabilidad.
+- Rezago entre lead y venta: medir por cohortes y ventanas de conversión para no subestimar el closing rate reciente.
+- Calidad de dato de ubicación y duplicados: pueden distorsionar rankings y promedios.
+
+Siguiente pregunta útil
+- ¿Cómo se distribuye el 12.00% de closing rate por ciudad y fuente de lead, y qué combinaciones explican la mayor parte de las 3,407 conversiones?
+
+Acción táctica inmediata
+- Publicar un reporte con closing rate por ciudad y fuente de lead y, en paralelo, calcular y publicar el avg_sale_volume global y por ciudad (con n, mediana y P90) tras normalizar ubicaciones en clean. Esto permitirá priorizar dos ciudades para una intervención rápida de mix/promos y capacidad.
+- Establecer la ventana de conversión estándar (p. ej., 30–45 días) y reestimar el closing rate por cohorte mensual para separar mejora real de efecto rezago.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate_global"",
+  ""columns"": [
+    ""total_conversions_global"",
+    ""total_leads_global"",
+    ""closing_rate_pct_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 12.0,
+  ""source_column"": ""closing_rate_pct_global""
+}"
+2083ce4f-8ced-4110-8ad4-ddb8abb2510a,2025-10-21T18:48:14.075580+00:00,2025-10-21T18:50:31.202171+00:00,kpi_correctness,correct,1.0,La diferencia entre la salida y la referencia es menor al 20%.,3098,704,¿Cuál es el closing rate global de RocknBlock?,"Resumen ejecutivo
+- Closing rate global: 12.00% sobre 28,381 leads, con 3,407 conversiones. La aritmética es consistente (3,407 / 28,381 ≈ 12.00%, redondeado a dos decimales).
+- KPI solicitado (volumen de ventas promedio): no se encuentra en los resultados. Falta el cálculo de avg_sale_volume y su segmentación para comparativas y tendencia.
+- Conclusión fundamentada: hoy sabemos que 12% de los leads cierran (3,407 ventas), pero no dónde ni por qué. Sin el avg_sale_volume y sin cortes por segmento, no es posible priorizar palancas comerciales ni medir impacto económico por ciudad/fuente/servicio.
+
+Implicaciones de negocio
+- El crecimiento depende de dos palancas verificables con datos: 1) calidad y volumen de leads; 2) eficacia comercial/operativa para convertirlos.
+- Sin histórico ni segmentación (ciudad, fuente de lead, servicio), no se puede identificar dónde se gana o pierde conversión ni si el 12.00% mejora o se deteriora en el tiempo.
+
+Qué hacer ahora (priorizado y accionable)
+1) Entregar el KPI solicitado (avg_sale_volume)
+- Calcular avg_sale_volume en clean.fct_sales y publicarlo a nivel global y por ciudad. Reportar media, mediana (P50), P90 y n para contexto.
+- Normalizar ubicaciones en clean antes del cálculo (evitar variantes de nombre) y publicar ranking por ciudad con n mínimo.
+
+2) Dar contexto al closing rate
+- Desglosar el 12.00% por: ciudad, fuente de lead (clean.dim_leads), servicio/categoría (clean.fct_sales) y estado del trabajo (clean.fct_housecallpro_jobs).
+- Definir umbrales de confiabilidad (n mínimo) y una tendencia de 3–6 meses. Alinear cohortes por fecha de lead con una ventana de conversión (p. ej., 30–45 días) para evitar sesgos por rezago.
+
+3) Preparar palancas de mejora
+- Embudo ciudad x fuente: identificar combinaciones con buen volumen y bajo cierre para optimizar mensajes/ofertas o reasignar presupuesto.
+- Operación: revisar capacidad y tiempos de agenda (housecallpro) antes de impulsar promociones para no erosionar la conversión ni aumentar cancelaciones.
+
+Cómo lo mediremos (con datos del esquema clean)
+- Definiciones y fórmula:
+  - Closing rate = ventas cerradas / leads, con ventas provenientes de clean.fct_sales y leads de clean.dim_leads, alineados por cohorte de creación del lead y ventana de conversión definida.
+  - Volumen de ventas promedio (avg_sale_volume): promedio del importe de venta en clean.fct_sales, especificando moneda, impuestos/propinas/discounts incluidos o excluidos, y estandarización por ubicación.
+- Reportes:
+  - Closing rate por segmento: ciudad, fuente de lead, servicio; pipeline leads → ventas → trabajos completados (clean.fct_housecallpro_jobs) para validar fulfillment.
+  - Avg_sale_volume: media, mediana (P50), P90 y n por ciudad y global, post-normalización de ubicaciones.
+- Indicadores de éxito sugeridos:
+  - +3–5 pp de conversión en plazas objetivo.
+  - +10% en el P50 de avg_sale_volume.
+  - Reducción del tiempo de espera a <3 días en ciudades de cola.
+
+Riesgos a monitorear
+- Sesgo por bajo volumen en cortes finos: evitar decisiones con n pequeño sin evaluar variabilidad.
+- Rezago entre lead y venta: medir por cohortes y ventanas de conversión para no subestimar el closing rate reciente.
+- Calidad de dato de ubicación y duplicados: pueden distorsionar rankings y promedios.
+
+Siguiente pregunta útil
+- ¿Cómo se distribuye el 12.00% de closing rate por ciudad y fuente de lead, y qué combinaciones explican la mayor parte de las 3,407 conversiones?
+
+Acción táctica inmediata
+- Publicar un reporte con closing rate por ciudad y fuente de lead y, en paralelo, calcular y publicar el avg_sale_volume global y por ciudad (con n, mediana y P90) tras normalizar ubicaciones en clean. Esto permitirá priorizar dos ciudades para una intervención rápida de mix/promos y capacidad.
+- Establecer la ventana de conversión estándar (p. ej., 30–45 días) y reestimar el closing rate por cohorte mensual para separar mejora real de efecto rezago.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate_global"",
+  ""columns"": [
+    ""total_conversions_global"",
+    ""total_leads_global"",
+    ""closing_rate_pct_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 12.0,
+  ""source_column"": ""closing_rate_pct_global""
+}"
+305d0aa0-1628-40cd-926a-8180800626e8,2025-10-21T18:51:03.742774+00:00,2025-10-21T18:52:17.332607+00:00,execution_accuracy,correct,1.0,La respuesta del modelo coincide exactamente con el valor de referencia.,2447,823,¿Cuál es el promedio global de ventas de RocknBlock?,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+305d0aa0-1628-40cd-926a-8180800626e8,2025-10-21T18:51:03.742774+00:00,2025-10-21T18:52:17.332607+00:00,kpi_correctness,correct,1.0,La respuesta del modelo coincide exactamente con el valor de referencia.,2424,889,¿Cuál es el promedio global de ventas de RocknBlock?,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+b4594288-cb6b-499b-8e60-819f4d00b814,2025-10-21T18:52:51.185528+00:00,2025-10-21T18:55:12.500224+00:00,execution_accuracy,correct,1.0,La diferencia entre los valores es menor al 20%.,1911,386,¿Cuáles son los benchmarks de crecimiento de PIB en la industria de landscaping?,2.8,"{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+b4594288-cb6b-499b-8e60-819f4d00b814,2025-10-21T18:52:51.185528+00:00,2025-10-21T18:55:12.500224+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,3269,381,¿Cuáles son los benchmarks de crecimiento de PIB en la industria de landscaping?,2.8,"{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"

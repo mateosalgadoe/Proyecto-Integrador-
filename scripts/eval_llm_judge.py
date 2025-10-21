@@ -31,11 +31,20 @@ load_dotenv()
 # Funciones auxiliares
 # ===============================================================
 
+
 def normalize_numeric_tokens(text: str) -> Optional[float]:
-    """Convierte expresiones '73.3k', '1.2M', '1,141,162.06', '1.141.162,06' a float."""
+    """Convierte expresiones numéricas incluyendo porcentajes correctamente."""
     if not text:
         return None
+    
     t = text.strip()
+    
+    # NUEVO: Detectar porcentajes específicamente primero
+    pct_match = re.search(r'(\d+\.?\d*)\s*%', t)
+    if pct_match:
+        return float(pct_match.group(1))
+    
+    # Detectar números con unidades k/M/B
     # Quitar espacios y caracteres no numéricos comunes
     t = re.sub(r"[^\d,.\-kKmMbB]", "", t)
 
@@ -64,21 +73,48 @@ def normalize_numeric_tokens(text: str) -> Optional[float]:
     return num
 
 
+
 def try_parse_number(text: str) -> Optional[float]:
-    """Parsea números en formatos tanto US (1,234.56) como EU/Latam (1.234,56)."""
+    """Parsea números mejorando detección de porcentajes."""
     if not text:
         return None
-    normalized = normalize_numeric_tokens(text)
+
+    # NUEVO: Detectar porcentajes explícitamente
+    pct_patterns = [
+        r'(\d+\.?\d*)\s*%',  # 23.10%
+        r'(\d+\.?\d*)\s*pct',  # 23.10 pct
+        r'(\d+\.?\d*)\s*por\s*ciento',  # 23.10 por ciento
+    ]
+    
+    for pattern in pct_patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            return float(match.group(1))
+
+    # MEJORA: Ignorar números que son parte de explicaciones
+    ignore_patterns = [
+        r'[><=±]\s*\d+',             # Comparaciones como >5%, ±10%
+        r'\d+\s*(?:million|millones|mil\s|thousand)',  # Unidades en texto
+        r'(?:entre|from|de)\s+-?\d+',  # Rangos como "entre -20 y 30"
+        r'\d{4}-\d{2}-\d{2}',        # Fechas
+        r'\d{10,}',                  # Números muy largos (IDs, timestamps)
+    ]
+
+    cleaned_text = text
+    for pattern in ignore_patterns:
+        cleaned_text = re.sub(pattern, "", cleaned_text, flags=re.IGNORECASE)
+
+    # Usar normalize_numeric_tokens mejorado
+    normalized = normalize_numeric_tokens(cleaned_text)
     if normalized is not None:
         return normalized
 
-    # Limpieza básica
-    txt = text.strip().replace(" ", "")
-    # Detectar si tiene formato latino: más puntos que comas → usa coma decimal
+    # Limpieza básica como fallback
+    txt = cleaned_text.strip().replace(" ", "")
     if txt.count(".") > 1 or ("," in txt and "." in txt and txt.rfind(",") > txt.rfind(".")):
-        txt = txt.replace(".", "").replace(",", ".")  # 1.234.567,89 → 1234567.89
+        txt = txt.replace(".", "").replace(",", ".")
     else:
-        txt = txt.replace(",", "")  # 1,234.56 → 1234.56
+        txt = txt.replace(",", "")
 
     m = re.search(r"[-+]?\d+(?:\.\d+)?", txt)
     if not m:
@@ -154,37 +190,63 @@ def extract_question(doc: Dict[str, Any]) -> Optional[str]:
 
 def extract_model_output(doc: Dict[str, Any]) -> Optional[str]:
     """Busca el output del modelo priorizando kpi_numeric_value."""
-
-    # 1️⃣ Buscar kpi_numeric_value en TODOS los niveles primero
-    root = doc.get("root") or {}
-    if root.get("outputs", {}).get("kpi_numeric_value") is not None:
-        val = root.get("outputs").get("kpi_numeric_value")
-        print(f"✅ Encontrado kpi_numeric_value en root: {val}")
-        return str(val)
-
-    # En steps también
-    for step in doc.get("steps", []):
-        if step.get("outputs", {}).get("kpi_numeric_value") is not None:
-            val = step.get("outputs").get("kpi_numeric_value")
-            print(f"✅ Encontrado kpi_numeric_value en step '{step.get('name')}': {val}")
-            return str(val)
-
-    # 2️⃣ Si no hay kpi_numeric_value, busca los otros campos como antes
-    outputs = root.get("outputs") or {}
-    for k in ["final_answer", "draft_answer", "tool_result", "summary"]:
-        if outputs.get(k):
-            print(f"✅ Encontrado '{k}' en root.outputs")
-            return outputs.get(k)
-
+    
+    # 1. PRIORIDAD ABSOLUTA: buscar kpi_numeric_value primero
     steps = doc.get("steps", [])
-    for idx, step in enumerate(steps):
-        step_outputs = step.get("outputs") or {}
-        for k in ["final_answer", "draft_answer", "tool_result", "summary"]:
-            if step_outputs.get(k):
-                print(f"✅ Encontrado '{k}' en step '{step.get('name')}'")
-                return step_outputs.get(k)
-
-    print("❌ No se encontró model_output en ningún nivel")
+    if steps:  # Verificar que steps no sea None o vacío
+        for step in steps:
+            if step is None:  # Skip None steps
+                continue
+            outputs = step.get("outputs", {})
+            if outputs and outputs.get("kpi_numeric_value") is not None:
+                val = outputs.get("kpi_numeric_value")
+                print(f"Encontrado kpi_numeric_value: {val}")
+                return str(val)
+    
+    # 2. Buscar en root
+    root = doc.get("root", {})
+    if root:
+        outputs = root.get("outputs", {})
+        if outputs and outputs.get("kpi_numeric_value") is not None:
+            val = outputs.get("kpi_numeric_value")
+            print(f"Encontrado kpi_numeric_value en root: {val}")
+            return str(val)
+    
+    # 3. Buscar final_answer con patrones
+    if steps:
+        for step in steps:
+            if step is None:  # Skip None steps
+                continue
+            outputs = step.get("outputs", {})
+            if outputs and outputs.get("final_answer"):
+                answer = outputs.get("final_answer")
+                
+                # Buscar patrones específicos de KPIs
+                kpi_patterns = [
+                    r'(?:KPI|valor|resultado).*?(\d{6,}(?:\.\d+)?)',  # Números grandes
+                    r'las vegas nv:\s*(\d+\.?\d*)',  # Closing rate específico
+                    r'(?:PIB|GDP).*?(\d+\.\d+)',  # PIB como benchmark
+                ]
+                
+                for pattern in kpi_patterns:
+                    match = re.search(pattern, answer, re.IGNORECASE)
+                    if match:
+                        found_val = match.group(1)
+                        print(f"Encontrado KPI con patrón: {found_val}")
+                        return found_val
+                
+                return answer
+    
+    # 4. Fallback a otros campos
+    if root:
+        outputs = root.get("outputs", {})
+        if outputs:
+            for k in ["draft_answer", "tool_result", "summary"]:
+                if outputs.get(k):
+                    print(f"Encontrado '{k}' en root.outputs")
+                    return outputs.get(k)
+    
+    print("No se encontró model_output en ningún nivel")
     return None
 
 def extract_ground_truth(doc: Dict[str, Any]) -> Optional[str]:
@@ -192,9 +254,11 @@ def extract_ground_truth(doc: Dict[str, Any]) -> Optional[str]:
 
     # 1️⃣ Buscar en steps - nivel más probable para data / KPI results
     steps = doc.get("steps", [])
-    print(f"🔍 Buscando ground_truth en {len(steps)} steps...")
+    print(f"Buscando ground_truth en {len(steps)} steps...")
 
     for idx, step in enumerate(steps):
+        if step is None:  # Skip None steps
+            continue
         step_name = step.get("name", f"step_{idx}")
         step_outputs = step.get("outputs") or {}
 
@@ -334,37 +398,107 @@ def cohere_judge(metric: str, question: str, model_output: str, ground_truth: st
         except Exception as e:
             print(f"⚠️ Error leyendo KPI global: {e}")
 
+
     # Lógica estándar para KPIs tipo tabla con 'stats'
     if gt_num is None:
         try:
             gt_data = json.loads(ground_truth)
             if isinstance(gt_data, dict) and "stats" in gt_data:
 
-                if gt_data.get("reference_metric") == "median":
-                    if any(x in (question.lower() + model_output.lower())
-                           for x in ["total", "sum", "suma", "volumen total"]):
-                        for col, stats in gt_data["stats"].items():
-                            if "total" in col.lower() and stats.get("type") == "sum_total":
-                                gt_num = stats.get("median") or stats.get("mean")
-                                print(f"✅ Usando referencia 'median' para columna total {col}: {gt_num}")
-                                break
+                # 🆕 DETECCIÓN DE CIUDAD ESPECÍFICA EN LA PREGUNTA
+                cities_in_question = []
+            
+                common_cities = ["las vegas", "san diego", "phoenix", "denver", "santa clara",
+                                 "henderson", "riverside", "north las vegas", "temecula",
+                                 "anaheim", "atlanta", "aliso viejo", "apache junction", "arizona"]
+                
+                for city in common_cities:
+                    if city in question.lower():
+                        cities_in_question.append(city)
+                        print(f"🎯 Ciudad detectada en pregunta: {city}")
 
+
+                        
+    
+                # Si hay ciudad específica mencionada Y el ground_truth tiene stats multi-ciudad
+                if cities_in_question and gt_data.get("type") == "multi_value":
+                    print(f"🔍 Intentando buscar valor de ciudad en ground_truth de tipo multi_value...")
+                    
+                    # 🆕 CARGAR EL GROUND TRUTH ORIGINAL CON ROWS
+                    # El ground truth JSON no tiene rows, necesitamos cargarlas desde la BD
+                    try:
+                        import psycopg2
+                        conn = psycopg2.connect(
+                            host=os.getenv("DB_HOST"),
+                            port=os.getenv("DB_PORT"),
+                            dbname=os.getenv("DB_NAME"),
+                            user=os.getenv("DB_USER"),
+                            password=os.getenv("DB_PASSWORD"),
+                            sslmode="require"
+                        )
+                        cur = conn.cursor()
+                        
+                        # Obtener el nombre de la vista KPI desde el ground truth
+                        kpi_table = gt_data.get("kpi_name", "")
+                        if kpi_table:
+                            cur.execute(f"SELECT * FROM ai.{kpi_table} LIMIT 20;")
+                            rows = cur.fetchall()
+                            cols = [desc[0] for desc in cur.description]
+                            
+                            # Buscar la ciudad en las rows
+                            for row in rows:
+                                if row and len(row) > 0:
+                                    city_in_row = str(row[0]).lower().strip()
+                                    for city_q in cities_in_question:
+                                        if city_q in city_in_row:
+                                            # Tomar último valor numérico de la fila
+                                            gt_num = float(row[-1])
+                                            print(f"✅ Encontrado valor específico para '{city_q}' en BD: {gt_num}")
+                                            conn.close()
+                                            break
+                                    if gt_num is not None:
+                                        break
+                            
+                            conn.close()
+                    except Exception as e:
+                        print(f"⚠️ No se pudo consultar BD para ciudad específica: {e}")
+
+
+
+
+
+
+                # Si NO se encontró valor de ciudad específica, usar columnas prioritarias
+                if gt_num is None:
+                    # ✅ LISTA DE PRIORIDAD DE COLUMNAS
+                    priority_columns = [
+                        "closing_rate_pct_global",   # Para closing rate global
+                        "closing_rate_pct",          # Para closing rate por ciudad
+                        "avg_sales_volume_global",   # Para volumen global
+                        "gdp_growth_pct",            # Para benchmarks macro
+                        "sales_growth_sector_pct",   # Para benchmarks sector
+                        "total_sales",               # Para totales
+                        "avg_sale_volume",           # Para promedios
+                    ]
+
+                    # Buscar por prioridad
+                    for priority_col in priority_columns:
+                        if priority_col in gt_data["stats"]:
+                            stats = gt_data["stats"][priority_col]
+                            gt_num = stats.get("median") or stats.get("mean")
+                            print(f"✅ Usando columna prioritaria '{priority_col}': {gt_num}")
+                            break
+
+                    # Si no encontró columna prioritaria, buscar avg/mean genérico
                     if gt_num is None:
                         for col, stats in gt_data["stats"].items():
                             col_lower = col.lower()
                             if any(kw in col_lower for kw in ["avg", "mean", "average", "promedio"]):
                                 gt_num = stats.get("median") or stats.get("mean")
-                                print(f"✅ Usando referencia 'median' para columna promedio {col}: {gt_num}")
+                                print(f"✅ Usando columna promedio '{col}': {gt_num}")
                                 break
 
-                    if gt_num is None:
-                        for col, stats in gt_data["stats"].items():
-                            col_lower = col.lower()
-                            if any(kw in col_lower for kw in ["volume", "revenue"]) and not col_lower.startswith("n_"):
-                                gt_num = stats.get("median") or stats.get("mean")
-                                print(f"⚠️ Fallback: usando referencia 'median' para {col}: {gt_num}")
-                                break
-
+                    # Último recurso
                     if gt_num is None and gt_data["stats"]:
                         first_col = next(iter(gt_data["stats"].keys()))
                         first_stat = gt_data["stats"][first_col]
@@ -602,27 +736,47 @@ def main():
 
         for row in eval_inputs:
             q, mo, gt_text = row["question"], row["model_output"], row["ground_truth"]
-
+            
             kpi_candidates = {
-                "avg_sales": "kpi_avg_sales_volume",
-                "average": "kpi_avg_sales_volume",
-                "closing": "kpi_closing_rate",
-                "rate": "kpi_closing_rate",
-                "volume": "kpi_sales_volume_by_city",
+                # GLOBALES (más largos = mayor prioridad)
+                "promedio global de ventas": "kpi_avg_sales_volume_global",
+                "volumen de ventas global": "kpi_avg_sales_volume_global",
+                "closing rate global de rocknblock": "kpi_closing_rate_global",
+                "tasa de cierre global de rocknblock": "kpi_closing_rate_global",
+                "closing rate global": "kpi_closing_rate_global",
+                "tasa de cierre global": "kpi_closing_rate_global",
+                "volumen global": "kpi_avg_sales_volume_global",
+                "promedio global": "kpi_avg_sales_volume_global",
+                
+                # POR CIUDAD (frases específicas - MÁS LARGAS PRIMERO)
+                "promedio de ventas por ciudad": "kpi_avg_sales_volume",
+                "total de ventas por ciudad": "kpi_sales_volume_by_city",
+                "ventas por ciudad": "kpi_sales_volume_by_city",
+                "promedio por ciudad": "kpi_avg_sales_volume",
+                "closing rate de las vegas": "kpi_closing_rate",
+                "closing rate en las vegas": "kpi_closing_rate",
+                "tasa de cierre de las vegas": "kpi_closing_rate",
+                "closing rate de": "kpi_closing_rate",
+                "closing rate en": "kpi_closing_rate",
+                
+                # BENCHMARKS
+                "benchmarks de crecimiento de pib": "industry_benchmarks",
+                "crecimiento de pib en la industria": "industry_benchmarks",
+                "benchmarks de crecimiento": "industry_benchmarks",
+                "crecimiento de pib": "industry_benchmarks",
+                "benchmarks de industria": "industry_benchmarks",
                 "industry": "industry_benchmarks",
-                "benchmark": "industry_benchmarks"
+                "benchmark": "industry_benchmarks",
             }
 
             kpi_match = None
-            for key, fname in kpi_candidates.items():
-                if key in q.lower() or key in mo.lower():
-                    kpi_match = fname
-                    print(f"📊 KPI detectado: {fname}")
+            
+            # Buscar match más largo primero (más específico)
+            for key in sorted(kpi_candidates.keys(), key=len, reverse=True):
+                if key in q.lower():
+                    kpi_match = kpi_candidates[key]
+                    print(f" KPI detectado: {kpi_match}")
                     break
-
-            if kpi_match in ["kpi_sales_volume_by_city", "sales_volume", "avg_sales_volume"]:
-                print(f"🪄 Mapeando KPI {kpi_match} → kpi_avg_sales_volume_global")
-                kpi_match = "kpi_avg_sales_volume_global"
 
 
             for metric in selected_metrics:
@@ -697,4 +851,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -27,7 +27,7 @@ class ReActState(TypedDict):
     draft_answer: Optional[str]
     final_answer: Optional[str]
     error: Optional[str]
-    retrieved_context: Optional[str]   #contexto RAG
+    retrieved_context: Optional[str]
     kpi_numeric_value: Optional[float]
 
 # ----------------------------
@@ -118,6 +118,7 @@ def retrieval_node(state: ReActState) -> ReActState:
 # ----------------------------
 # Nodo 1: Plan (Reason)
 # ----------------------------
+
 @traceable(run_type="chain", name="Plan Node")
 def plan_node(state: ReActState) -> ReActState:
     llm = get_llm()
@@ -145,10 +146,15 @@ Analiza la pregunta del usuario y devuelve un JSON con:
 - rationale: breve justificación.
 - reformulated_question: versión optimizada de la pregunta para ejecutar si aplica.
 
-[Guías de decisión]
+[Guías de decisión MEJORADAS]
 - Usa "kpi_query" si la pregunta menciona:
-  palabras como "KPI", "indicador", "métrica", "porcentaje", "ratio", "tasa", "volumen promedio", "eficiencia", "promedio de ventas".
-- Usa "sql_query" si la pregunta pide datos crudos, conteos, listados o exploraciones directas.
+  * Palabras como "KPI", "indicador", "métrica", "porcentaje", "ratio", "tasa", "volumen promedio", "eficiencia", "promedio de ventas"
+  * "benchmark", "benchmarks", "industria", "sector", "comparativa", "mercado", "industria de landscaping"
+  * "tasa de cierre", "closing rate", "conversión", "win rate"
+  * "tendencia", "evolución", "serie temporal" (SOLO si menciona KPI o métricas específicas)
+- Usa "sql_query" si la pregunta pide:
+  * Datos crudos, conteos, listados o exploraciones directas
+  * Tendencias temporales sin mencionar KPIs (ej: "ventas por mes")
 - Usa "direct_answer" si es conceptual o fuera del dominio de datos.
 - Si hay duda entre SQL y KPI, prefiere "kpi_query".
 
@@ -174,12 +180,12 @@ Analiza la pregunta del usuario y devuelve un JSON con:
         return state
 
 
+
 # ----------------------------
 # Nodo 2: Act (Act/Observe)
 # ----------------------------
-# ----------------------------
-# Nodo 2: Act (Act/Observe)
-# ----------------------------
+
+
 @traceable(run_type="tool", name="Act Node")
 def act_node(state: ReActState) -> ReActState:
     if state.get("error"):
@@ -195,21 +201,21 @@ def act_node(state: ReActState) -> ReActState:
         try:
             sql_workflow = build_sql_graph().compile()
             result = sql_workflow.invoke({"input": question})
-            
-            #  Extrae kpi_numeric_value si existe
+
+            # Extrae kpi_numeric_value si existe
             kpi_numeric_value = result.get("kpi_numeric_value")
+
+            # CRÍTICO: Incluir el valor numérico en tool_result
+            summary_text = result.get("summary", "Sin resultados desde SQL/KPI Graph.")
             
-            state["tool_result"] = (
-                result.get("summary")
-                or result.get("data")
-                or "Sin resultados desde SQL/KPI Graph."
-            )
-            
-            #  Propaga el valor numérico puro para evaluación
             if kpi_numeric_value is not None:
-                state["kpi_numeric_value"] = kpi_numeric_value
-                print(f"KPI numérico capturado en act_node: {kpi_numeric_value}")
-                
+                # Añadir el valor real al contexto del LLM
+                summary_text += f"\n\n[VALOR KPI VERIFICADO: {kpi_numeric_value}]"
+                print(f"KPI numérico añadido al contexto: {kpi_numeric_value}")
+
+            state["tool_result"] = summary_text
+            state["kpi_numeric_value"] = kpi_numeric_value
+
         except Exception as e:
             state["tool_result"] = f"Error ejecutando grafo SQL/KPI: {e}"
         return state
@@ -227,10 +233,12 @@ def act_node(state: ReActState) -> ReActState:
 # ----------------------------
 # Nodo 3: Draft (síntesis)
 # ----------------------------
+
 @traceable(run_type="llm", name="Draft Node")
 def draft_node(state: ReActState) -> ReActState:
     if state.get("error"):
         return state
+    
     llm = get_llm()
     context = (
         state.get("business_context", "")
@@ -238,26 +246,36 @@ def draft_node(state: ReActState) -> ReActState:
         + state.get("retrieved_context", "")
     )
     tool_result = state.get("tool_result", "")
+    kpi_value = state.get("kpi_numeric_value")
+    
+    # CRÍTICO: Instrucción explícita para usar datos reales
+    value_instruction = ""
+    if kpi_value is not None:
+        value_instruction = f"\n\nVALOR KPI REAL A USAR: {kpi_value}\nEste es el valor exacto que debes citar y analizar."
+    
     prompt = f"""
 Eres un analista de datos senior de RocknBlock. Redacta una respuesta clara y ejecutiva con base en el siguiente material:
 
 [Contexto de negocio]
 {context}
 
-[Resultados o material disponible]
-{tool_result}
+[Resultados obtenidos]
+{tool_result}{value_instruction}
 
-Requisitos:
-- En español y orientado a decisiones.
-- Interpreta hallazgos, destaca tendencias, outliers y próximos pasos.
-- Sugiere al final una pregunta siguiente útil y una acción táctica.
-- No incluyas firmas ni placeholders.
+INSTRUCCIONES CRÍTICAS:
+- USA ÚNICAMENTE los datos y valores proporcionados arriba
+- Si hay un valor numérico específico, cítalo exactamente
+- NO inventes cifras ni interpretaciones sin datos de soporte
+- En español y orientado a decisiones
+- Interpreta hallazgos, destaca tendencias, outliers y próximos pasos
+- Sugiere al final una pregunta siguiente útil y una acción táctica
+- No incluyas firmas ni placeholders
 """
+    
     resp = llm.invoke(prompt)
     draft = strip_signature(resp.content.strip())
     state["draft_answer"] = draft
     return state
-
 
 # ----------------------------
 # Nodo 4: Reflection (auditoría)
@@ -291,7 +309,13 @@ Texto mejorado, final y listo para entregar.
     improved = strip_signature(improved)
     improved = ensure_closing(improved)
     state["final_answer"] = improved
-    return state
+    
+    #  CRÍTICO: Preservar kpi_numeric_value en el output final
+    return {
+        "final_answer": improved,
+        "kpi_numeric_value": state.get("kpi_numeric_value"), 
+        "error": state.get("error"),
+    }
 
 
 # ----------------------------

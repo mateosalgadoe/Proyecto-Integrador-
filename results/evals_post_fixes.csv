@@ -1,0 +1,269 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+99825cc2-d98c-4250-9776-02c42aee11ed,2025-10-19T04:32:58.400268+00:00,2025-10-19T04:35:21.967449+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,3753,862,Benchmarks de industria,2025,"{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+99825cc2-d98c-4250-9776-02c42aee11ed,2025-10-19T04:32:58.400268+00:00,2025-10-19T04:35:21.967449+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2247,940,Benchmarks de industria,2025,"{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+b15d0f83-a889-4bf2-9565-43d23869caca,2025-10-19T04:35:52.884548+00:00,2025-10-19T04:37:40.424587+00:00,execution_accuracy,incorrect,0.0,"La diferencia entre los valores es mayor al 40%, lo que indica que la respuesta es incorrecta.",3203,936,Tendencia mensual,"Resumen ejecutivo
+- Conclusión verificable: no es posible mostrar el KPI “volumen de ventas promedio” porque la consulta a clean.fct_sales no devolvió filas. Evidencia: mensaje del motor de consulta “No se encontraron resultados o el dataset está vacío”. Sin registros, no hay base para calcular ni validar ticket medio ni tendencias; cualquier decisión con este KPI carecería de sustento.
+
+Contexto externo (referencia, no afecta la conclusión)
+- Sector landscaping 6 meses: TBLD +21.31%, SITE +8.57%, TREX -3.76%. Señal mixta; refuerza la urgencia de restablecer visibilidad interna. No se usa en el diagnóstico técnico.
+
+Definiciones a acordar antes de recalcular
+- Qué medimos: “volumen de ventas promedio” como ticket promedio por transacción (amount en clean.fct_sales) o agregado por periodo/cliente/trabajo.
+- Horizonte temporal: últimos 7/30/90 días, YTD o rolling 12 meses.
+- Reglas de cómputo: incluir/excluir cancelaciones y devoluciones; usar importe neto vs. bruto; tratamiento de impuestos/propinas.
+- Recomendación para agilizar: usar por defecto “ticket promedio neto por venta, últimos 30 días, excluye cancelaciones y devoluciones; impuestos y propinas excluidos”, salvo instrucción contraria.
+
+Siguientes pasos operativos (0–48 h)
+1) Verificación de datos en clean.fct_sales
+   - Comprobar existencia, permisos y rowcount (>0).
+   - Revisar min/max de fechas y presencia de datos en el rango solicitado.
+   - Validar que no haya filtros que devuelvan vacío (sucursal/estado/tipo de trabajo).
+2) Pipeline/ETL
+   - Revisar última ejecución del job que alimenta clean.fct_sales; reintentar o backfill si falló.
+   - Auditar columnas clave: fecha de venta, importe neto/bruto, estado de transacción; detectar nulos/inconsistencias.
+3) Cobertura provisional
+   - Si fct_sales sigue vacío, calcular temporalmente el KPI desde fuentes alternativas del esquema clean (p. ej., fct_housecallpro_jobs), documentando supuestos y etiquetándolo como “Provisional” en el dashboard.
+4) Gobierno de datos
+   - Configurar monitor y alerta si rowcount de clean.fct_sales = 0 o si no hay datos en los últimos N días.
+
+Riesgos y observaciones
+- Sin este KPI no se detectan tendencias, estacionalidad ni outliers del ticket promedio.
+- Dada la señal sectorial mixta, recuperar el KPI es clave para decisiones de pricing y asignación de cuadrillas.
+
+Propuesta de entrega (una vez restaurado el dataset y acordada la definición)
+- KPI principal de “volumen de ventas promedio” con el corte temporal acordado.
+- Contexto: distribución, percentiles y variación vs. periodo anterior.
+- Alertas: umbrales para caídas/anomalías y reporte de calidad (rowcount, cobertura temporal, nulos).
+
+Recomendaciones accionables
+- Asignar un data owner para clean.fct_sales con SLA de actualización y contrato de esquema; añadir prueba de humo diaria (rowcount y frescura).
+- Actualizar el dashboard para mostrar “Sin datos” con fecha de última carga y enlace a runbook, evitando interpretaciones erróneas cuando el dataset esté vacío.
+
+Pregunta siguiente útil
+- Confirmación: ¿adoptamos como definición inicial “ticket promedio neto por venta, últimos 30 días, excluye cancelaciones/devoluciones; impuestos y propinas excluidos”?
+
+Acción táctica hoy
+- Ejecutar verificación de rowcount y rango de fechas en clean.fct_sales; reintentar/backfill del job de carga si falló; activar alerta de “tabla vacía”.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+b15d0f83-a889-4bf2-9565-43d23869caca,2025-10-19T04:35:52.884548+00:00,2025-10-19T04:37:40.424587+00:00,kpi_correctness,incorrect,0.0,"La diferencia entre los valores es mayor al 40%, por lo que se considera 'incorrect'.",2713,963,Tendencia mensual,"Resumen ejecutivo
+- Conclusión verificable: no es posible mostrar el KPI “volumen de ventas promedio” porque la consulta a clean.fct_sales no devolvió filas. Evidencia: mensaje del motor de consulta “No se encontraron resultados o el dataset está vacío”. Sin registros, no hay base para calcular ni validar ticket medio ni tendencias; cualquier decisión con este KPI carecería de sustento.
+
+Contexto externo (referencia, no afecta la conclusión)
+- Sector landscaping 6 meses: TBLD +21.31%, SITE +8.57%, TREX -3.76%. Señal mixta; refuerza la urgencia de restablecer visibilidad interna. No se usa en el diagnóstico técnico.
+
+Definiciones a acordar antes de recalcular
+- Qué medimos: “volumen de ventas promedio” como ticket promedio por transacción (amount en clean.fct_sales) o agregado por periodo/cliente/trabajo.
+- Horizonte temporal: últimos 7/30/90 días, YTD o rolling 12 meses.
+- Reglas de cómputo: incluir/excluir cancelaciones y devoluciones; usar importe neto vs. bruto; tratamiento de impuestos/propinas.
+- Recomendación para agilizar: usar por defecto “ticket promedio neto por venta, últimos 30 días, excluye cancelaciones y devoluciones; impuestos y propinas excluidos”, salvo instrucción contraria.
+
+Siguientes pasos operativos (0–48 h)
+1) Verificación de datos en clean.fct_sales
+   - Comprobar existencia, permisos y rowcount (>0).
+   - Revisar min/max de fechas y presencia de datos en el rango solicitado.
+   - Validar que no haya filtros que devuelvan vacío (sucursal/estado/tipo de trabajo).
+2) Pipeline/ETL
+   - Revisar última ejecución del job que alimenta clean.fct_sales; reintentar o backfill si falló.
+   - Auditar columnas clave: fecha de venta, importe neto/bruto, estado de transacción; detectar nulos/inconsistencias.
+3) Cobertura provisional
+   - Si fct_sales sigue vacío, calcular temporalmente el KPI desde fuentes alternativas del esquema clean (p. ej., fct_housecallpro_jobs), documentando supuestos y etiquetándolo como “Provisional” en el dashboard.
+4) Gobierno de datos
+   - Configurar monitor y alerta si rowcount de clean.fct_sales = 0 o si no hay datos en los últimos N días.
+
+Riesgos y observaciones
+- Sin este KPI no se detectan tendencias, estacionalidad ni outliers del ticket promedio.
+- Dada la señal sectorial mixta, recuperar el KPI es clave para decisiones de pricing y asignación de cuadrillas.
+
+Propuesta de entrega (una vez restaurado el dataset y acordada la definición)
+- KPI principal de “volumen de ventas promedio” con el corte temporal acordado.
+- Contexto: distribución, percentiles y variación vs. periodo anterior.
+- Alertas: umbrales para caídas/anomalías y reporte de calidad (rowcount, cobertura temporal, nulos).
+
+Recomendaciones accionables
+- Asignar un data owner para clean.fct_sales con SLA de actualización y contrato de esquema; añadir prueba de humo diaria (rowcount y frescura).
+- Actualizar el dashboard para mostrar “Sin datos” con fecha de última carga y enlace a runbook, evitando interpretaciones erróneas cuando el dataset esté vacío.
+
+Pregunta siguiente útil
+- Confirmación: ¿adoptamos como definición inicial “ticket promedio neto por venta, últimos 30 días, excluye cancelaciones/devoluciones; impuestos y propinas excluidos”?
+
+Acción táctica hoy
+- Ejecutar verificación de rowcount y rango de fechas en clean.fct_sales; reintentar/backfill del job de carga si falló; activar alerta de “tabla vacía”.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+05ecbab5-2779-434e-96a2-655d1d4c6c7e,2025-10-19T04:38:10.584147+00:00,2025-10-19T04:39:40.008209+00:00,execution_accuracy,incorrect,0.0,La diferencia entre la salida y la referencia es mayor al 40%.,2457,790,Tasa de cierre,67657.14,"Resumen ejecutivo — kpi_closing_rate
+
+- Valor numérico principal: None
+- Cobertura: 5 ciudades (city_clean, closing_rate_pct)
+
+Resultados por ciudad (valores reales):
+- las vegas nv: 67657.14
+- anaheim: 0.00
+- atlanta: 0.00
+- arizona: 0.00
+- arizona city: 0.00
+
+Interpretación:
+- El desempeño está totalmente concentrado en “las vegas nv” con 67657.14 en closing_rate_pct, mientras que el resto de ciudades presentan 0.00.
+- El valor 67657.14 es inusualmente alto para un indicador de “pct” y sugiere revisar calidad de datos: definición de la métrica, unidad, fórmula de cálculo y fuente específica para “las vegas nv”.
+- Confirmar también que los 0.00 del resto no son producto de falta de datos o filtros aplicados."
+05ecbab5-2779-434e-96a2-655d1d4c6c7e,2025-10-19T04:38:10.584147+00:00,2025-10-19T04:39:40.008209+00:00,kpi_correctness,incorrect,0.0,La diferencia entre la salida y la referencia es mayor al 40%.,2378,595,Tasa de cierre,67657.14,"Resumen ejecutivo — kpi_closing_rate
+
+- Valor numérico principal: None
+- Cobertura: 5 ciudades (city_clean, closing_rate_pct)
+
+Resultados por ciudad (valores reales):
+- las vegas nv: 67657.14
+- anaheim: 0.00
+- atlanta: 0.00
+- arizona: 0.00
+- arizona city: 0.00
+
+Interpretación:
+- El desempeño está totalmente concentrado en “las vegas nv” con 67657.14 en closing_rate_pct, mientras que el resto de ciudades presentan 0.00.
+- El valor 67657.14 es inusualmente alto para un indicador de “pct” y sugiere revisar calidad de datos: definición de la métrica, unidad, fórmula de cálculo y fuente específica para “las vegas nv”.
+- Confirmar también que los 0.00 del resto no son producto de falta de datos o filtros aplicados."
+8f771326-21d5-44ce-bb07-8421ac83cebf,2025-10-19T04:40:10.169240+00:00,2025-10-19T04:41:41.440885+00:00,execution_accuracy,correct,1.0,La diferencia entre los valores es menor al 20%.,2404,892,Volumen global,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+8f771326-21d5-44ce-bb07-8421ac83cebf,2025-10-19T04:40:10.169240+00:00,2025-10-19T04:41:41.440885+00:00,kpi_correctness,correct,1.0,La diferencia es menor al 20%.,1702,537,Volumen global,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"

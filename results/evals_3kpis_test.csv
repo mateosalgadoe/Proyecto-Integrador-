@@ -1,0 +1,263 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+7f5c531d-ff64-4a2e-896b-462cce12f78b,2025-10-21T19:07:34.162228+00:00,2025-10-21T19:09:24.569333+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2409,692,¿Cuál es el total de ventas por ciudad?,"KPI: Ticket promedio por ciudad (avg_sale_volume) — Resumen ejecutivo
+
+Hallazgos clave
+- City=None concentra el mayor ticket promedio (6,097.92) y el mayor total de ventas (20,537,788.73) con 3,368 ventas; es un outlier por falta de atribución geográfica y distorsiona comparaciones.
+- Las Vegas es la ciudad con más transacciones (n_sales 4,830) y la segunda en facturación total (11,601,469.77), pero exhibe el ticket promedio más bajo (2,401.96).
+- Entre ciudades con nombre válido, North Las Vegas lidera en ticket promedio (4,358.81) con 272 ventas y 1,185,595.47 en ventas totales.
+- Henderson muestra ticket intermedio (3,296.85) con 707 ventas y 2,330,875.60 en ventas totales.
+- Riverside presenta ticket medio-bajo (2,769.29) con 436 ventas y 1,207,409.26 en ventas totales; además, figura en minúsculas en el campo de ciudad.
+
+Riesgos de calidad de dato
+- La presencia de City=None y “riverside” en minúsculas evidencia problemas de normalización y mapeo; pueden alterar el ranking y la asignación comercial.
+
+Implicaciones de negocio
+- No es recomendable decidir inversiones por plaza hasta resolver la atribución de City=None, dado su peso en ventas.
+- La palanca prioritaria en Las Vegas es elevar el ticket promedio sin afectar el volumen de transacciones, tomando a North Las Vegas como benchmark de mezcla y pricing.
+
+Recomendaciones accionables
+1) Normalizar ubicaciones y recalcular el KPI: estandarizar mayúsculas/minúsculas, remapear City=None mediante geocodificación/ID de ubicación y corregir “riverside”; luego reemitir kpi_sales_volume_by_city.
+2) Programa de uplift de ticket en Las Vegas: analizar el mix, paquetes y pricing de North Las Vegas e implementar pruebas de upsell/cross-sell en Las Vegas con seguimiento de avg_sale_volume, n_sales y tasa de conversión.
+
+Pregunta siguiente útil
+- ¿Podemos listar los registros de City=None para remapearlos (¿pertenecen al área metropolitana de Las Vegas u otras plazas)?
+
+Acción táctica (esta semana)
+- Ejecutar un job de estandarización y remapeo de ciudades (incl. City=None y “riverside”) y, una vez corregido, recalcular y compartir kpi_sales_volume_by_city para definir tácticas de pricing y promociones por plaza.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+7f5c531d-ff64-4a2e-896b-462cce12f78b,2025-10-21T19:07:34.162228+00:00,2025-10-21T19:09:24.569333+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2143,664,¿Cuál es el total de ventas por ciudad?,"KPI: Ticket promedio por ciudad (avg_sale_volume) — Resumen ejecutivo
+
+Hallazgos clave
+- City=None concentra el mayor ticket promedio (6,097.92) y el mayor total de ventas (20,537,788.73) con 3,368 ventas; es un outlier por falta de atribución geográfica y distorsiona comparaciones.
+- Las Vegas es la ciudad con más transacciones (n_sales 4,830) y la segunda en facturación total (11,601,469.77), pero exhibe el ticket promedio más bajo (2,401.96).
+- Entre ciudades con nombre válido, North Las Vegas lidera en ticket promedio (4,358.81) con 272 ventas y 1,185,595.47 en ventas totales.
+- Henderson muestra ticket intermedio (3,296.85) con 707 ventas y 2,330,875.60 en ventas totales.
+- Riverside presenta ticket medio-bajo (2,769.29) con 436 ventas y 1,207,409.26 en ventas totales; además, figura en minúsculas en el campo de ciudad.
+
+Riesgos de calidad de dato
+- La presencia de City=None y “riverside” en minúsculas evidencia problemas de normalización y mapeo; pueden alterar el ranking y la asignación comercial.
+
+Implicaciones de negocio
+- No es recomendable decidir inversiones por plaza hasta resolver la atribución de City=None, dado su peso en ventas.
+- La palanca prioritaria en Las Vegas es elevar el ticket promedio sin afectar el volumen de transacciones, tomando a North Las Vegas como benchmark de mezcla y pricing.
+
+Recomendaciones accionables
+1) Normalizar ubicaciones y recalcular el KPI: estandarizar mayúsculas/minúsculas, remapear City=None mediante geocodificación/ID de ubicación y corregir “riverside”; luego reemitir kpi_sales_volume_by_city.
+2) Programa de uplift de ticket en Las Vegas: analizar el mix, paquetes y pricing de North Las Vegas e implementar pruebas de upsell/cross-sell en Las Vegas con seguimiento de avg_sale_volume, n_sales y tasa de conversión.
+
+Pregunta siguiente útil
+- ¿Podemos listar los registros de City=None para remapearlos (¿pertenecen al área metropolitana de Las Vegas u otras plazas)?
+
+Acción táctica (esta semana)
+- Ejecutar un job de estandarización y remapeo de ciudades (incl. City=None y “riverside”) y, una vez corregido, recalcular y compartir kpi_sales_volume_by_city para definir tácticas de pricing y promociones por plaza.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+95718f8f-ad0e-4763-99b0-8f3c240726e2,2025-10-21T19:09:56.610977+00:00,2025-10-21T19:11:41.788146+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,6624,4348,¿Cuál es el promedio de ventas por ciudad?,"Resumen ejecutivo — KPI “avg_sale_volume” por ciudad (capa semántica, 10 ciudades)
+Conclusión
+- El desempeño está altamente concentrado: el Top 3 (Fridley 73.3k, Paramus 36.2k, Paradise 31.9k) aporta ≈63.6% del total estimado y Fridley por sí sola ≈33%. La media (≈22.2k) supera ampliamente la mediana (≈13.8k), evidenciando sesgo por valores altos. Estos hechos apoyan que Fridley actúa como outlier positivo y que la cartera tiene una “larga cola” de mercados sub-15k (6 de 10).
+- Sin normalizar ubicaciones ni controlar por tamaño de muestra (# transacciones/tiendas), el ranking y la concentración pueden estar distorsionados. Las cifras deben considerarse preliminares hasta completar esos controles.
+
+Qué vemos
+- Liderazgo claro de Fridley (73.3k), duplicando a Paramus (36.2k) y superando ≈2.3x a Paradise (31.9k).
+- Alta concentración: Top 3 ≈63.6% del volumen agregado estimado; Fridley ≈33%.
+- Distribución sesgada: media ≈22.2k vs mediana ≈13.8k.
+- Larga cola: 6/10 ciudades por debajo de 15k.
+
+Riesgos de calidad de dato
+- Duplicidades por nomenclatura (ej.: “Henderson, NV. 89012” vs “henderson”; “Pahrump”/“pahrump”; “paramus” en minúsculas; “N las vegas” probablemente “North Las Vegas”), que fragmentan el desempeño y alteran el ranking.
+- Falta de tamaño de muestra por ciudad (# transacciones/tiendas/periodos activos): el promedio puede estar influido por outliers o bajo volumen.
+
+Implicaciones de negocio
+- Fridley es un outlier positivo; entender sus palancas (mix, ticket, canal, campañas, estacionalidad) puede habilitar replicación en Paramus y Paradise.
+- Henderson y Pahrump podrían estar subvaloradas si hay fragmentación de nombres; su consolidación puede cambiar su posición relativa.
+- La concentración eleva el riesgo operativo: conviene reducir dependencia del Top 3.
+
+Recomendaciones accionables (priorizadas)
+- Normalizar ubicaciones y recalcular el KPI: estandarizar mayúsculas, remover ZIP del nombre, mapear por geocodificación/ID único y reagrupar; luego reestimAR ranking y concentración.
+- Añadir contexto operativo por ciudad: número de transacciones/tiendas activas, dispersión (desviación estándar o IQR) y tendencia temporal para distinguir performance sostenido de picos.
+- Definir umbrales y métricas robustas: exigir N mínimo (p. ej., ≥30 transacciones por periodo) para entrar al ranking y reportar además mediana o media recortada para mitigar outliers.
+- Profundizar en Fridley y testear replicación: cohortes, mix/pricing/campañas/stock; ejecutar playbooks controlados en Paramus y Paradise.
+- Gobernanza de datos: crear una tabla maestra de ubicaciones con clave única y reglas de validación en ingestión para evitar variantes futuras.
+
+Nota técnica
+- Fallo del grafo SQL/KPI: “local variable 'rows' referenced before assignment”. Remediar inicializando ‘rows’, controlando rutas de error y agregando tests unitarios; establecer fallback a la capa semántica/cached para continuidad operacional.
+
+Siguiente pregunta sugerida
+- ¿Cómo cambia el ranking y la concentración del “avg_sale_volume” por ciudad tras normalizar ubicaciones y controlar por número de transacciones/tiendas?
+
+Acción táctica (inmediata)
+- Ejecutar la normalización de ubicaciones y recalcular el KPI; en paralelo, corregir el bug del grafo SQL y habilitar monitoreo continuo.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+95718f8f-ad0e-4763-99b0-8f3c240726e2,2025-10-21T19:09:56.610977+00:00,2025-10-21T19:11:41.788146+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2043,426,¿Cuál es el promedio de ventas por ciudad?,"Resumen ejecutivo — KPI “avg_sale_volume” por ciudad (capa semántica, 10 ciudades)
+Conclusión
+- El desempeño está altamente concentrado: el Top 3 (Fridley 73.3k, Paramus 36.2k, Paradise 31.9k) aporta ≈63.6% del total estimado y Fridley por sí sola ≈33%. La media (≈22.2k) supera ampliamente la mediana (≈13.8k), evidenciando sesgo por valores altos. Estos hechos apoyan que Fridley actúa como outlier positivo y que la cartera tiene una “larga cola” de mercados sub-15k (6 de 10).
+- Sin normalizar ubicaciones ni controlar por tamaño de muestra (# transacciones/tiendas), el ranking y la concentración pueden estar distorsionados. Las cifras deben considerarse preliminares hasta completar esos controles.
+
+Qué vemos
+- Liderazgo claro de Fridley (73.3k), duplicando a Paramus (36.2k) y superando ≈2.3x a Paradise (31.9k).
+- Alta concentración: Top 3 ≈63.6% del volumen agregado estimado; Fridley ≈33%.
+- Distribución sesgada: media ≈22.2k vs mediana ≈13.8k.
+- Larga cola: 6/10 ciudades por debajo de 15k.
+
+Riesgos de calidad de dato
+- Duplicidades por nomenclatura (ej.: “Henderson, NV. 89012” vs “henderson”; “Pahrump”/“pahrump”; “paramus” en minúsculas; “N las vegas” probablemente “North Las Vegas”), que fragmentan el desempeño y alteran el ranking.
+- Falta de tamaño de muestra por ciudad (# transacciones/tiendas/periodos activos): el promedio puede estar influido por outliers o bajo volumen.
+
+Implicaciones de negocio
+- Fridley es un outlier positivo; entender sus palancas (mix, ticket, canal, campañas, estacionalidad) puede habilitar replicación en Paramus y Paradise.
+- Henderson y Pahrump podrían estar subvaloradas si hay fragmentación de nombres; su consolidación puede cambiar su posición relativa.
+- La concentración eleva el riesgo operativo: conviene reducir dependencia del Top 3.
+
+Recomendaciones accionables (priorizadas)
+- Normalizar ubicaciones y recalcular el KPI: estandarizar mayúsculas, remover ZIP del nombre, mapear por geocodificación/ID único y reagrupar; luego reestimAR ranking y concentración.
+- Añadir contexto operativo por ciudad: número de transacciones/tiendas activas, dispersión (desviación estándar o IQR) y tendencia temporal para distinguir performance sostenido de picos.
+- Definir umbrales y métricas robustas: exigir N mínimo (p. ej., ≥30 transacciones por periodo) para entrar al ranking y reportar además mediana o media recortada para mitigar outliers.
+- Profundizar en Fridley y testear replicación: cohortes, mix/pricing/campañas/stock; ejecutar playbooks controlados en Paramus y Paradise.
+- Gobernanza de datos: crear una tabla maestra de ubicaciones con clave única y reglas de validación en ingestión para evitar variantes futuras.
+
+Nota técnica
+- Fallo del grafo SQL/KPI: “local variable 'rows' referenced before assignment”. Remediar inicializando ‘rows’, controlando rutas de error y agregando tests unitarios; establecer fallback a la capa semántica/cached para continuidad operacional.
+
+Siguiente pregunta sugerida
+- ¿Cómo cambia el ranking y la concentración del “avg_sale_volume” por ciudad tras normalizar ubicaciones y controlar por número de transacciones/tiendas?
+
+Acción táctica (inmediata)
+- Ejecutar la normalización de ubicaciones y recalcular el KPI; en paralelo, corregir el bug del grafo SQL y habilitar monitoreo continuo.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+62977e65-384f-4a10-bc89-93c0c39c0a6d,2025-10-21T19:12:13.586282+00:00,2025-10-21T19:13:59.175868+00:00,execution_accuracy,incorrect,0.0,"La respuesta del modelo no proporciona el valor numérico solicitado, por lo que se considera incorrecta.",2943,427,¿Cuál es el closing rate de Las Vegas?,"Conclusión ejecutiva
+- La distribución del volumen promedio por ciudad es altamente asimétrica: Fridley (73.3k) es un outlier claro (≈3.3x el promedio y ≈5.3x la mediana). 
+- Tras consolidar duplicados en Nevada, el agregado Las Vegas metro (Paradise + North Las Vegas + Mountain Springs + Henderson consolidado) alcanza ≈76.6k y podría superar a Fridley, pero esta comparación es preliminar y depende de la limpieza de datos.
+- El KPI actual carece de contexto (transacciones, periodo y moneda), por lo que su uso para decisiones debe posponerse hasta recalcularlo con datos normalizados.
+
+KPI solicitado — Volumen de ventas promedio por ciudad
+- Promedio: ≈22.2k
+- Mediana: ≈13.8k
+- Nota de precisión: Falta especificar periodo de referencia y moneda. Sin conteo de transacciones, la estabilidad del KPI no puede evaluarse.
+
+Hallazgos clave (respaldados por los datos disponibles)
+- Outlier positivo: Fridley (73.3k) = 3.3x el promedio y 5.3x la mediana; indica concentración en pocos mercados.
+- Concentración en top ciudades: Paramus (36.2k) y Paradise (31.9k) completan el podio. La proporción exacta del total que explican debe confirmarse tras la consolidación, aunque la concentración es elevada en el corte analizado.
+- Cluster Nevada (consolidación preliminar de duplicados):
+  - Henderson: 20.76k + 7.25k = 28.02k
+  - Pahrump: 14.91k + 12.70k = 27.61k
+  - Área Las Vegas (Paradise + North Las Vegas + Mountain Springs + Henderson consolidado): ≈76.6k; potencialmente por encima de Fridley una vez validados duplicados.
+
+Calidad de datos y riesgos para decisiones
+- Duplicados por nombres no estandarizados (por ejemplo, “Pahrump” vs “pahrump”; “Henderson, NV. 89012” vs “henderson”; “N las vegas”).
+- Ausencia de número de transacciones por ciudad: un promedio alto con pocas operaciones puede ser volátil y conducir a decisiones erróneas.
+- Falla técnica en recálculo (error: local variable 'rows' referenced before assignment): el KPI refleja el último resultado disponible y requiere revalidación tras la limpieza y corrección del proceso.
+
+Acciones inmediatas (2 semanas)
+- Normalizar “city” con diccionario canónico + fuzzy matching; separar ciudad/estado/ZIP en campos dedicados; recalcular el KPI.
+- Añadir contexto mínimo al KPI: transacciones por ciudad, volumen total y dispersión (desviación estándar o IQR).
+- Reemitir ranking con ciudades consolidadas y, cuando aplique, agregación a área metropolitana; incluir cortes por canal y mix de producto.
+- Corregir el proceso de recálculo: inicializar correctamente variables (p. ej., rows), manejar excepciones y añadir pruebas unitarias sobre parsing y deduplicación.
+- Pruebas comerciales:
+  - Fridley/Paramus: expansión de cartera y upsell.
+  - Las Vegas metro: piloto de cobertura unificada y bundles locales.
+
+Recomendaciones accionables adicionales
+- Reporte ejecutivo robusto: incorporar mediana y media recortada (p. ej., 10%) junto con el promedio para mitigar el impacto de outliers en la lectura de performance.
+- Control preventivo en ETL: regla automática que bloquee cargas si la tasa de duplicados por ciudad supera un umbral (p. ej., 0.5%) o si faltan transacciones, con alerta a data/ventas.
+
+Siguiente pregunta útil
+- ¿Cuántas transacciones sostienen el promedio por ciudad y cuál es su dispersión (IQR o percentiles 25/75)? Esto permite priorizar mercados estables vs. volátiles.
+
+Acción táctica ya
+- Corregir y consolidar Henderson y Pahrump en el CRM/ERP; reemitir el ranking y decidir esta semana la asignación de fuerza comercial entre Fridley y Las Vegas metro con base en los datos limpios.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+62977e65-384f-4a10-bc89-93c0c39c0a6d,2025-10-21T19:12:13.586282+00:00,2025-10-21T19:13:59.175868+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2302,674,¿Cuál es el closing rate de Las Vegas?,"Conclusión ejecutiva
+- La distribución del volumen promedio por ciudad es altamente asimétrica: Fridley (73.3k) es un outlier claro (≈3.3x el promedio y ≈5.3x la mediana). 
+- Tras consolidar duplicados en Nevada, el agregado Las Vegas metro (Paradise + North Las Vegas + Mountain Springs + Henderson consolidado) alcanza ≈76.6k y podría superar a Fridley, pero esta comparación es preliminar y depende de la limpieza de datos.
+- El KPI actual carece de contexto (transacciones, periodo y moneda), por lo que su uso para decisiones debe posponerse hasta recalcularlo con datos normalizados.
+
+KPI solicitado — Volumen de ventas promedio por ciudad
+- Promedio: ≈22.2k
+- Mediana: ≈13.8k
+- Nota de precisión: Falta especificar periodo de referencia y moneda. Sin conteo de transacciones, la estabilidad del KPI no puede evaluarse.
+
+Hallazgos clave (respaldados por los datos disponibles)
+- Outlier positivo: Fridley (73.3k) = 3.3x el promedio y 5.3x la mediana; indica concentración en pocos mercados.
+- Concentración en top ciudades: Paramus (36.2k) y Paradise (31.9k) completan el podio. La proporción exacta del total que explican debe confirmarse tras la consolidación, aunque la concentración es elevada en el corte analizado.
+- Cluster Nevada (consolidación preliminar de duplicados):
+  - Henderson: 20.76k + 7.25k = 28.02k
+  - Pahrump: 14.91k + 12.70k = 27.61k
+  - Área Las Vegas (Paradise + North Las Vegas + Mountain Springs + Henderson consolidado): ≈76.6k; potencialmente por encima de Fridley una vez validados duplicados.
+
+Calidad de datos y riesgos para decisiones
+- Duplicados por nombres no estandarizados (por ejemplo, “Pahrump” vs “pahrump”; “Henderson, NV. 89012” vs “henderson”; “N las vegas”).
+- Ausencia de número de transacciones por ciudad: un promedio alto con pocas operaciones puede ser volátil y conducir a decisiones erróneas.
+- Falla técnica en recálculo (error: local variable 'rows' referenced before assignment): el KPI refleja el último resultado disponible y requiere revalidación tras la limpieza y corrección del proceso.
+
+Acciones inmediatas (2 semanas)
+- Normalizar “city” con diccionario canónico + fuzzy matching; separar ciudad/estado/ZIP en campos dedicados; recalcular el KPI.
+- Añadir contexto mínimo al KPI: transacciones por ciudad, volumen total y dispersión (desviación estándar o IQR).
+- Reemitir ranking con ciudades consolidadas y, cuando aplique, agregación a área metropolitana; incluir cortes por canal y mix de producto.
+- Corregir el proceso de recálculo: inicializar correctamente variables (p. ej., rows), manejar excepciones y añadir pruebas unitarias sobre parsing y deduplicación.
+- Pruebas comerciales:
+  - Fridley/Paramus: expansión de cartera y upsell.
+  - Las Vegas metro: piloto de cobertura unificada y bundles locales.
+
+Recomendaciones accionables adicionales
+- Reporte ejecutivo robusto: incorporar mediana y media recortada (p. ej., 10%) junto con el promedio para mitigar el impacto de outliers en la lectura de performance.
+- Control preventivo en ETL: regla automática que bloquee cargas si la tasa de duplicados por ciudad supera un umbral (p. ej., 0.5%) o si faltan transacciones, con alerta a data/ventas.
+
+Siguiente pregunta útil
+- ¿Cuántas transacciones sostienen el promedio por ciudad y cuál es su dispersión (IQR o percentiles 25/75)? Esto permite priorizar mercados estables vs. volátiles.
+
+Acción táctica ya
+- Corregir y consolidar Henderson y Pahrump en el CRM/ERP; reemitir el ranking y decidir esta semana la asignación de fuerza comercial entre Fridley y Las Vegas metro con base en los datos limpios.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"

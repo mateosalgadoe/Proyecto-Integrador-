@@ -1,0 +1,267 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+dfc0d23e-aae3-4b18-89ca-6245ad7d04c8,2025-10-21T19:54:00.787743+00:00,2025-10-21T19:56:04.310769+00:00,execution_accuracy,incorrect,0.0,"La respuesta del modelo no es correcta, ya que el KPI proporcionado no coincide con el solicitado en la pregunta y la diferencia entre los valores numéricos es mayor al 40%.",3147,860,¿Cuál es el closing rate global de RocknBlock?,"KPI solicitado: avg_sale_volume (monto promedio por venta) — resumen ejecutivo y plan de acción
+
+Hechos principales (basados en el corte actual)
+- Outlier y brecha: Fridley muestra el mayor avg_sale_volume (~73.3k), aproximadamente 2x Paramus (~36.2k) y por encima de Paradise (~31.9k). El Top 3 por avg está claramente separado del resto.
+- Distribución sesgada: media ~22.2k vs mediana ~13.8k; 6 de 10 ciudades <15k, con cola larga de valores altos.
+- Riesgo de dato: duplicidades de ubicación (Henderson, Pahrump, Paramus, “N las vegas”) sugieren fragmentación del desempeño y posible distorsión del ranking.
+
+Aclaraciones de precisión
+- La afirmación “Fridley aporta ~33% del total” y “Top 3 ~63.6%” no es metodológicamente sólida si se basa en promedios por ciudad. La concentración de negocio debe medirse sobre volumen total (p. ej., ingresos o ventas totales) ponderado por transacciones, no sobre la suma de promedios. Recalcular participación con métricas ponderadas tras la normalización de ubicaciones.
+- Definir formalmente el KPI: avg_sale_volume = SUM(sales_amount)/COUNT(transactions) por ciudad y periodo, excluyendo cancelaciones/reembolsos y con tratamiento de outliers (winsorización o recorte P1–P99).
+
+Qué implica para el negocio (soportado por los datos)
+- Dependencia de pocos mercados: el gap de Fridley y del Top 3 frente a la mediana indica que una desaceleración allí impactaría de forma desproporcionada.
+- Posible subvaloración de Henderson/Pahrump: la fragmentación de nombres puede ocultar su verdadero desempeño.
+- El promedio está influido por ventas atípicas: la diferencia media–mediana y la cola larga exigen considerar mediana, dispersión y tamaño muestral (n) para priorizar.
+
+Acciones prioritarias (enfocadas y medibles)
+1) Higiene de datos de ubicaciones (quick win, 1–2 semanas)
+- Normalizar en clean: estandarizar mayúsculas, remover ZIP del nombre, mapear variantes (“N las vegas” → “North Las Vegas”) y geocodificar para crear un ID único.
+- Crear dimensión maestra de ubicaciones y regla de validación en ingestión.
+- Recalcular: avg_sale_volume, mediana, P90 y participación de volumen total por ciudad (ponderada por n). Comparar cambios de ranking y concentración.
+
+2) Contexto operativo del KPI (desde el próximo reporte)
+- Reportar por ciudad: n de transacciones, mediana, P90/desviación y tendencia 3–6 meses.
+- Establecer umbral mínimo de n para ranking y usar ranking por mediana o media winsorizada para decisiones.
+
+Escalar lo que funciona en Fridley (hipótesis y pruebas)
+- Profundizar drivers:
+  - Mix y ticket: clean.fct_sales (categoría/servicio, ticket promedio, descuentos).
+  - Demanda y conversión: clean.dim_leads (fuente de lead, tasa lead→venta).
+  - Ejecución/capacidad: clean.fct_housecallpro_jobs (tiempos, cancelaciones) y clean.dim_housecallpro_employees (cuadrillas).
+- Construir un “playbook Fridley” y pilotear en Paramus y Paradise con metas de +10–15% del avg_sale_volume en 6–8 semanas, sujeto a capacidad.
+
+Cómo mediremos el éxito (con datos de clean)
+- Re-cálculo del KPI por ciudad en clean.fct_sales con la nueva clave de ubicación.
+- Embudo por ciudad: leads (clean.dim_leads) → ventas (clean.fct_sales) → trabajos completados (clean.fct_housecallpro_jobs).
+- Criterios de éxito: concentración del Top 3 (por volumen ponderado) <55%, aumento del P50 (mediana) de avg_sale_volume +10%, mejora de conversión en Paramus/Paradise +3–5 pp, tiempos de espera <3 días.
+
+Riesgos a monitorear
+- Cambios de ranking tras limpiar ubicaciones (Henderson/Pahrump podrían escalar).
+- Sesgo por bajo volumen: no decidir con n pequeño sin validar tendencia y variabilidad.
+- Capacidad: promocionar sin agenda/cuadrillas suficientes erosiona NPS y eleva cancelaciones.
+
+KPI relacionado (ejecución comercial, referencia)
+- Tasa de cierre global (closing_rate_pct_global): 12.00%
+- Total de leads globales: 28,381
+- Total de conversiones globales: 3,407
+Interpretación: se convierte ~1 de cada 8.3 leads (3,407 / 28,381 = 12.00%), consistente con el valor reportado.
+
+Siguiente pregunta útil
+- ¿Qué proporción de la ventaja de Fridley proviene de ticket promedio, mix de servicios o tasa de conversión, y cuáles palancas son replicables en Paramus/Paradise?
+
+Recomendaciones accionables adicionales
+- Incorporar un ranking paralelo por mediana y por media winsorizada (P5–P95) para decisiones tácticas, y usar la media simple solo para diagnóstico.
+- Calcular un índice de concentración (HHI) por ciudad y por fuente de lead para priorizar expansión donde el riesgo de dependencia sea menor.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate_global"",
+  ""columns"": [
+    ""total_conversions_global"",
+    ""total_leads_global"",
+    ""closing_rate_pct_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 12.0,
+  ""source_column"": ""closing_rate_pct_global""
+}"
+dfc0d23e-aae3-4b18-89ca-6245ad7d04c8,2025-10-21T19:54:00.787743+00:00,2025-10-21T19:56:04.310769+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,3418,1154,¿Cuál es el closing rate global de RocknBlock?,"KPI solicitado: avg_sale_volume (monto promedio por venta) — resumen ejecutivo y plan de acción
+
+Hechos principales (basados en el corte actual)
+- Outlier y brecha: Fridley muestra el mayor avg_sale_volume (~73.3k), aproximadamente 2x Paramus (~36.2k) y por encima de Paradise (~31.9k). El Top 3 por avg está claramente separado del resto.
+- Distribución sesgada: media ~22.2k vs mediana ~13.8k; 6 de 10 ciudades <15k, con cola larga de valores altos.
+- Riesgo de dato: duplicidades de ubicación (Henderson, Pahrump, Paramus, “N las vegas”) sugieren fragmentación del desempeño y posible distorsión del ranking.
+
+Aclaraciones de precisión
+- La afirmación “Fridley aporta ~33% del total” y “Top 3 ~63.6%” no es metodológicamente sólida si se basa en promedios por ciudad. La concentración de negocio debe medirse sobre volumen total (p. ej., ingresos o ventas totales) ponderado por transacciones, no sobre la suma de promedios. Recalcular participación con métricas ponderadas tras la normalización de ubicaciones.
+- Definir formalmente el KPI: avg_sale_volume = SUM(sales_amount)/COUNT(transactions) por ciudad y periodo, excluyendo cancelaciones/reembolsos y con tratamiento de outliers (winsorización o recorte P1–P99).
+
+Qué implica para el negocio (soportado por los datos)
+- Dependencia de pocos mercados: el gap de Fridley y del Top 3 frente a la mediana indica que una desaceleración allí impactaría de forma desproporcionada.
+- Posible subvaloración de Henderson/Pahrump: la fragmentación de nombres puede ocultar su verdadero desempeño.
+- El promedio está influido por ventas atípicas: la diferencia media–mediana y la cola larga exigen considerar mediana, dispersión y tamaño muestral (n) para priorizar.
+
+Acciones prioritarias (enfocadas y medibles)
+1) Higiene de datos de ubicaciones (quick win, 1–2 semanas)
+- Normalizar en clean: estandarizar mayúsculas, remover ZIP del nombre, mapear variantes (“N las vegas” → “North Las Vegas”) y geocodificar para crear un ID único.
+- Crear dimensión maestra de ubicaciones y regla de validación en ingestión.
+- Recalcular: avg_sale_volume, mediana, P90 y participación de volumen total por ciudad (ponderada por n). Comparar cambios de ranking y concentración.
+
+2) Contexto operativo del KPI (desde el próximo reporte)
+- Reportar por ciudad: n de transacciones, mediana, P90/desviación y tendencia 3–6 meses.
+- Establecer umbral mínimo de n para ranking y usar ranking por mediana o media winsorizada para decisiones.
+
+Escalar lo que funciona en Fridley (hipótesis y pruebas)
+- Profundizar drivers:
+  - Mix y ticket: clean.fct_sales (categoría/servicio, ticket promedio, descuentos).
+  - Demanda y conversión: clean.dim_leads (fuente de lead, tasa lead→venta).
+  - Ejecución/capacidad: clean.fct_housecallpro_jobs (tiempos, cancelaciones) y clean.dim_housecallpro_employees (cuadrillas).
+- Construir un “playbook Fridley” y pilotear en Paramus y Paradise con metas de +10–15% del avg_sale_volume en 6–8 semanas, sujeto a capacidad.
+
+Cómo mediremos el éxito (con datos de clean)
+- Re-cálculo del KPI por ciudad en clean.fct_sales con la nueva clave de ubicación.
+- Embudo por ciudad: leads (clean.dim_leads) → ventas (clean.fct_sales) → trabajos completados (clean.fct_housecallpro_jobs).
+- Criterios de éxito: concentración del Top 3 (por volumen ponderado) <55%, aumento del P50 (mediana) de avg_sale_volume +10%, mejora de conversión en Paramus/Paradise +3–5 pp, tiempos de espera <3 días.
+
+Riesgos a monitorear
+- Cambios de ranking tras limpiar ubicaciones (Henderson/Pahrump podrían escalar).
+- Sesgo por bajo volumen: no decidir con n pequeño sin validar tendencia y variabilidad.
+- Capacidad: promocionar sin agenda/cuadrillas suficientes erosiona NPS y eleva cancelaciones.
+
+KPI relacionado (ejecución comercial, referencia)
+- Tasa de cierre global (closing_rate_pct_global): 12.00%
+- Total de leads globales: 28,381
+- Total de conversiones globales: 3,407
+Interpretación: se convierte ~1 de cada 8.3 leads (3,407 / 28,381 = 12.00%), consistente con el valor reportado.
+
+Siguiente pregunta útil
+- ¿Qué proporción de la ventaja de Fridley proviene de ticket promedio, mix de servicios o tasa de conversión, y cuáles palancas son replicables en Paramus/Paradise?
+
+Recomendaciones accionables adicionales
+- Incorporar un ranking paralelo por mediana y por media winsorizada (P5–P95) para decisiones tácticas, y usar la media simple solo para diagnóstico.
+- Calcular un índice de concentración (HHI) por ciudad y por fuente de lead para priorizar expansión donde el riesgo de dependencia sea menor.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate_global"",
+  ""columns"": [
+    ""total_conversions_global"",
+    ""total_leads_global"",
+    ""closing_rate_pct_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 12.0,
+  ""source_column"": ""closing_rate_pct_global""
+}"
+63a0dd59-7a1c-47e9-b892-b55232fbbacb,2025-10-21T19:56:34.732794+00:00,2025-10-21T19:58:26.028398+00:00,execution_accuracy,correct,1.0,La respuesta del modelo coincide exactamente con el valor de referencia.,3416,874,¿Cuál es el promedio global de ventas de RocknBlock?,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+63a0dd59-7a1c-47e9-b892-b55232fbbacb,2025-10-21T19:56:34.732794+00:00,2025-10-21T19:58:26.028398+00:00,kpi_correctness,correct,1.0,La diferencia entre la respuesta del modelo y la referencia es menor al 20%.,2741,834,¿Cuál es el promedio global de ventas de RocknBlock?,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+d0d7cdb4-9176-44fb-bcdd-84d4723e1c17,2025-10-21T19:58:56.496160+00:00,2025-10-21T20:01:34.904268+00:00,execution_accuracy,correct,1.0,La diferencia es menor al 20%.,2213,454,¿Cuáles son los benchmarks de crecimiento de PIB en la industria de landscaping?,2.8,"{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+d0d7cdb4-9176-44fb-bcdd-84d4723e1c17,2025-10-21T19:58:56.496160+00:00,2025-10-21T20:01:34.904268+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,1801,400,¿Cuáles son los benchmarks de crecimiento de PIB en la industria de landscaping?,2.8,"{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"

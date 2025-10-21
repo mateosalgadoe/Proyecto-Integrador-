@@ -42,8 +42,8 @@ def summarize_table(conn, table_name: str, limit: int = 20):
 
         summary = {"kpi_name": table_name, "columns": cols}
 
-        # Caso KPI Global (1 sola columna numérica)
-        if len(cols) == 1 or all("global" in c for c in cols):
+                # Caso KPI Global (1 sola columna numérica O columnas con "_global")
+        if len(cols) == 1:
             val = float(rows[0][0])
             summary.update({
                 "type": "single_value",
@@ -52,6 +52,28 @@ def summarize_table(conn, table_name: str, limit: int = 20):
             })
             print(f"🌐 {table_name}: KPI global único = {val}")
             return summary
+        elif any("_pct_global" in c or "_global" in c for c in cols):
+            # 🆕 BUSCAR LA COLUMNA CON "pct_global" O "rate_global"
+            for i, col in enumerate(cols):
+                if "_pct_global" in col.lower() or "rate_global" in col.lower():
+                    val = float(rows[0][i])
+                    summary.update({
+                        "type": "single_value",
+                        "reference_metric": "single",
+                        "value": round(val, 4),
+                        "source_column": col  # 🆕 Guardar nombre de columna
+                    })
+                    print(f"🌐 {table_name}: KPI global único = {val} (columna: {col})")
+                    return summary
+                
+        
+        
+        
+        
+        
+        
+        
+        
 
         # Caso general (por dimensión)
         import decimal
@@ -112,18 +134,53 @@ def save_json(name: str, data: dict):
 
 
 def main():
-    conn = get_conn()
-    tables = get_all_ai_views(conn)
-    print(f"\nProcesando {len(tables)} vistas del esquema ai...\n")
-    for t in tables:
-        data = summarize_table(conn, t)
-        if data:
-            save_json(t, data)
-    conn.close()
-    print("\nGround truths actualizados en data/ground_truths/")
+    try:
+        print("🔄 Conectando a la base de datos...")
+        conn = get_conn()
+        print("✅ Conexión exitosa")
+        
+        print("🔍 Buscando vistas en esquema 'ai'...")
+        tables = get_all_ai_views(conn)
+        
+        # 🆕 DEBUG: Mostrar todas las vistas encontradas
+        print(f"\n📊 Vistas encontradas ({len(tables)}):")
+        for t in sorted(tables):
+            print(f"  ✓ {t}")
+        print()
+        
+        print(f"⚙️  Procesando {len(tables)} vistas...\n")
+        
+        success_count = 0
+        error_count = 0
+        
+        for t in tables:
+            try:
+                print(f"🔄 Procesando: {t}...", end=" ")
+                data = summarize_table(conn, t)
+                if data:
+                    save_json(t, data)
+                    print(f"✅ OK")
+                    success_count += 1
+                else:
+                    print(f"⚠️  Sin datos")
+            except Exception as e:
+                print(f"❌ ERROR: {e}")
+                error_count += 1
+        
+        conn.close()
+        
+        print(f"\n{'='*50}")
+        print(f"✅ Procesamiento completado:")
+        print(f"  - Exitosos: {success_count}")
+        print(f"  - Sin datos: {len(tables) - success_count - error_count}")
+        print(f"  - Errores: {error_count}")
+        print(f"  - Directorio: data/ground_truths/")
+        print(f"{'='*50}\n")
+        
+    except Exception as e:
+        print(f"\n❌ ERROR CRÍTICO: {e}")
+        import traceback
+        traceback.print_exc()
 
-
-
-
-
-
+if __name__ == "__main__":
+    main()

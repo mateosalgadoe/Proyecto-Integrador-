@@ -1,0 +1,12 @@
+{
+  "kpi_name": "kpi_closing_rate_global",
+  "columns": [
+    "total_conversions_global",
+    "total_leads_global",
+    "closing_rate_pct_global"
+  ],
+  "type": "single_value",
+  "reference_metric": "single",
+  "value": 12.0,
+  "source_column": "closing_rate_pct_global"
+}
