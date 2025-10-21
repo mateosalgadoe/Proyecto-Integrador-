@@ -1,11 +1,11 @@
 {
-  "since": "2025-10-21T18:59:28.692569+00:00",
+  "since": "2025-10-21T19:15:30.765401+00:00",
   "until": null,
   "counts": {
-    "total_traces": 1,
-    "total_rows": 2,
-    "execution_accuracy_rows": 1,
-    "kpi_correctness_rows": 1
+    "total_traces": 3,
+    "total_rows": 6,
+    "execution_accuracy_rows": 3,
+    "kpi_correctness_rows": 3
   },
   "metrics": {
     "execution_accuracy": 1.0,

@@ -1,0 +1,271 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+40a80cd4-5e21-4598-9e4d-acbc9dc0f2c0,2025-10-22T00:16:00.980807+00:00,2025-10-22T00:16:55.323109+00:00,execution_accuracy,correct,1.0,La diferencia entre la salida y la referencia es menor al 20%.,2186,583,¿Cuál es el closing rate global de RocknBlock?,"Resumen ejecutivo
+- Único KPI oficial vigente: kpi_closing_rate_global = 12% (porcentaje de leads que cierran a nivel global). Este es el único baseline validado para decisiones hoy.
+- No existe aún un KPI oficial de ticket/promedio de ventas. Tomar decisiones por ciudad/servicio sin ese KPI y sin higiene de ubicaciones introduce riesgo de sesgo y mala priorización.
+
+Implicaciones para el negocio
+- Con 12% como tasa de cierre global, cualquier mejora en calidad de leads y efectividad comercial impactará directamente el revenue, condicionada por el volumen de leads y la capacidad.
+- Sin un KPI de ticket promedio confiable, no podemos valorar adecuadamente el impacto económico por ciudad/servicio ni balancear conversión vs valor; se requiere habilitarlo para completar el cuadro del embudo.
+
+Qué hacer ahora (priorizado)
+1) Publicar el KPI de ticket/promedio de ventas en la capa semántica
+- Definición: promedio de ventas = ingresos de ventas netos / número de transacciones cerradas (closed-won), segmentable por ciudad, servicio y periodo.
+- Fuente: clean.fct_sales.
+- Reglas de cálculo:
+  - Incluir solo ventas cerradas; excluir devoluciones/cancelaciones.
+  - Estandarizar moneda, impuestos y descuentos según criterio contable; fijar tipo de cambio y periodo de referencia.
+  - Consistencia temporal: ventas del mes calendario; explicitar zona horaria.
+  - Manejo de atípicos: winsorizar P1–P99 o excluir P<1 y P>99 para evitar distorsiones en segmentos pequeños.
+  - Publicar metadatos: owner, definición, fuentes, fecha de corte y SLA de actualización.
+
+2) Higiene de ubicaciones y gobernanza
+- Normalizar ubicaciones en clean (nombres estandarizados, mapeo de variantes, ID único) y referenciarlo en fct_sales.
+- Crear una dimensión maestra de ubicaciones y validaciones en ingestión para bloquear nuevas variantes; tests de unicidad/consistencia.
+
+3) Contexto operativo del KPI
+- Publicar junto al promedio: n de transacciones, mediana y P90 por ciudad/servicio; definir un mínimo de n para aparecer en rankings.
+- Conectar el funnel: leads (clean.dim_leads) → ventas (clean.fct_sales) → trabajos (clean.fct_housecallpro_jobs) con llaves y ventanas de atribución explícitas para explicar brechas entre conversión (12%) y ticket.
+
+4) QA y confiabilidad
+- Implementar tests de calidad (freshness, integridad referencial, no nulos, duplicados).
+- Definir umbrales de confiabilidad por segmento (p. ej., n mínimo y límite de error estándar relativo) y ocultar segmentos que no cumplan.
+
+Cómo lo mediremos
+- Seguimiento semanal del kpi_closing_rate_global = 12% como baseline del embudo.
+- Una vez publicado el KPI de ticket, tablero por ciudad/servicio con promedio, n, mediana, P90 e indicadores de confiabilidad; comparación sistemática vs la tasa de cierre (12%) para priorizar acciones comerciales y operativas.
+
+Riesgos a vigilar
+- Sesgos por bajo volumen: no decidir en segmentos con n insuficiente o alta variabilidad.
+- Inconsistencias de ubicación: sin normalización, el ticket por ciudad se fragmenta y distorsiona el ranking.
+- Desalineación temporal: periodos distintos entre leads y ventas pueden sesgar conversión y ticket atribuido.
+
+Próximos pasos operativos y de datos
+- Semana 1: normalizar ubicaciones en clean; definir y modelar el KPI de ticket en la capa semántica; añadir controles de calidad y metadatos.
+- Semana 2: publicar reporte por ciudad/servicio con promedio, n, mediana, P90, banderas de confiabilidad y conversión vs 12%; acordar umbrales (n mínimo y error relativo).
+- Semana 3: priorizar 2–3 ciudades para intervención (mix, pricing, generación de demanda y capacidad) según brechas de conversión y ticket, con metas y responsables.
+
+Siguiente pregunta útil
+- ¿En qué ciudades y canales estamos por encima o por debajo del 12% en tasa de cierre y cómo se relaciona eso con el ticket promedio y su dispersión (mediana/P90) una vez publicado?
+
+Acción táctica inmediata
+- Habilitar el KPI de ticket promedio en la capa semántica sobre clean.fct_sales y publicarlo con n, mediana y P90 por ciudad; usar kpi_closing_rate_global = 12% como baseline del embudo para priorizar acciones comerciales y operativas.
+
+Recomendaciones accionables adicionales
+- Publicar un diccionario de métricas en el catálogo con owner, definición, fuentes y fecha de corte visibles en el dashboard.
+- Establecer una regla de publicación: solo mostrar segmentos con n≥100 por ciudad/servicio/mes o error estándar relativo <15%; ocultar el resto automáticamente.
+
+Conclusión
+- Dado que el único KPI oficial disponible es la tasa de cierre global de 12%, las decisiones estratégicas deben anclarse a ese baseline y posponer comparativas de valor por ciudad/servicio hasta publicar el KPI de ticket con higiene de ubicaciones. El plan propuesto cierra esa brecha en 2–3 semanas y reduce el riesgo de priorización errónea.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate_global"",
+  ""columns"": [
+    ""total_conversions_global"",
+    ""total_leads_global"",
+    ""closing_rate_pct_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 12.0,
+  ""source_column"": ""closing_rate_pct_global""
+}"
+40a80cd4-5e21-4598-9e4d-acbc9dc0f2c0,2025-10-22T00:16:00.980807+00:00,2025-10-22T00:16:55.323109+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,2417,988,¿Cuál es el closing rate global de RocknBlock?,"Resumen ejecutivo
+- Único KPI oficial vigente: kpi_closing_rate_global = 12% (porcentaje de leads que cierran a nivel global). Este es el único baseline validado para decisiones hoy.
+- No existe aún un KPI oficial de ticket/promedio de ventas. Tomar decisiones por ciudad/servicio sin ese KPI y sin higiene de ubicaciones introduce riesgo de sesgo y mala priorización.
+
+Implicaciones para el negocio
+- Con 12% como tasa de cierre global, cualquier mejora en calidad de leads y efectividad comercial impactará directamente el revenue, condicionada por el volumen de leads y la capacidad.
+- Sin un KPI de ticket promedio confiable, no podemos valorar adecuadamente el impacto económico por ciudad/servicio ni balancear conversión vs valor; se requiere habilitarlo para completar el cuadro del embudo.
+
+Qué hacer ahora (priorizado)
+1) Publicar el KPI de ticket/promedio de ventas en la capa semántica
+- Definición: promedio de ventas = ingresos de ventas netos / número de transacciones cerradas (closed-won), segmentable por ciudad, servicio y periodo.
+- Fuente: clean.fct_sales.
+- Reglas de cálculo:
+  - Incluir solo ventas cerradas; excluir devoluciones/cancelaciones.
+  - Estandarizar moneda, impuestos y descuentos según criterio contable; fijar tipo de cambio y periodo de referencia.
+  - Consistencia temporal: ventas del mes calendario; explicitar zona horaria.
+  - Manejo de atípicos: winsorizar P1–P99 o excluir P<1 y P>99 para evitar distorsiones en segmentos pequeños.
+  - Publicar metadatos: owner, definición, fuentes, fecha de corte y SLA de actualización.
+
+2) Higiene de ubicaciones y gobernanza
+- Normalizar ubicaciones en clean (nombres estandarizados, mapeo de variantes, ID único) y referenciarlo en fct_sales.
+- Crear una dimensión maestra de ubicaciones y validaciones en ingestión para bloquear nuevas variantes; tests de unicidad/consistencia.
+
+3) Contexto operativo del KPI
+- Publicar junto al promedio: n de transacciones, mediana y P90 por ciudad/servicio; definir un mínimo de n para aparecer en rankings.
+- Conectar el funnel: leads (clean.dim_leads) → ventas (clean.fct_sales) → trabajos (clean.fct_housecallpro_jobs) con llaves y ventanas de atribución explícitas para explicar brechas entre conversión (12%) y ticket.
+
+4) QA y confiabilidad
+- Implementar tests de calidad (freshness, integridad referencial, no nulos, duplicados).
+- Definir umbrales de confiabilidad por segmento (p. ej., n mínimo y límite de error estándar relativo) y ocultar segmentos que no cumplan.
+
+Cómo lo mediremos
+- Seguimiento semanal del kpi_closing_rate_global = 12% como baseline del embudo.
+- Una vez publicado el KPI de ticket, tablero por ciudad/servicio con promedio, n, mediana, P90 e indicadores de confiabilidad; comparación sistemática vs la tasa de cierre (12%) para priorizar acciones comerciales y operativas.
+
+Riesgos a vigilar
+- Sesgos por bajo volumen: no decidir en segmentos con n insuficiente o alta variabilidad.
+- Inconsistencias de ubicación: sin normalización, el ticket por ciudad se fragmenta y distorsiona el ranking.
+- Desalineación temporal: periodos distintos entre leads y ventas pueden sesgar conversión y ticket atribuido.
+
+Próximos pasos operativos y de datos
+- Semana 1: normalizar ubicaciones en clean; definir y modelar el KPI de ticket en la capa semántica; añadir controles de calidad y metadatos.
+- Semana 2: publicar reporte por ciudad/servicio con promedio, n, mediana, P90, banderas de confiabilidad y conversión vs 12%; acordar umbrales (n mínimo y error relativo).
+- Semana 3: priorizar 2–3 ciudades para intervención (mix, pricing, generación de demanda y capacidad) según brechas de conversión y ticket, con metas y responsables.
+
+Siguiente pregunta útil
+- ¿En qué ciudades y canales estamos por encima o por debajo del 12% en tasa de cierre y cómo se relaciona eso con el ticket promedio y su dispersión (mediana/P90) una vez publicado?
+
+Acción táctica inmediata
+- Habilitar el KPI de ticket promedio en la capa semántica sobre clean.fct_sales y publicarlo con n, mediana y P90 por ciudad; usar kpi_closing_rate_global = 12% como baseline del embudo para priorizar acciones comerciales y operativas.
+
+Recomendaciones accionables adicionales
+- Publicar un diccionario de métricas en el catálogo con owner, definición, fuentes y fecha de corte visibles en el dashboard.
+- Establecer una regla de publicación: solo mostrar segmentos con n≥100 por ciudad/servicio/mes o error estándar relativo <15%; ocultar el resto automáticamente.
+
+Conclusión
+- Dado que el único KPI oficial disponible es la tasa de cierre global de 12%, las decisiones estratégicas deben anclarse a ese baseline y posponer comparativas de valor por ciudad/servicio hasta publicar el KPI de ticket con higiene de ubicaciones. El plan propuesto cierra esa brecha en 2–3 semanas y reduce el riesgo de priorización errónea.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_closing_rate_global"",
+  ""columns"": [
+    ""total_conversions_global"",
+    ""total_leads_global"",
+    ""closing_rate_pct_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 12.0,
+  ""source_column"": ""closing_rate_pct_global""
+}"
+99b443ff-6b1c-458b-a577-0ee8ea707100,2025-10-22T00:17:28.562427+00:00,2025-10-22T00:20:53.938977+00:00,execution_accuracy,correct,1.0,La diferencia es menor al 20%.,2355,1059,¿Cuál es el promedio global de ventas de RocknBlock?,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+99b443ff-6b1c-458b-a577-0ee8ea707100,2025-10-22T00:17:28.562427+00:00,2025-10-22T00:20:53.938977+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,2626,1065,¿Cuál es el promedio global de ventas de RocknBlock?,1141162.06,"{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""single_value"",
+  ""reference_metric"": ""single"",
+  ""value"": 1141162.06
+}"
+521effa1-7ef7-4a3e-be75-76e0cd1e042a,2025-10-22T00:21:27.729640+00:00,2025-10-22T00:25:18.861719+00:00,execution_accuracy,correct,1.0,La diferencia entre los valores es menor al 20%.,2429,662,¿Cuáles son los benchmarks de crecimiento de PIB en la industria de landscaping?,2.8,"{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+521effa1-7ef7-4a3e-be75-76e0cd1e042a,2025-10-22T00:21:27.729640+00:00,2025-10-22T00:25:18.861719+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,2856,1091,¿Cuáles son los benchmarks de crecimiento de PIB en la industria de landscaping?,2.8,"{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"

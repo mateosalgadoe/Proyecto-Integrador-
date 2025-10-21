@@ -20,15 +20,17 @@ KPI_ALIASES = {
     "ventas promedio global": "kpi_avg_sales_volume_global",
     "volumen global": "kpi_avg_sales_volume_global",
     "promedio de ventas": "kpi_avg_sales_volume_global",
-    "kpi_avg_sales_volume_global": "kpi_avg_sales_volume_global",
-
-    # --- Closing Rate GLOBAL (DEBE IR ANTES QUE POR CIUDAD) ---
+    "promedio global": "kpi_avg_sales_volume_global",
+    
+    # --- Closing Rate GLOBAL (MÁS ESPECÍFICO PRIMERO) ---
+    "closing rate global de rocknblock": "kpi_closing_rate_global",  
+    "tasa de cierre global de rocknblock": "kpi_closing_rate_global",  
+    "cual es el closing rate global de rocknblock": "kpi_closing_rate_global",  
+    "cuál es el closing rate global de rocknblock": "kpi_closing_rate_global",  
     "closing rate global": "kpi_closing_rate_global",
     "tasa de cierre global": "kpi_closing_rate_global",
     "closing rate promedio": "kpi_closing_rate_global",
-    "tasa de cierre promedio": "kpi_closing_rate_global",
-    "closing rate de rocknblock": "kpi_closing_rate_global",  
-    "tasa de cierre de rocknblock": "kpi_closing_rate_global",  
+    "tasa de cierre promedio": "kpi_closing_rate_global", 
     
     # --- Closing Rate por ciudad (DESPUÉS DEL GLOBAL) ---
     "closing rate por ciudad": "kpi_closing_rate",
@@ -172,6 +174,8 @@ def kpi_node(state):
     user_input = raw_input.replace("_", " ")  # closing_rate → closing rate
     user_input = user_input.replace("'", "")   # 'closing rate' → closing rate
     user_input = user_input.replace('"', "")   # "closing rate" → closing rate
+    user_input = user_input.replace("¿", "")   # 🆕 ¿Cuál → Cuál
+    user_input = user_input.replace("?", "")
     
     kpi_info = None
 
@@ -310,10 +314,9 @@ def sql_node(state):
 
 
 
-
 @traceable(run_type="llm", name="Summary Node")
 def summary_node(state):
-    """Genera interpretación ejecutiva CON DATOS REALES."""
+    """Genera interpretación ejecutiva CON DATOS REALES PRIORITARIOS."""
     
     print("Entrando a summary_node con keys:", list(state.keys()))
     
@@ -321,24 +324,31 @@ def summary_node(state):
     result_type = state.get("result_type", "unknown")
     data = state.get("data", {})
     
-    # Extrae el valor numérico si es un KPI global
+    #  EXTRACCIÓN MEJORADA: Buscar valor numérico PRIMERO
     kpi_numeric_value = None
+    
     if result_type == "kpi" and data.get("rows"):
         rows = data.get("rows", [])
-        if len(rows) == 1 and len(rows[0]) == 1:
+        cols = data.get("columns", [])
+        
+        # PRIORIDAD 1: Buscar columnas con "_pct_global" o "_rate_global"
+        for idx, col in enumerate(cols):
+            if "_pct_global" in col.lower() or "rate_global" in col.lower():
+                if rows and len(rows[0]) > idx:
+                    try:
+                        kpi_numeric_value = float(rows[0][idx])
+                        print(f" KPI global extraído de columna '{col}': {kpi_numeric_value}")
+                        break
+                    except (ValueError, TypeError):
+                        pass
+        
+        #  PRIORIDAD 2: Si solo hay 1 fila y 1 columna
+        if kpi_numeric_value is None and len(rows) == 1 and len(rows[0]) == 1:
             try:
                 kpi_numeric_value = float(rows[0][0])
-                print(f" KPI global extraído: {kpi_numeric_value}")
+                print(f" KPI global único extraído: {kpi_numeric_value}")
             except (ValueError, TypeError):
                 pass
-    elif len(rows) > 1:
-        # Para KPIs con múltiples filas, extraer el valor máximo
-        try:
-            max_val = max(float(r[1]) for r in rows if len(r) > 1 and r[1] is not None)
-            kpi_numeric_value = max_val
-            print(f" KPI múltiple filas, extraído valor máximo: {kpi_numeric_value}")
-        except (ValueError, TypeError):
-            pass
     
     if not data or not data.get("rows"):
         summary_text = "No se encontraron resultados o el dataset está vacío."
@@ -349,29 +359,41 @@ def summary_node(state):
             "kpi_numeric_value": kpi_numeric_value,
         }
     
-    # CRÍTICO: Incluir datos reales en el prompt
-    rows_sample = data.get("rows", [])[:5]  # Primeras 5 filas
+    #  DATOS REALES para el LLM
+    rows_sample = data.get("rows", [])[:5]
     columns = data.get("columns", [])
     
     if result_type == "kpi":
+        # INSTRUCCIÓN CRÍTICA: Priorizar valor numérico sobre contexto
+        value_emphasis = ""
+        if kpi_numeric_value is not None:
+            value_emphasis = f"""
+ VALOR OFICIAL DEL KPI: {kpi_numeric_value}
+ESTE ES EL ÚNICO VALOR CORRECTO QUE DEBES USAR
+IGNORA CUALQUIER OTRO NÚMERO DEL CONTEXTO
+CITA EXACTAMENTE: {kpi_numeric_value}
+"""
+        
         prompt = f"""
 Eres un analista senior de RocknBlock. Interpreta este resultado de KPI CON LOS DATOS REALES:
+
+{value_emphasis}
 
 [KPI EJECUTADO]
 Nombre: {state.get("kpi_name", "unknown")}
 Descripción: {state.get("description", "")}
 
-[DATOS REALES]
+[DATOS DE LA BASE DE DATOS]
 Columnas: {columns}
 Valores obtenidos: {rows_sample}
-Valor numérico principal: {kpi_numeric_value if kpi_numeric_value else "N/A"}
 
-REQUISITOS CRÍTICOS:
-- Usa ÚNICAMENTE los valores reales proporcionados arriba
-- Cita el valor exacto: {kpi_numeric_value} si aplica
-- No inventes interpretaciones sin datos
-- Máximo 150 palabras, enfoque ejecutivo
-- En español, sin firmas
+INSTRUCCIONES CRÍTICAS:
+1. El valor oficial del KPI es: {kpi_numeric_value if kpi_numeric_value else "VER DATOS ARRIBA"}
+2. NO uses números de contexto externo (como porcentajes de ciudades)
+3. NO inventes interpretaciones
+4. Cita el valor exacto de los datos reales
+5. Máximo 150 palabras
+6. En español, sin firmas
 """
     else:
         prompt = f"""
@@ -392,9 +414,20 @@ Requisitos:
     try:
         response = llm.invoke(prompt)
         summary = response.content.strip()
-        print(" Interpretación generada con datos reales.")
+        
+        # 🆕 VALIDACIÓN POST-GENERACIÓN
+        if kpi_numeric_value is not None:
+            # Verificar que el resumen contenga el valor correcto
+            import re
+            numbers_in_summary = re.findall(r'\b\d+\.?\d*\b', summary)
+            if str(kpi_numeric_value) not in numbers_in_summary:
+                print(f"⚠️ ADVERTENCIA: El resumen no contiene el valor correcto {kpi_numeric_value}")
+                # Agregar el valor al inicio del resumen
+                summary = f"**Valor del KPI: {kpi_numeric_value}**\n\n{summary}"
+        
+        print("✅ Interpretación generada con datos reales.")
     except Exception as e:
-        print(f"Error generando summary: {e}")
+        print(f"❌ Error generando summary: {e}")
         summary = f"Error al generar resumen: {e}"
     
     return {

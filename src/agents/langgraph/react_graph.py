@@ -149,13 +149,14 @@ Analiza la pregunta del usuario y devuelve un JSON con:
 [Guías de decisión MEJORADAS]
 - Usa "kpi_query" si la pregunta menciona:
   * Palabras como "KPI", "indicador", "métrica", "porcentaje", "ratio", "tasa", "volumen promedio", "eficiencia", "promedio de ventas"
-  * "benchmark", "benchmarks", "industria", "sector", "comparativa", "mercado", "industria de landscaping"
+  * "benchmark", "benchmarks", "industria", "sector", "comparativa", "mercado", "industria de landscaping", "PIB", "crecimiento"  ← 🆕 AÑADIR "PIB", "crecimiento"
   * "tasa de cierre", "closing rate", "conversión", "win rate"
   * "tendencia", "evolución", "serie temporal" (SOLO si menciona KPI o métricas específicas)
 - Usa "sql_query" si la pregunta pide:
   * Datos crudos, conteos, listados o exploraciones directas
   * Tendencias temporales sin mencionar KPIs (ej: "ventas por mes")
 - Usa "direct_answer" si es conceptual o fuera del dominio de datos.
+- **Si menciona "benchmark", "industria", "sector", "PIB" o "crecimiento", SIEMPRE usa "kpi_query".**  ← 🆕 REGLA EXPLÍCITA
 - Si hay duda entre SQL y KPI, prefiere "kpi_query".
 
 [Pregunta del usuario]
@@ -280,10 +281,12 @@ INSTRUCCIONES CRÍTICAS:
 # ----------------------------
 # Nodo 4: Reflection (auditoría)
 # ----------------------------
+
 @traceable(run_type="llm", name="Reflection Node")
 def reflection_node(state: ReActState) -> ReActState:
     if state.get("error"):
         return state
+    
     llm = get_llm()
     draft = state.get("draft_answer", "")
     rules = (
@@ -292,6 +295,7 @@ def reflection_node(state: ReActState) -> ReActState:
         "- Añade 1–2 recomendaciones accionables.\n"
         "- No agregues firmas ni placeholders."
     )
+    
     prompt = f"""
 Eres un auditor de calidad de análisis. Mejora el texto cumpliendo las siguientes reglas:
 
@@ -304,17 +308,21 @@ Eres un auditor de calidad de análisis. Mejora el texto cumpliendo las siguient
 [Salida]
 Texto mejorado, final y listo para entregar.
 """
+    
     resp = llm.invoke(prompt)
     improved = resp.content.strip()
     improved = strip_signature(improved)
     improved = ensure_closing(improved)
-    state["final_answer"] = improved
     
-    #  CRÍTICO: Preservar kpi_numeric_value en el output final
+    #  CRÍTICO: Preservar kpi_numeric_value en TODOS los casos
     return {
         "final_answer": improved,
-        "kpi_numeric_value": state.get("kpi_numeric_value"), 
+        "kpi_numeric_value": state.get("kpi_numeric_value"),  # 
         "error": state.get("error"),
+        "question": state.get("question"),  # 
+        "plan": state.get("plan"),
+        "tool_result": state.get("tool_result"),
+        "draft_answer": state.get("draft_answer"),
     }
 
 

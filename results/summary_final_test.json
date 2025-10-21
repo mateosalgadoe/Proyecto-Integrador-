@@ -1,5 +1,5 @@
 {
-  "since": "2025-10-21T15:30:42.610479+00:00",
+  "since": "2025-10-21T16:01:48.623673+00:00",
   "until": null,
   "counts": {
     "total_traces": 3,
@@ -11,6 +11,6 @@
     "execution_accuracy": 0.6666666666666666,
     "kpi_correctness": 0.6666666666666666,
     "consistency_score": null,
-    "rmse": 12.12435565298214
+    "rmse": 35.3338364744051
   }
 }
