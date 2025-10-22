@@ -31,99 +31,91 @@ load_dotenv()
 # Funciones auxiliares
 # ===============================================================
 
-
 def normalize_numeric_tokens(text: str) -> Optional[float]:
-    """Convierte expresiones numéricas incluyendo porcentajes correctamente."""
+    """
+    Convierte expresiones numéricas con formato correcto.
+    PRIORIZA primeras líneas del texto.
+    """
     if not text:
         return None
     
-    t = text.strip()
+    # Solo procesar primeras 2 líneas
+    lines = text.strip().split('\n')
+    t = '\n'.join(lines[:2])
     
-    # NUEVO: Detectar porcentajes específicamente primero
-    pct_match = re.search(r'(\d+\.?\d*)\s*%', t)
+    #  Detectar porcentajes SOLO si están al inicio
+    pct_match = re.search(r'^.*?(\d+\.?\d*)\s*%', t, re.MULTILINE)
     if pct_match:
         return float(pct_match.group(1))
     
-    # Detectar números con unidades k/M/B
-    # Quitar espacios y caracteres no numéricos comunes
+    # Quitar caracteres no numéricos comunes
     t = re.sub(r"[^\d,.\-kKmMbB]", "", t)
 
     # Detectar formato latino (punto miles, coma decimal)
     if re.search(r"\d{1,3}(\.\d{3})+,\d+", t):
-        t = t.replace(".", "").replace(",", ".")  # 1.141.162,06 -> 1141162.06
+        t = t.replace(".", "").replace(",", ".")
     # Detectar formato internacional (coma miles, punto decimal)
     elif re.search(r"\d{1,3}(,\d{3})+\.\d+", t):
-        t = t.replace(",", "")  # 1,141,162.06 -> 1141162.06
-    # Si solo hay comas y parecen decimales
+        t = t.replace(",", "")
+    # Solo comas sin puntos = decimales
     elif "," in t and "." not in t:
-        t = t.replace(",", ".")  # 1141162,06 -> 1141162.06
+        t = t.replace(",", ".")
 
     # Unidades abreviadas
     match = re.search(r"([-+]?[0-9]*\.?[0-9]+)\s*([kKmMbB]?)", t)
     if not match:
         return None
+    
     num = float(match.group(1))
     unit = match.group(2).lower()
+    
     if unit == "k":
         num *= 1_000
     elif unit == "m":
         num *= 1_000_000
     elif unit == "b":
         num *= 1_000_000_000
+    
+    #  VALIDACIÓN: Rechazar si > 100M (probablemente error de parsing)
+    if num > 100_000_000:
+        print(f" Valor sospechoso: {num} (unidad: {unit})")
+        return None
+    
     return num
-
-
-
 def try_parse_number(text: str) -> Optional[float]:
-    """Parsea números mejorando detección de porcentajes."""
+    """
+    Extrae SOLO el primer número del KPI, ignorando todo lo demás.
+    Prioriza: línea 1, formato "VALOR — descripción" o "KPI: VALOR"
+    """
     if not text:
         return None
 
-    # NUEVO: Detectar porcentajes explícitamente
-    pct_patterns = [
-        r'(\d+\.?\d*)\s*%',  # 23.10%
-        r'(\d+\.?\d*)\s*pct',  # 23.10 pct
-        r'(\d+\.?\d*)\s*por\s*ciento',  # 23.10 por ciento
-    ]
+    # ESTRATEGIA ULTRA-ESPECÍFICA: Solo primera línea con formato KPI
+    lines = text.strip().split('\n')
+    first_line = lines[0] if lines else ""
     
-    for pattern in pct_patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
-        if match:
-            return float(match.group(1))
-
-    # MEJORA: Ignorar números que son parte de explicaciones
-    ignore_patterns = [
-        r'[><=±]\s*\d+',             # Comparaciones como >5%, ±10%
-        r'\d+\s*(?:million|millones|mil\s|thousand)',  # Unidades en texto
-        r'(?:entre|from|de)\s+-?\d+',  # Rangos como "entre -20 y 30"
-        r'\d{4}-\d{2}-\d{2}',        # Fechas
-        r'\d{10,}',                  # Números muy largos (IDs, timestamps)
-    ]
-
-    cleaned_text = text
-    for pattern in ignore_patterns:
-        cleaned_text = re.sub(pattern, "", cleaned_text, flags=re.IGNORECASE)
-
-    # Usar normalize_numeric_tokens mejorado
-    normalized = normalize_numeric_tokens(cleaned_text)
-    if normalized is not None:
-        return normalized
-
-    # Limpieza básica como fallback
-    txt = cleaned_text.strip().replace(" ", "")
-    if txt.count(".") > 1 or ("," in txt and "." in txt and txt.rfind(",") > txt.rfind(".")):
-        txt = txt.replace(".", "").replace(",", ".")
-    else:
-        txt = txt.replace(",", "")
-
-    m = re.search(r"[-+]?\d+(?:\.\d+)?", txt)
-    if not m:
-        return None
-    try:
-        return float(m.group(0))
-    except Exception:
-        return None
-
+    # PATRÓN 1: "12.0% — descripción" o "9231.61 Interpretación"
+    match = re.search(r'^(\d+\.?\d*)\s*[%—\-\s]', first_line)
+    if match:
+        return float(match.group(1))
+    
+    # PATRÓN 2: "Resultado: 12.0" o "KPI: 9231.61"
+    match = re.search(r'(?:resultado|kpi|valor|tasa|rate)[\s:=-]+(\d+\.?\d*)', first_line, re.IGNORECASE)
+    if match:
+        return float(match.group(1))
+    
+    # PATRÓN 3: Número puro al inicio (como "9231.61")
+    match = re.search(r'^(\d+\.\d+)(?!\d)', first_line)
+    if match:
+        return float(match.group(1))
+    
+    # PATRÓN 4: Porcentaje sin punto (como "23%")
+    match = re.search(r'^(\d+)%', first_line)
+    if match:
+        return float(match.group(1))
+    
+    #  NO ENCONTRÓ NADA VÁLIDO
+    return None
 
 def parse_time(s: Optional[str]) -> Optional[datetime]:
     if not s:

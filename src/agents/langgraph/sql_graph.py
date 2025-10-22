@@ -11,8 +11,29 @@ init_langsmith()
 
 # DICCIONARIO DE KPIs MEJORADO
 
-
 KPI_ALIASES = {
+    #  VENTAS POR CIUDAD - ORDEN ESPECÍFICO → GENERAL (AL INICIO)
+    "promedio de ventas por ciudad": "kpi_avg_sales_volume",
+    "ventas promedio por ciudad": "kpi_avg_sales_volume",
+    "total de ventas por ciudad": "kpi_sales_volume_by_city",
+    "promedio por ciudad": "kpi_avg_sales_volume",
+    
+    # NUEVOS KPIs
+    "promedio de ventas por empleado": "kpi_avg_sales_per_rep",
+    "ventas por empleado": "kpi_avg_sales_per_rep",
+    "ventas por rep": "kpi_avg_sales_per_rep",
+    "avg sales per rep": "kpi_avg_sales_per_rep",
+    
+    "jobs por status": "kpi_jobs_by_status",
+    "distribución de jobs": "kpi_jobs_by_status",
+    "status de jobs": "kpi_jobs_by_status",
+    "distribucion de jobs": "kpi_jobs_by_status",
+    
+    "tasa de aprobación": "kpi_approved_estimates_rate",
+    "approval rate": "kpi_approved_estimates_rate",
+    "porcentaje de aprobación": "kpi_approved_estimates_rate",
+    "tasa de aprobación de estimates": "kpi_approved_estimates_rate",
+    
     # --- Ventas Globales (PRIORIDAD MÁXIMA) ---
     "promedio global de ventas": "kpi_avg_sales_volume_global",
     "promedio general de ventas": "kpi_avg_sales_volume_global",
@@ -23,50 +44,33 @@ KPI_ALIASES = {
     "promedio global": "kpi_avg_sales_volume_global",
     
     # --- Closing Rate GLOBAL (MÁS ESPECÍFICO PRIMERO) ---
-    "closing rate global de rocknblock": "kpi_closing_rate_global",  
-    "tasa de cierre global de rocknblock": "kpi_closing_rate_global",  
-    "cual es el closing rate global de rocknblock": "kpi_closing_rate_global",  
-    "cuál es el closing rate global de rocknblock": "kpi_closing_rate_global",  
+    "closing rate global de rocknblock": "kpi_closing_rate_global",
+    "tasa de cierre global de rocknblock": "kpi_closing_rate_global",
+    "cual es el closing rate global de rocknblock": "kpi_closing_rate_global",
+    "cuál es el closing rate global de rocknblock": "kpi_closing_rate_global",
     "closing rate global": "kpi_closing_rate_global",
     "tasa de cierre global": "kpi_closing_rate_global",
     "closing rate promedio": "kpi_closing_rate_global",
-    "tasa de cierre promedio": "kpi_closing_rate_global", 
+    "tasa de cierre promedio": "kpi_closing_rate_global",
     
     # --- Closing Rate por ciudad (DESPUÉS DEL GLOBAL) ---
     "closing rate por ciudad": "kpi_closing_rate",
     "tasa de cierre por ciudad": "kpi_closing_rate",
-    "closing rate de": "kpi_closing_rate",  # Para "closing rate de Las Vegas"
+    "closing rate de": "kpi_closing_rate",
     "tasa de cierre de": "kpi_closing_rate",
-    # ❌ REMOVER ESTOS DOS (causan conflicto):
-    # "closing rate": "kpi_closing_rate",
-    # "tasa de cierre": "kpi_closing_rate",
     "porcentaje de cierre": "kpi_closing_rate",
     "closing ratio": "kpi_closing_rate",
     "conversión": "kpi_closing_rate",
     "win rate": "kpi_closing_rate",
 
-    # --- Ventas por Ciudad ---
-    "ventas promedio por ciudad": "kpi_avg_sales_volume",
-    "promedio por ciudad": "kpi_avg_sales_volume",
+    # --- Ventas por Ciudad (GENÉRICO AL FINAL) ---
     "ventas por ciudad": "kpi_sales_volume_by_city",
     "volumen total por ciudad": "kpi_sales_volume_by_city",
-    "total de ventas por ciudad": "kpi_sales_volume_by_city",
     "kpi_sales_volume_by_city": "kpi_sales_volume_by_city",
 
     # --- Benchmarks ---
-    "benchmark": "industry_benchmarks",
-    "benchmarks": "industry_benchmarks",
-    "industria": "industry_benchmarks",
-    "benchmarks de industria": "industry_benchmarks",
-    "benchmark de industria": "industry_benchmarks",
-    "comparativa de industria": "industry_benchmarks",
-    "industria de landscaping": "industry_benchmarks",
-    "comparación con industria": "industry_benchmarks",
-    "sector landscaping": "industry_benchmarks",
-    "mercado": "industry_benchmarks",
-    "industry_benchmarks": "industry_benchmarks",
-        # --- Benchmarks (AMPLIAR COBERTURA) ---
     "benchmarks de crecimiento": "industry_benchmarks",
+    "benchmarks de crecimiento de pib": "industry_benchmarks",
     "crecimiento de pib": "industry_benchmarks",
     "pib en la industria": "industry_benchmarks",
     "benchmarks de industria": "industry_benchmarks",

@@ -1,0 +1,36 @@
+{
+  "kpi_name": "kpi_approved_estimates_rate",
+  "columns": [
+    "total_estimate_groups",
+    "approved_estimate_groups",
+    "approval_rate_pct"
+  ],
+  "type": "multi_value",
+  "stats": {
+    "total_estimate_groups": {
+      "min": 21544.0,
+      "max": 21544.0,
+      "mean": 21544.0,
+      "median": 21544.0,
+      "std": 0.0,
+      "type": "sum_total"
+    },
+    "approved_estimate_groups": {
+      "min": 3701.0,
+      "max": 3701.0,
+      "mean": 3701.0,
+      "median": 3701.0,
+      "std": 0.0,
+      "type": "generic"
+    },
+    "approval_rate_pct": {
+      "min": 17.18,
+      "max": 17.18,
+      "mean": 17.18,
+      "median": 17.18,
+      "std": 0.0,
+      "type": "generic"
+    }
+  },
+  "reference_metric": "median"
+}

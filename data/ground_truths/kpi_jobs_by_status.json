@@ -1,0 +1,37 @@
+{
+  "kpi_name": "kpi_jobs_by_status",
+  "columns": [
+    "work_status",
+    "total_jobs",
+    "total_sales",
+    "avg_sale"
+  ],
+  "type": "multi_value",
+  "stats": {
+    "total_jobs": {
+      "min": 67.0,
+      "max": 3001.0,
+      "mean": 904.4286,
+      "median": 723.0,
+      "std": 904.0319,
+      "type": "sum_total"
+    },
+    "total_sales": {
+      "min": 2726615.62,
+      "max": 76555899.85,
+      "mean": 19548862.9571,
+      "median": 9355068.59,
+      "std": 24270749.1222,
+      "type": "sum_total"
+    },
+    "avg_sale": {
+      "min": 8959.15,
+      "max": 17705.3,
+      "mean": 11241.8614,
+      "median": 10590.34,
+      "std": 2721.8721,
+      "type": "average"
+    }
+  },
+  "reference_metric": "median"
+}

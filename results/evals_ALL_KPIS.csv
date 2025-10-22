@@ -1,5 +1,5 @@
 trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
-68177c5c-5b65-4dcb-b5b9-df636efbfb97,2025-10-21T07:44:59.019170+00:00,2025-10-21T07:46:53.398510+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2059,593,¿Cuál es el closing rate global de RocknBlock?,1141162.06,"{
+5b138ccc-8661-4794-9e46-3a6fda3e364d,2025-10-22T05:14:49.808022+00:00,2025-10-22T05:16:41.678903+00:00,execution_accuracy,correct,1.0,La diferencia entre la salida y la referencia es menor al 20%.,2342,746,¿Cuál es el closing rate global de RocknBlock?,12.0,"{
   ""kpi_name"": ""kpi_closing_rate_global"",
   ""columns"": [
     ""total_conversions_global"",
@@ -8,10 +8,10 @@ trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_
   ],
   ""type"": ""single_value"",
   ""reference_metric"": ""single"",
-  ""value"": 12.05,
+  ""value"": 12.0,
   ""source_column"": ""closing_rate_pct_global""
 }"
-68177c5c-5b65-4dcb-b5b9-df636efbfb97,2025-10-21T07:44:59.019170+00:00,2025-10-21T07:46:53.398510+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2276,614,¿Cuál es el closing rate global de RocknBlock?,1141162.06,"{
+5b138ccc-8661-4794-9e46-3a6fda3e364d,2025-10-22T05:14:49.808022+00:00,2025-10-22T05:16:41.678903+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores es menor al 20%.,2332,746,¿Cuál es el closing rate global de RocknBlock?,12.0,"{
   ""kpi_name"": ""kpi_closing_rate_global"",
   ""columns"": [
     ""total_conversions_global"",
@@ -20,132 +20,788 @@ trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_
   ],
   ""type"": ""single_value"",
   ""reference_metric"": ""single"",
-  ""value"": 12.05,
+  ""value"": 12.0,
   ""source_column"": ""closing_rate_pct_global""
 }"
-c5e25deb-f044-4310-a8ea-a81682aeb4e4,2025-10-21T07:47:30.045936+00:00,2025-10-21T07:49:14.997345+00:00,execution_accuracy,correct,1.0,La diferencia es menor al 20%.,1404,319,¿Cuál es el promedio global de ventas de RocknBlock?,1141162.06,"{
-  ""kpi_name"": ""kpi_avg_sales_volume_global"",
-  ""columns"": [
-    ""avg_sales_volume_global""
-  ],
-  ""type"": ""single_value"",
-  ""reference_metric"": ""single"",
-  ""value"": 1141162.06
-}"
-c5e25deb-f044-4310-a8ea-a81682aeb4e4,2025-10-21T07:47:30.045936+00:00,2025-10-21T07:49:14.997345+00:00,kpi_correctness,correct,1.0,La diferencia entre la respuesta del modelo y el valor de referencia es menor al 20%.,1766,319,¿Cuál es el promedio global de ventas de RocknBlock?,1141162.06,"{
-  ""kpi_name"": ""kpi_avg_sales_volume_global"",
-  ""columns"": [
-    ""avg_sales_volume_global""
-  ],
-  ""type"": ""single_value"",
-  ""reference_metric"": ""single"",
-  ""value"": 1141162.06
-}"
-306686a6-3d3b-4080-a1df-c84e3aa49039,2025-10-21T07:49:48.290554+00:00,2025-10-21T07:51:57.673387+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2363,926,¿Cuáles son los benchmarks de crecimiento de PIB en la industria de landscaping?,"KPI: Volumen de ventas promedio por ciudad
-- Promedio muestral ≈ 22.2k; mediana ≈ 13.8k.
-- Top 3: Fridley 73.3k; Paramus 36.2k; Paradise 31.9k.
+6d10c5dc-5178-46ae-be8b-a0452fbeeb9f,2025-10-22T05:17:43.161980+00:00,2025-10-22T05:19:06.018514+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2483,752,¿Cuál es el promedio global de ventas de RocknBlock?,"Volumen de ventas promedio (KPI) – Global: 9231.61 por job
 
-Hallazgos clave
-- Alta concentración: Fridley es 3.3x el promedio y 5.3x la mediana, señal de dependencia en pocos mercados.
-- Asimetría: Paramus y Paradise también están muy por encima del promedio.
-- Posible clúster en Nevada: Paradise, Henderson, North Las Vegas y Mountain Springs sugieren un mercado integrado en el área de Las Vegas.
+Interpretación ejecutiva:
+- Definición: promedio aritmético de ventas por job, calculado como ventas totales netas dividido entre el número de jobs del periodo analizado.
+- Lectura: en el agregado actual, cada job genera en promedio 9231.61 en ventas. Esta cifra sirve como referencia para pricing, productividad por equipo y planificación de capacidad, siempre que se controle por mix de servicios y márgenes.
+- Alcance: esta vista es transversal (no temporal), por lo que no permite inferir tendencias ni estacionalidad.
 
-Riesgos de calidad de datos e impacto potencial
-- Duplicados/variantes no estandarizadas: “Pahrump” vs “pahrump”; “Henderson, NV. 89012” vs “henderson”; “paramus” en minúsculas; “N las vegas” abreviado.
-- Efecto de consolidación:
-  - Henderson ≈ 20.76k + 7.25k = 28.01k.
-  - Pahrump ≈ 14.91k + 12.70k = 27.61k.
-  - Área Las Vegas (Paradise + North Las Vegas + Mountain Springs + Henderson consolidado) ≈ 76.6k, potencialmente por encima de Fridley (73.3k), lo que alteraría el ranking.
-- Falta el número de transacciones por ciudad: un promedio alto con N bajo es volátil y puede inducir a conclusiones erróneas.
+Calidad y precisión del KPI:
+- Asegurar que el cálculo use ventas netas (descuentos y devoluciones aplicados, sin impuestos) y el conteo de jobs completados en el mismo periodo.
+- Declarar explícitamente periodo y moneda en el encabezado del informe para una interpretación consistente.
+- Considerar la dispersión: el promedio puede estar sesgado por outliers; complementar con mediana y percentiles para robustez.
 
-Implicaciones operativas
-- Explotar el outlier positivo (Fridley): identificar drivers (mix, canal, partner, ticket/upsell) y diseñar réplica en Paramus y Paradise.
-- Enfoque regional: tratar Las Vegas como un mercado único (Henderson, North Las Vegas, Paradise), unificando cobertura y priorizando cross-sell y bundles locales.
-- Underperformers relativos (corte actual): St. George, North Las Vegas y Mountain Springs (<40% del promedio). Revisar pricing, surtido, cobertura comercial y fricción operativa.
-
-Acciones inmediatas (2 semanas)
-- Estandarizar ubicaciones: normalizar “city” con diccionario canónico + fuzzy matching, separar ZIP/estado y geocodificar. Recalcular el KPI y el ranking.
-- Añadir contexto al KPI: incluir número de operaciones, volumen total y dispersión (desviación estándar y coeficiente de variación) por ciudad para evaluar estabilidad.
-- Reemitir ranking:
-  - Ciudades consolidadas y/o por área metropolitana.
-  - Cortes por canal y mix de producto.
-- Diseño de pruebas:
-  - Fridley/Paramus: campañas de expansión de cartera y upsell.
-  - Las Vegas metro: piloto de cobertura unificada y bundles locales.
-
-Recomendaciones adicionales
-- Incorporar una dimensión de “área metropolitana/CBSA” en el modelo de datos, con reglas de agregación automáticas y auditoría semanal de duplicados/variantes.
-- Definir umbrales de calidad para actuar sobre el KPI (ej. alertar si coeficiente de variación > 0.6 o si N < 10) y evitar decisiones basadas en promedios inestables.
-
-Conclusión
-El desempeño está fuertemente concentrado. Con la consolidación estimada, el área de Las Vegas alcanza ≈ 76.6k y puede superar a Fridley (73.3k), lo que respalda que Nevada está probablemente subestimada por la falta de estandarización. Prioridades: higiene de datos y recálculo del KPI; en paralelo, desplegar iniciativas focalizadas en Las Vegas como mercado integrado y replicar el playbook de Fridley en plazas afines.
-
-Pregunta siguiente sugerida
-- ¿Cuántas operaciones y qué dispersión (p. ej., desviación estándar/coeficiente de variación) tiene cada ciudad para evaluar la estabilidad del promedio?
-
-Acción táctica
-- Implementar de inmediato la normalización de “city” y reemitir el ranking por área metropolitana; en paralelo, preparar un piloto de cobertura unificada en Las Vegas y una campaña de upsell en Fridley.
+Próximas acciones (priorizadas):
+- Desglosar el KPI por tipo de servicio, canal y zona para identificar palancas de precio y mix.
+- Detectar segmentos por debajo del promedio global y revisar políticas de descuento, empaquetado y tiempos de ciclo.
+- Establecer metas por equipo/segmento acordes a su promedio histórico y ajustar capacidad según la demanda observada.
+- Incorporar la serie temporal del KPI para monitorear estacionalidad y el impacto de promociones o cambios operativos.
+- Añadir métricas de dispersión (mediana, p25–p75) y controlar outliers para evitar decisiones basadas en promedios distorsionados.
+- Vincular el KPI con margen bruto por job para que las decisiones de pricing y capacidad maximicen contribución y no solo volumen.
 
 Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
   ""kpi_name"": ""kpi_avg_sales_volume_global"",
   ""columns"": [
+    ""total_jobs_global"",
+    ""total_sales_global"",
     ""avg_sales_volume_global""
   ],
-  ""type"": ""single_value"",
-  ""reference_metric"": ""single"",
-  ""value"": 1141162.06
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_jobs_global"": {
+      ""min"": 4679.0,
+      ""max"": 4679.0,
+      ""mean"": 4679.0,
+      ""median"": 4679.0,
+      ""std"": 0.0,
+      ""type"": ""sum_total""
+    },
+    ""total_sales_global"": {
+      ""min"": 43194716.59,
+      ""max"": 43194716.59,
+      ""mean"": 43194716.59,
+      ""median"": 43194716.59,
+      ""std"": 0.0,
+      ""type"": ""sum_total""
+    },
+    ""avg_sales_volume_global"": {
+      ""min"": 9231.61,
+      ""max"": 9231.61,
+      ""mean"": 9231.61,
+      ""median"": 9231.61,
+      ""std"": 0.0,
+      ""type"": ""average""
+    }
+  },
+  ""reference_metric"": ""median""
 }"
-306686a6-3d3b-4080-a1df-c84e3aa49039,2025-10-21T07:49:48.290554+00:00,2025-10-21T07:51:57.673387+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,1696,461,¿Cuáles son los benchmarks de crecimiento de PIB en la industria de landscaping?,"KPI: Volumen de ventas promedio por ciudad
-- Promedio muestral ≈ 22.2k; mediana ≈ 13.8k.
-- Top 3: Fridley 73.3k; Paramus 36.2k; Paradise 31.9k.
+6d10c5dc-5178-46ae-be8b-a0452fbeeb9f,2025-10-22T05:17:43.161980+00:00,2025-10-22T05:19:06.018514+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2535,987,¿Cuál es el promedio global de ventas de RocknBlock?,"Volumen de ventas promedio (KPI) – Global: 9231.61 por job
 
-Hallazgos clave
-- Alta concentración: Fridley es 3.3x el promedio y 5.3x la mediana, señal de dependencia en pocos mercados.
-- Asimetría: Paramus y Paradise también están muy por encima del promedio.
-- Posible clúster en Nevada: Paradise, Henderson, North Las Vegas y Mountain Springs sugieren un mercado integrado en el área de Las Vegas.
+Interpretación ejecutiva:
+- Definición: promedio aritmético de ventas por job, calculado como ventas totales netas dividido entre el número de jobs del periodo analizado.
+- Lectura: en el agregado actual, cada job genera en promedio 9231.61 en ventas. Esta cifra sirve como referencia para pricing, productividad por equipo y planificación de capacidad, siempre que se controle por mix de servicios y márgenes.
+- Alcance: esta vista es transversal (no temporal), por lo que no permite inferir tendencias ni estacionalidad.
 
-Riesgos de calidad de datos e impacto potencial
-- Duplicados/variantes no estandarizadas: “Pahrump” vs “pahrump”; “Henderson, NV. 89012” vs “henderson”; “paramus” en minúsculas; “N las vegas” abreviado.
-- Efecto de consolidación:
-  - Henderson ≈ 20.76k + 7.25k = 28.01k.
-  - Pahrump ≈ 14.91k + 12.70k = 27.61k.
-  - Área Las Vegas (Paradise + North Las Vegas + Mountain Springs + Henderson consolidado) ≈ 76.6k, potencialmente por encima de Fridley (73.3k), lo que alteraría el ranking.
-- Falta el número de transacciones por ciudad: un promedio alto con N bajo es volátil y puede inducir a conclusiones erróneas.
+Calidad y precisión del KPI:
+- Asegurar que el cálculo use ventas netas (descuentos y devoluciones aplicados, sin impuestos) y el conteo de jobs completados en el mismo periodo.
+- Declarar explícitamente periodo y moneda en el encabezado del informe para una interpretación consistente.
+- Considerar la dispersión: el promedio puede estar sesgado por outliers; complementar con mediana y percentiles para robustez.
 
-Implicaciones operativas
-- Explotar el outlier positivo (Fridley): identificar drivers (mix, canal, partner, ticket/upsell) y diseñar réplica en Paramus y Paradise.
-- Enfoque regional: tratar Las Vegas como un mercado único (Henderson, North Las Vegas, Paradise), unificando cobertura y priorizando cross-sell y bundles locales.
-- Underperformers relativos (corte actual): St. George, North Las Vegas y Mountain Springs (<40% del promedio). Revisar pricing, surtido, cobertura comercial y fricción operativa.
-
-Acciones inmediatas (2 semanas)
-- Estandarizar ubicaciones: normalizar “city” con diccionario canónico + fuzzy matching, separar ZIP/estado y geocodificar. Recalcular el KPI y el ranking.
-- Añadir contexto al KPI: incluir número de operaciones, volumen total y dispersión (desviación estándar y coeficiente de variación) por ciudad para evaluar estabilidad.
-- Reemitir ranking:
-  - Ciudades consolidadas y/o por área metropolitana.
-  - Cortes por canal y mix de producto.
-- Diseño de pruebas:
-  - Fridley/Paramus: campañas de expansión de cartera y upsell.
-  - Las Vegas metro: piloto de cobertura unificada y bundles locales.
-
-Recomendaciones adicionales
-- Incorporar una dimensión de “área metropolitana/CBSA” en el modelo de datos, con reglas de agregación automáticas y auditoría semanal de duplicados/variantes.
-- Definir umbrales de calidad para actuar sobre el KPI (ej. alertar si coeficiente de variación > 0.6 o si N < 10) y evitar decisiones basadas en promedios inestables.
-
-Conclusión
-El desempeño está fuertemente concentrado. Con la consolidación estimada, el área de Las Vegas alcanza ≈ 76.6k y puede superar a Fridley (73.3k), lo que respalda que Nevada está probablemente subestimada por la falta de estandarización. Prioridades: higiene de datos y recálculo del KPI; en paralelo, desplegar iniciativas focalizadas en Las Vegas como mercado integrado y replicar el playbook de Fridley en plazas afines.
-
-Pregunta siguiente sugerida
-- ¿Cuántas operaciones y qué dispersión (p. ej., desviación estándar/coeficiente de variación) tiene cada ciudad para evaluar la estabilidad del promedio?
-
-Acción táctica
-- Implementar de inmediato la normalización de “city” y reemitir el ranking por área metropolitana; en paralelo, preparar un piloto de cobertura unificada en Las Vegas y una campaña de upsell en Fridley.
+Próximas acciones (priorizadas):
+- Desglosar el KPI por tipo de servicio, canal y zona para identificar palancas de precio y mix.
+- Detectar segmentos por debajo del promedio global y revisar políticas de descuento, empaquetado y tiempos de ciclo.
+- Establecer metas por equipo/segmento acordes a su promedio histórico y ajustar capacidad según la demanda observada.
+- Incorporar la serie temporal del KPI para monitorear estacionalidad y el impacto de promociones o cambios operativos.
+- Añadir métricas de dispersión (mediana, p25–p75) y controlar outliers para evitar decisiones basadas en promedios distorsionados.
+- Vincular el KPI con margen bruto por job para que las decisiones de pricing y capacidad maximicen contribución y no solo volumen.
 
 Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
   ""kpi_name"": ""kpi_avg_sales_volume_global"",
   ""columns"": [
+    ""total_jobs_global"",
+    ""total_sales_global"",
     ""avg_sales_volume_global""
   ],
-  ""type"": ""single_value"",
-  ""reference_metric"": ""single"",
-  ""value"": 1141162.06
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_jobs_global"": {
+      ""min"": 4679.0,
+      ""max"": 4679.0,
+      ""mean"": 4679.0,
+      ""median"": 4679.0,
+      ""std"": 0.0,
+      ""type"": ""sum_total""
+    },
+    ""total_sales_global"": {
+      ""min"": 43194716.59,
+      ""max"": 43194716.59,
+      ""mean"": 43194716.59,
+      ""median"": 43194716.59,
+      ""std"": 0.0,
+      ""type"": ""sum_total""
+    },
+    ""avg_sales_volume_global"": {
+      ""min"": 9231.61,
+      ""max"": 9231.61,
+      ""mean"": 9231.61,
+      ""median"": 9231.61,
+      ""std"": 0.0,
+      ""type"": ""average""
+    }
+  },
+  ""reference_metric"": ""median""
 }"
+207ac83b-258c-4e55-aaa5-5004eb42b681,2025-10-22T05:19:38.196985+00:00,2025-10-22T05:21:16.166655+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2585,1018,¿Cuáles son los benchmarks de industria?,"KPI: Volumen de ventas promedio — Estado y plan
+
+Estado actual
+- No reportable aún. No se ha validado la definición del KPI ni se ha ejecutado la consulta sobre clean.fct_sales. Sin estas definiciones, cualquier cifra carecería de validez.
+
+Definición propuesta (para aprobación)
+- Métrica: Monto neto de ventas cerradas en USD, excluyendo cancelaciones, devoluciones y descuentos, y sin impuestos indirectos. Si existen múltiples monedas, convertir a USD al tipo de cambio de la fecha de la venta.
+- Periodicidad de reporte:
+  - Operativo: promedio diario del mes en curso.
+  - Tendencia: promedio mensual en ventana móvil de 6 meses.
+- Convención de promedio: usar días calendario para comparabilidad entre meses.
+
+Metodología de cálculo
+- Fuente: clean.fct_sales.
+- Filtros mínimos: ventas con estado finalizado/cerrado; excluir registros cancelados o devueltos; deduplicar por ID de transacción/pedido.
+- Cálculo del neto: neto = bruto − descuentos − devoluciones (excluyendo impuestos indirectos si están disponibles como campos separados).
+- Cómputo:
+  - Diario: sumar neto por día; promedio del período = sumatorio diario / número de días calendario del período.
+  - Mensual: sumar neto por mes; promedio móvil = promedio simple de los meses en la ventana definida.
+
+Controles de calidad
+- Completitud de fechas (sin días o meses faltantes).
+- Detección de outliers (por encima de P99/P01) y revisión de picos por cargas atrasadas o errores.
+- Reconciliación de devoluciones vs. ventas del período (efecto cruzado intermensual).
+- Verificación de duplicados y consistencia de moneda/zonas horarias.
+
+Publicación y alertas
+- Publicar en el dashboard principal con definición visible en el tooltip/diccionario de datos.
+- Configurar alerta cuando la variación del promedio mensual supere ±5% versus el promedio móvil de 3 meses.
+
+Nota sobre contexto sectorial
+- La afirmación “el sector está estancado en ventas” no cuenta aquí con evidencia citada. Se sugiere omitirla del reporte o incluir fuente verificable. Si se confirma estancamiento, elevar la cadencia de monitoreo a semanal.
+
+Recomendaciones accionables
+- Aprobación de definición y ventana de análisis esta semana y registro en el diccionario de datos.
+- Automatizar el cálculo con los controles de calidad indicados y activar la alerta de ±5% versus 3M para el cierre del próximo ciclo de reporte.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+207ac83b-258c-4e55-aaa5-5004eb42b681,2025-10-22T05:19:38.196985+00:00,2025-10-22T05:21:16.166655+00:00,kpi_correctness,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2795,1133,¿Cuáles son los benchmarks de industria?,"KPI: Volumen de ventas promedio — Estado y plan
+
+Estado actual
+- No reportable aún. No se ha validado la definición del KPI ni se ha ejecutado la consulta sobre clean.fct_sales. Sin estas definiciones, cualquier cifra carecería de validez.
+
+Definición propuesta (para aprobación)
+- Métrica: Monto neto de ventas cerradas en USD, excluyendo cancelaciones, devoluciones y descuentos, y sin impuestos indirectos. Si existen múltiples monedas, convertir a USD al tipo de cambio de la fecha de la venta.
+- Periodicidad de reporte:
+  - Operativo: promedio diario del mes en curso.
+  - Tendencia: promedio mensual en ventana móvil de 6 meses.
+- Convención de promedio: usar días calendario para comparabilidad entre meses.
+
+Metodología de cálculo
+- Fuente: clean.fct_sales.
+- Filtros mínimos: ventas con estado finalizado/cerrado; excluir registros cancelados o devueltos; deduplicar por ID de transacción/pedido.
+- Cálculo del neto: neto = bruto − descuentos − devoluciones (excluyendo impuestos indirectos si están disponibles como campos separados).
+- Cómputo:
+  - Diario: sumar neto por día; promedio del período = sumatorio diario / número de días calendario del período.
+  - Mensual: sumar neto por mes; promedio móvil = promedio simple de los meses en la ventana definida.
+
+Controles de calidad
+- Completitud de fechas (sin días o meses faltantes).
+- Detección de outliers (por encima de P99/P01) y revisión de picos por cargas atrasadas o errores.
+- Reconciliación de devoluciones vs. ventas del período (efecto cruzado intermensual).
+- Verificación de duplicados y consistencia de moneda/zonas horarias.
+
+Publicación y alertas
+- Publicar en el dashboard principal con definición visible en el tooltip/diccionario de datos.
+- Configurar alerta cuando la variación del promedio mensual supere ±5% versus el promedio móvil de 3 meses.
+
+Nota sobre contexto sectorial
+- La afirmación “el sector está estancado en ventas” no cuenta aquí con evidencia citada. Se sugiere omitirla del reporte o incluir fuente verificable. Si se confirma estancamiento, elevar la cadencia de monitoreo a semanal.
+
+Recomendaciones accionables
+- Aprobación de definición y ventana de análisis esta semana y registro en el diccionario de datos.
+- Automatizar el cálculo con los controles de calidad indicados y activar la alerta de ±5% versus 3M para el cierre del próximo ciclo de reporte.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+b83528c9-1cf9-4fb0-9d8f-1c59df400495,2025-10-22T05:21:47.848590+00:00,2025-10-22T05:23:32.905797+00:00,execution_accuracy,correct,1.0,"La respuesta del modelo es correcta, ya que la diferencia entre los valores numéricos es menor al 20%.",2421,402,¿Cuál es el closing rate por ciudad?,"Resultados oficiales (kpi_closing_rate por ciudad)
+- las vegas: 23.00% (2,526/10,984)
+- san diego: 9.72% (461/4,743)
+- phoenix: 7.37% (134/1,817)
+- denver: 5.81% (252/4,336)
+- santa clara: 3.93% (34/865)
+
+Hallazgos clave (basados en datos)
+- Promedio del conjunto: 14.98% (3,407 cierres sobre 22,745 leads). Solo Las Vegas está por encima de la media.
+- Las Vegas concentra el 48% de los leads y el 74% de los cierres; su tasa (23.00%) supera en +8.0 pp la media, confirmando mayor eficiencia.
+- San Diego (9.72%) y Phoenix (7.37%) operan en rango medio-bajo; Denver (5.81%) está rezagado; Santa Clara (3.93%) es crítico por baja conversión y bajo volumen.
+- Sensibilidad para priorización: +1 pp en closing_rate generaría aprox. +110 cierres en Las Vegas, +47 en San Diego, +43 en Denver, +18 en Phoenix y +9 en Santa Clara.
+
+Conclusión
+- El mercado más eficiente y con mayor impacto incremental hoy es Las Vegas; el mayor potencial de mejora por volumen está en San Diego y Denver; Santa Clara requiere correcciones de fondo en el funnel. Estas conclusiones se sustentan en tasas de cierre y tamaños de muestra por ciudad.
+
+Recomendaciones accionables
+- Las Vegas: ampliar capacidad (horarios, headcount, cobertura) para sostener SLA de primer contacto <5 min y cadencia de 5 intentos en 48 h; objetivo: mantener ≥22% de closing_rate al crecer leads (+10% QoQ).
+- San Diego y Phoenix y Denver: estandarizar playbook de cualificación y follow-up (SLA <10 min, 5–7 toques omnicanal en 7 días, scripts y objection handling); objetivo: +3 pp en 4–6 semanas.
+- Santa Clara: auditoría del funnel en 2 semanas (por etapa y por canal); test A/B de oferta/incentivos y resegmentación; meta inicial: 3.93% → 7% en 60 días o pausar canales sub-ROI.
+- Monitoreo semanal: closing_rate, total_leads y total_conversions por ciudad y canal, con alertas si varía ±2 pp vs la media móvil de 4 semanas.
+- NUEVO — Desagregación por fuente y equipo: medir closing_rate por canal de adquisición y por vendedor para identificar diferencias de calidad/ejecución; re-asignar 10–15% del presupuesto y del capacity desde ciudades/canales sub-ROI hacia Las Vegas y la mejor fuente en San Diego.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","Resultado oficial del KPI kpi_closing_rate (closing_rate_pct por ciudad, con leads y conversiones):
+
+- las vegas: 23.00%; total_leads 10,984; total_conversions 2,526.
+- san diego: 9.72%; 4,743; 461.
+- phoenix: 7.37%; 1,817; 134.
+- denver: 5.81%; 4,336; 252.
+- santa clara: 3.93%; 865; 34.
+
+Interpretación: la tasa de cierre más alta es las vegas con 23.00% (2,526/10,984). La más baja es santa clara con 3.93% (34/865). san diego, phoenix y denver se sitúan intermedias con 9.72%, 7.37% y 5.81%, respectivamente."
+b83528c9-1cf9-4fb0-9d8f-1c59df400495,2025-10-22T05:21:47.848590+00:00,2025-10-22T05:23:32.905797+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores numéricos es menor al 20%.,3585,733,¿Cuál es el closing rate por ciudad?,"Resultados oficiales (kpi_closing_rate por ciudad)
+- las vegas: 23.00% (2,526/10,984)
+- san diego: 9.72% (461/4,743)
+- phoenix: 7.37% (134/1,817)
+- denver: 5.81% (252/4,336)
+- santa clara: 3.93% (34/865)
+
+Hallazgos clave (basados en datos)
+- Promedio del conjunto: 14.98% (3,407 cierres sobre 22,745 leads). Solo Las Vegas está por encima de la media.
+- Las Vegas concentra el 48% de los leads y el 74% de los cierres; su tasa (23.00%) supera en +8.0 pp la media, confirmando mayor eficiencia.
+- San Diego (9.72%) y Phoenix (7.37%) operan en rango medio-bajo; Denver (5.81%) está rezagado; Santa Clara (3.93%) es crítico por baja conversión y bajo volumen.
+- Sensibilidad para priorización: +1 pp en closing_rate generaría aprox. +110 cierres en Las Vegas, +47 en San Diego, +43 en Denver, +18 en Phoenix y +9 en Santa Clara.
+
+Conclusión
+- El mercado más eficiente y con mayor impacto incremental hoy es Las Vegas; el mayor potencial de mejora por volumen está en San Diego y Denver; Santa Clara requiere correcciones de fondo en el funnel. Estas conclusiones se sustentan en tasas de cierre y tamaños de muestra por ciudad.
+
+Recomendaciones accionables
+- Las Vegas: ampliar capacidad (horarios, headcount, cobertura) para sostener SLA de primer contacto <5 min y cadencia de 5 intentos en 48 h; objetivo: mantener ≥22% de closing_rate al crecer leads (+10% QoQ).
+- San Diego y Phoenix y Denver: estandarizar playbook de cualificación y follow-up (SLA <10 min, 5–7 toques omnicanal en 7 días, scripts y objection handling); objetivo: +3 pp en 4–6 semanas.
+- Santa Clara: auditoría del funnel en 2 semanas (por etapa y por canal); test A/B de oferta/incentivos y resegmentación; meta inicial: 3.93% → 7% en 60 días o pausar canales sub-ROI.
+- Monitoreo semanal: closing_rate, total_leads y total_conversions por ciudad y canal, con alertas si varía ±2 pp vs la media móvil de 4 semanas.
+- NUEVO — Desagregación por fuente y equipo: medir closing_rate por canal de adquisición y por vendedor para identificar diferencias de calidad/ejecución; re-asignar 10–15% del presupuesto y del capacity desde ciudades/canales sub-ROI hacia Las Vegas y la mejor fuente en San Diego.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","Resultado oficial del KPI kpi_closing_rate (closing_rate_pct por ciudad, con leads y conversiones):
+
+- las vegas: 23.00%; total_leads 10,984; total_conversions 2,526.
+- san diego: 9.72%; 4,743; 461.
+- phoenix: 7.37%; 1,817; 134.
+- denver: 5.81%; 4,336; 252.
+- santa clara: 3.93%; 865; 34.
+
+Interpretación: la tasa de cierre más alta es las vegas con 23.00% (2,526/10,984). La más baja es santa clara con 3.93% (34/865). san diego, phoenix y denver se sitúan intermedias con 9.72%, 7.37% y 5.81%, respectivamente."
+f75b1c7e-99f8-439f-a2f5-457a69522db8,2025-10-22T05:24:08.725198+00:00,2025-10-22T05:25:31.250777+00:00,execution_accuracy,incorrect,0.0,La diferencia entre los valores es mayor al 40%.,2334,664,¿Cuál es el promedio de ventas por ciudad?,"Estado del KPI
+- avg_sale_volume: No disponible. La consulta del KPI devolvió 0 filas, por lo que no es posible calcular el valor.
+
+Causa observada y sustento
+- La ausencia de resultados indica que, con los filtros aplicados (periodo/ciudad) y la fuente definida en la capa semántica, no se obtuvo ningún registro desde el esquema clean. Esto respalda la conclusión de “No disponible”.
+
+Diagnóstico probable
+- Filtros restrictivos (rango de fechas o ciudad) que excluyen todas las transacciones.
+- Datos faltantes o particiones recientes no cargadas en clean.fct_sales.
+- Definición/joins de la métrica en la capa semántica que eliminan filas (fuente, periodo por defecto, filtros por defecto).
+
+Validaciones inmediatas (en orden y con criterios de éxito)
+- Presencia de datos base:
+  - SELECT COUNT(*), MIN(order_date), MAX(order_date) FROM clean.fct_sales;
+  - Criterio: COUNT(*) > 0 y el rango MIN/MAX cubre el periodo esperado.
+- Cardinalidad de ubicaciones:
+  - SELECT COUNT(DISTINCT city) FROM clean.fct_sales;
+  - Criterio: > 0.
+- Cálculo directo sin capa semántica ni filtros de ciudad:
+  - SELECT AVG(sale_volume) FROM clean.fct_sales WHERE order_date BETWEEN <inicio> AND <fin>;
+  - Criterio: devuelve un valor numérico; si es así, el problema está en filtros/joins de la capa semántica.
+- Revisión de la definición del KPI en ai.*:
+  - Confirmar fuente, joins, periodo por defecto y filtros aplicados; reintentar sin filtro de ciudad.
+- Normalización de ubicaciones antes de agrupar:
+  - Estandarizar city/state y remover ZIP/variantes que fragmenten la agregación.
+- Operación correctiva si faltan datos:
+  - Recargar/rehidratar particiones recientes y reintentar.
+
+Criterio de salida
+- El KPI se considera recuperado cuando la consulta retorna un valor numérico distinto de NULL para el periodo especificado.
+
+Necesario para recalcular de inmediato
+- Confirmar periodo (p. ej., YTD o últimos 90 días) y granularidad (global o por ciudad).
+
+Recomendaciones accionables
+- Definir y documentar la semántica de avg_sale_volume (fuente, nivel de agregación, periodo y filtros por defecto) y añadir una prueba unitaria que falle si la consulta devuelve 0 filas.
+- Implementar un monitoreo diario que alerte cuando COUNT(*) por día en clean.fct_sales sea 0 o falten particiones de los últimos N días.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume"",
+  ""columns"": [
+    ""city"",
+    ""n_sales"",
+    ""total_sales"",
+    ""avg_sale_volume""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""n_sales"": {
+      ""min"": 17.0,
+      ""max"": 3324.0,
+      ""mean"": 779.8333,
+      ""median"": 299.5,
+      ""std"": 1156.26,
+      ""type"": ""generic""
+    },
+    ""total_sales"": {
+      ""min"": 164482.88,
+      ""max"": 27992983.11,
+      ""mean"": 7199119.4317,
+      ""median"": 2997683.65,
+      ""std"": 9656927.0234,
+      ""type"": ""sum_total""
+    },
+    ""avg_sale_volume"": {
+      ""min"": 7931.04,
+      ""max"": 12406.31,
+      ""mean"": 10106.865,
+      ""median"": 10346.505,
+      ""std"": 1583.7411,
+      ""type"": ""average""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+f75b1c7e-99f8-439f-a2f5-457a69522db8,2025-10-22T05:24:08.725198+00:00,2025-10-22T05:25:31.250777+00:00,kpi_correctness,incorrect,0.0,La diferencia entre la salida y la referencia es mayor al 40%.,2596,1018,¿Cuál es el promedio de ventas por ciudad?,"Estado del KPI
+- avg_sale_volume: No disponible. La consulta del KPI devolvió 0 filas, por lo que no es posible calcular el valor.
+
+Causa observada y sustento
+- La ausencia de resultados indica que, con los filtros aplicados (periodo/ciudad) y la fuente definida en la capa semántica, no se obtuvo ningún registro desde el esquema clean. Esto respalda la conclusión de “No disponible”.
+
+Diagnóstico probable
+- Filtros restrictivos (rango de fechas o ciudad) que excluyen todas las transacciones.
+- Datos faltantes o particiones recientes no cargadas en clean.fct_sales.
+- Definición/joins de la métrica en la capa semántica que eliminan filas (fuente, periodo por defecto, filtros por defecto).
+
+Validaciones inmediatas (en orden y con criterios de éxito)
+- Presencia de datos base:
+  - SELECT COUNT(*), MIN(order_date), MAX(order_date) FROM clean.fct_sales;
+  - Criterio: COUNT(*) > 0 y el rango MIN/MAX cubre el periodo esperado.
+- Cardinalidad de ubicaciones:
+  - SELECT COUNT(DISTINCT city) FROM clean.fct_sales;
+  - Criterio: > 0.
+- Cálculo directo sin capa semántica ni filtros de ciudad:
+  - SELECT AVG(sale_volume) FROM clean.fct_sales WHERE order_date BETWEEN <inicio> AND <fin>;
+  - Criterio: devuelve un valor numérico; si es así, el problema está en filtros/joins de la capa semántica.
+- Revisión de la definición del KPI en ai.*:
+  - Confirmar fuente, joins, periodo por defecto y filtros aplicados; reintentar sin filtro de ciudad.
+- Normalización de ubicaciones antes de agrupar:
+  - Estandarizar city/state y remover ZIP/variantes que fragmenten la agregación.
+- Operación correctiva si faltan datos:
+  - Recargar/rehidratar particiones recientes y reintentar.
+
+Criterio de salida
+- El KPI se considera recuperado cuando la consulta retorna un valor numérico distinto de NULL para el periodo especificado.
+
+Necesario para recalcular de inmediato
+- Confirmar periodo (p. ej., YTD o últimos 90 días) y granularidad (global o por ciudad).
+
+Recomendaciones accionables
+- Definir y documentar la semántica de avg_sale_volume (fuente, nivel de agregación, periodo y filtros por defecto) y añadir una prueba unitaria que falle si la consulta devuelve 0 filas.
+- Implementar un monitoreo diario que alerte cuando COUNT(*) por día en clean.fct_sales sea 0 o falten particiones de los últimos N días.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume"",
+  ""columns"": [
+    ""city"",
+    ""n_sales"",
+    ""total_sales"",
+    ""avg_sale_volume""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""n_sales"": {
+      ""min"": 17.0,
+      ""max"": 3324.0,
+      ""mean"": 779.8333,
+      ""median"": 299.5,
+      ""std"": 1156.26,
+      ""type"": ""generic""
+    },
+    ""total_sales"": {
+      ""min"": 164482.88,
+      ""max"": 27992983.11,
+      ""mean"": 7199119.4317,
+      ""median"": 2997683.65,
+      ""std"": 9656927.0234,
+      ""type"": ""sum_total""
+    },
+    ""avg_sale_volume"": {
+      ""min"": 7931.04,
+      ""max"": 12406.31,
+      ""mean"": 10106.865,
+      ""median"": 10346.505,
+      ""std"": 1583.7411,
+      ""type"": ""average""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+c399cde9-82b0-4091-8e62-be5218d86f08,2025-10-22T05:26:05.980464+00:00,2025-10-22T05:27:15.920454+00:00,execution_accuracy,incorrect,0.0,La diferencia entre la salida y la referencia es mayor al 40%.,2311,639,¿Cuál es el total de ventas por ciudad?,"Estado del KPI: avg_sale_volume — sin datos disponibles
+
+Conclusión (respaldada)
+- La consulta/objeto semántico ai.avg_sale_volume retorna 0 filas; con los filtros/rango actuales no hay base para calcular el KPI.
+
+Causas probables
+- Filtros de fecha/ubicación excesivamente restrictivos en la capa semántica.
+- Fuente base vacía o incompleta (clean.fct_sales) o columna de importe no poblada.
+- Reglas de mapeo/normalización de ubicaciones que excluyen registros por variaciones de nombre.
+- Problemas de conexión o permisos sobre el esquema clean.
+
+Acciones de verificación inmediatas
+- Validar filtros y rango de fechas aplicados en ai.avg_sale_volume; probar sin filtros y luego reintroducirlos de forma incremental.
+- Verificar la fuente base:
+  - SELECT COUNT(*) AS rows, COUNT(amount) AS amount_populated, MIN(sale_date) AS min_date, MAX(sale_date) AS max_date FROM clean.fct_sales;
+  - Confirmar que amount esté poblada y que existan fechas dentro del rango esperado.
+- Comprobar acceso y permisos al esquema clean y a clean.fct_sales.
+- Revisar normalización de ubicaciones: cotejar valores distintos vs. catálogo maestro y detectar discrepancias.
+
+Siguientes pasos recomendados
+- Definir periodo y granularidad objetivo (por ejemplo, mensual por ciudad) y reintentar la consulta con esos parámetros explícitos.
+- Implementar normalización y catálogo maestro de ciudades/ubicaciones en ETL; añadir validaciones de ingestión para detectar nulos y valores fuera de rango en amount y sale_date.
+- Extender el KPI con contexto: número de transacciones (n) y medida de dispersión (p. ej., desviación estándar) para evitar sesgos de promedios con muestras mínimas.
+
+Recomendaciones accionables
+- Implementar una alerta automática que se dispare si COUNT(*) de clean.fct_sales = 0 o si ai.avg_sale_volume devuelve 0 filas para el último periodo esperado.
+- Definir comportamiento de fallback en el dashboard: mostrar N/A con causa identificada y último periodo con datos válidos (si existe), evitando conclusiones erróneas.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_sales_volume_by_city"",
+  ""columns"": [
+    ""city"",
+    ""total_sales"",
+    ""n_sales""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_sales"": {
+      ""min"": 164482.88,
+      ""max"": 27992983.11,
+      ""mean"": 7199119.4317,
+      ""median"": 2997683.65,
+      ""std"": 9656927.0234,
+      ""type"": ""sum_total""
+    },
+    ""n_sales"": {
+      ""min"": 17.0,
+      ""max"": 3324.0,
+      ""mean"": 779.8333,
+      ""median"": 299.5,
+      ""std"": 1156.26,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+c399cde9-82b0-4091-8e62-be5218d86f08,2025-10-22T05:26:05.980464+00:00,2025-10-22T05:27:15.920454+00:00,kpi_correctness,incorrect,0.0,La diferencia entre la salida y la referencia es mayor al 40%.,2639,970,¿Cuál es el total de ventas por ciudad?,"Estado del KPI: avg_sale_volume — sin datos disponibles
+
+Conclusión (respaldada)
+- La consulta/objeto semántico ai.avg_sale_volume retorna 0 filas; con los filtros/rango actuales no hay base para calcular el KPI.
+
+Causas probables
+- Filtros de fecha/ubicación excesivamente restrictivos en la capa semántica.
+- Fuente base vacía o incompleta (clean.fct_sales) o columna de importe no poblada.
+- Reglas de mapeo/normalización de ubicaciones que excluyen registros por variaciones de nombre.
+- Problemas de conexión o permisos sobre el esquema clean.
+
+Acciones de verificación inmediatas
+- Validar filtros y rango de fechas aplicados en ai.avg_sale_volume; probar sin filtros y luego reintroducirlos de forma incremental.
+- Verificar la fuente base:
+  - SELECT COUNT(*) AS rows, COUNT(amount) AS amount_populated, MIN(sale_date) AS min_date, MAX(sale_date) AS max_date FROM clean.fct_sales;
+  - Confirmar que amount esté poblada y que existan fechas dentro del rango esperado.
+- Comprobar acceso y permisos al esquema clean y a clean.fct_sales.
+- Revisar normalización de ubicaciones: cotejar valores distintos vs. catálogo maestro y detectar discrepancias.
+
+Siguientes pasos recomendados
+- Definir periodo y granularidad objetivo (por ejemplo, mensual por ciudad) y reintentar la consulta con esos parámetros explícitos.
+- Implementar normalización y catálogo maestro de ciudades/ubicaciones en ETL; añadir validaciones de ingestión para detectar nulos y valores fuera de rango en amount y sale_date.
+- Extender el KPI con contexto: número de transacciones (n) y medida de dispersión (p. ej., desviación estándar) para evitar sesgos de promedios con muestras mínimas.
+
+Recomendaciones accionables
+- Implementar una alerta automática que se dispare si COUNT(*) de clean.fct_sales = 0 o si ai.avg_sale_volume devuelve 0 filas para el último periodo esperado.
+- Definir comportamiento de fallback en el dashboard: mostrar N/A con causa identificada y último periodo con datos válidos (si existe), evitando conclusiones erróneas.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_sales_volume_by_city"",
+  ""columns"": [
+    ""city"",
+    ""total_sales"",
+    ""n_sales""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_sales"": {
+      ""min"": 164482.88,
+      ""max"": 27992983.11,
+      ""mean"": 7199119.4317,
+      ""median"": 2997683.65,
+      ""std"": 9656927.0234,
+      ""type"": ""sum_total""
+    },
+    ""n_sales"": {
+      ""min"": 17.0,
+      ""max"": 3324.0,
+      ""mean"": 779.8333,
+      ""median"": 299.5,
+      ""std"": 1156.26,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+d2d62784-6af2-42b0-bb6a-954293c4dc50,2025-10-22T05:27:49.776165+00:00,2025-10-22T05:29:33.007447+00:00,execution_accuracy,incorrect,0.0,La respuesta del modelo no es correcta. La diferencia entre los valores numéricos es mayor al 40%.,2458,439,¿Cuál es el promedio de ventas por empleado?,"KPI – venta promedio por trabajo (kpi_avg_sales_per_rep)
+- 17412.12 – Greg Zamora: mayor ticket promedio; 127 trabajos; total_sales 2211338.86.
+- 11388.52 – Adam Lorey: ticket alto con volumen medio; 175 trabajos; total_sales 1992990.81.
+- 10214.16 – Leo Romero: ticket competitivo con máximo volumen (298 trabajos); total_sales 3043818.84.
+- 9616.80 – Troy Desirello: ticket por debajo de sus pares; 250 trabajos; total_sales 2404200.59.
+- 9567.49 – Eric Deronda: ticket más bajo del grupo; 243 trabajos; total_sales 2324900.15.
+
+Conclusión
+- Greg lidera en ticket promedio; Leo lidera en total de ventas gracias al mayor volumen; Adam mantiene un ticket superior al de Leo, Troy y Eric. Troy y Eric presentan la mayor oportunidad para elevar el ticket medio. Estas conclusiones se sustentan en el KPI de ticket promedio, número de trabajos y total de ventas reportados arriba.
+
+Recomendaciones accionables
+- Estandarizar y escalar el enfoque de Greg: auditar 10–15 de sus cierres para extraer palancas de upsell, objeciones y paquetes; crear guiones y entrenamiento para un piloto con Adam y Leo. Objetivo: +10–15% en ticket promedio en 4 semanas, medido por kpi_avg_sales_per_rep.
+- Optimizar asignación y oferta: durante el piloto, priorizar leads de mayor potencial para Adam y Leo (capacidad demostrada) y ejecutar una prueba A/B de paquetes y anclajes de precio con Troy y Eric en ≥50 oportunidades. Objetivo: +8–10% en ticket promedio, con seguimiento semanal del KPI.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","Interpretación del KPI “kpi_avg_sales_per_rep” (promedio de venta por trabajo por representante), con datos reales:
+
+- Leo Romero: avg_sale_per_job 10214.16; total_jobs 298; total_sales 3043818.84.
+- Troy Desirello: avg_sale_per_job 9616.80; total_jobs 250; total_sales 2404200.59.
+- Eric Deronda: avg_sale_per_job 9567.49; total_jobs 243; total_sales 2324900.15.
+- Greg Zamora: avg_sale_per_job 17412.12; total_jobs 127; total_sales 2211338.86.
+- Adam Lorey: avg_sale_per_job 11388.52; total_jobs 175; total_sales 1992990.81.
+
+Estos valores son el resultado oficial del KPI según la base de datos proporcionada."
+d2d62784-6af2-42b0-bb6a-954293c4dc50,2025-10-22T05:27:49.776165+00:00,2025-10-22T05:29:33.007447+00:00,kpi_correctness,incorrect,0.0,La respuesta del modelo no es correcta. La diferencia entre los valores numéricos es mayor al 40%.,2779,633,¿Cuál es el promedio de ventas por empleado?,"KPI – venta promedio por trabajo (kpi_avg_sales_per_rep)
+- 17412.12 – Greg Zamora: mayor ticket promedio; 127 trabajos; total_sales 2211338.86.
+- 11388.52 – Adam Lorey: ticket alto con volumen medio; 175 trabajos; total_sales 1992990.81.
+- 10214.16 – Leo Romero: ticket competitivo con máximo volumen (298 trabajos); total_sales 3043818.84.
+- 9616.80 – Troy Desirello: ticket por debajo de sus pares; 250 trabajos; total_sales 2404200.59.
+- 9567.49 – Eric Deronda: ticket más bajo del grupo; 243 trabajos; total_sales 2324900.15.
+
+Conclusión
+- Greg lidera en ticket promedio; Leo lidera en total de ventas gracias al mayor volumen; Adam mantiene un ticket superior al de Leo, Troy y Eric. Troy y Eric presentan la mayor oportunidad para elevar el ticket medio. Estas conclusiones se sustentan en el KPI de ticket promedio, número de trabajos y total de ventas reportados arriba.
+
+Recomendaciones accionables
+- Estandarizar y escalar el enfoque de Greg: auditar 10–15 de sus cierres para extraer palancas de upsell, objeciones y paquetes; crear guiones y entrenamiento para un piloto con Adam y Leo. Objetivo: +10–15% en ticket promedio en 4 semanas, medido por kpi_avg_sales_per_rep.
+- Optimizar asignación y oferta: durante el piloto, priorizar leads de mayor potencial para Adam y Leo (capacidad demostrada) y ejecutar una prueba A/B de paquetes y anclajes de precio con Troy y Eric en ≥50 oportunidades. Objetivo: +8–10% en ticket promedio, con seguimiento semanal del KPI.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","Interpretación del KPI “kpi_avg_sales_per_rep” (promedio de venta por trabajo por representante), con datos reales:
+
+- Leo Romero: avg_sale_per_job 10214.16; total_jobs 298; total_sales 3043818.84.
+- Troy Desirello: avg_sale_per_job 9616.80; total_jobs 250; total_sales 2404200.59.
+- Eric Deronda: avg_sale_per_job 9567.49; total_jobs 243; total_sales 2324900.15.
+- Greg Zamora: avg_sale_per_job 17412.12; total_jobs 127; total_sales 2211338.86.
+- Adam Lorey: avg_sale_per_job 11388.52; total_jobs 175; total_sales 1992990.81.
+
+Estos valores son el resultado oficial del KPI según la base de datos proporcionada."
+a6b333be-e0b4-47c5-bbdd-a86922fe8b42,2025-10-22T05:30:06.793560+00:00,2025-10-22T05:31:57.567632+00:00,execution_accuracy,incorrect,0.0,La respuesta del modelo no es correcta. La diferencia entre los valores numéricos es mayor al 40%.,2228,389,¿Cuál es la distribución de jobs por status?,"Volumen de ventas promedio (avg_sale) – kpi_jobs_by_status:
+- complete unrated: 8959.15
+- pro canceled: 9373.82
+- complete rated: 10665.90
+- user canceled: 10838.33
+- needs scheduling: 10560.19
+
+Interpretación ejecutiva (validada):
+- El ticket promedio más alto está en user canceled (10838.33), señalando mayor riesgo de cancelaciones en trabajos de mayor valor.
+- El ticket más bajo está en complete unrated (8959.15). Según el conteo informado (3001 trabajos), concentra alto volumen; su menor ticket promedio puede estar diluyendo el ingreso por trabajo.
+- complete rated (10665.90) y needs scheduling (10560.19) superan los 10k; hay oportunidad de acelerar programación y cierre para capturar ese valor.
+
+Mejoras de precisión y claridad:
+- Indicar moneda y periodo del análisis para asegurar comparabilidad.
+- Acompañar los promedios con conteos por estado y tasas de cancelación para ponderar impacto (volumen x ticket).
+
+Acciones inmediatas:
+- Reducir cancelaciones de alto ticket: exigir confirmación/depósito y priorizar agenda para trabajos con avg_sale >10k en user canceled; objetivo inicial: -20% cancelaciones en 30 días.
+- Elevar la tasa de calificación: automatizar solicitud de rating en 24–48 h post-servicio con recordatorios e incentivo ligero para convertir complete unrated a rated (+15 pp en 4–6 semanas).
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","KPI ejecutado: kpi_jobs_by_status. Valor oficial según datos reales:
+
+- complete unrated: total_jobs 3001, total_sales 76555899.85, avg_sale 8959.15
+- pro canceled: total_jobs 929, total_sales 9355068.59, avg_sale 9373.82
+- complete rated: total_jobs 855, total_sales 25822144.93, avg_sale 10665.90
+- user canceled: total_jobs 723, total_sales 9689463.49, avg_sale 10838.33
+- needs scheduling: total_jobs 508, total_sales 5449058.88, avg_sale 10560.19
+
+Interpretación:
+- Mayor volumen de trabajos: complete unrated (3001).
+- Mayor facturación total: complete unrated (76555899.85).
+- Mayor ticket promedio: user canceled (10838.33).
+- Menor ticket promedio: complete unrated (8959.15).
+- Orden por volumen de trabajos: complete unrated (3001) > pro canceled (929) > complete rated (855) > user canceled (723) > needs scheduling (508)."
+a6b333be-e0b4-47c5-bbdd-a86922fe8b42,2025-10-22T05:30:06.793560+00:00,2025-10-22T05:31:57.567632+00:00,kpi_correctness,correct,1.0,La diferencia entre los valores numéricos es menor al 20%.,2563,799,¿Cuál es la distribución de jobs por status?,"Volumen de ventas promedio (avg_sale) – kpi_jobs_by_status:
+- complete unrated: 8959.15
+- pro canceled: 9373.82
+- complete rated: 10665.90
+- user canceled: 10838.33
+- needs scheduling: 10560.19
+
+Interpretación ejecutiva (validada):
+- El ticket promedio más alto está en user canceled (10838.33), señalando mayor riesgo de cancelaciones en trabajos de mayor valor.
+- El ticket más bajo está en complete unrated (8959.15). Según el conteo informado (3001 trabajos), concentra alto volumen; su menor ticket promedio puede estar diluyendo el ingreso por trabajo.
+- complete rated (10665.90) y needs scheduling (10560.19) superan los 10k; hay oportunidad de acelerar programación y cierre para capturar ese valor.
+
+Mejoras de precisión y claridad:
+- Indicar moneda y periodo del análisis para asegurar comparabilidad.
+- Acompañar los promedios con conteos por estado y tasas de cancelación para ponderar impacto (volumen x ticket).
+
+Acciones inmediatas:
+- Reducir cancelaciones de alto ticket: exigir confirmación/depósito y priorizar agenda para trabajos con avg_sale >10k en user canceled; objetivo inicial: -20% cancelaciones en 30 días.
+- Elevar la tasa de calificación: automatizar solicitud de rating en 24–48 h post-servicio con recordatorios e incentivo ligero para convertir complete unrated a rated (+15 pp en 4–6 semanas).
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","KPI ejecutado: kpi_jobs_by_status. Valor oficial según datos reales:
+
+- complete unrated: total_jobs 3001, total_sales 76555899.85, avg_sale 8959.15
+- pro canceled: total_jobs 929, total_sales 9355068.59, avg_sale 9373.82
+- complete rated: total_jobs 855, total_sales 25822144.93, avg_sale 10665.90
+- user canceled: total_jobs 723, total_sales 9689463.49, avg_sale 10838.33
+- needs scheduling: total_jobs 508, total_sales 5449058.88, avg_sale 10560.19
+
+Interpretación:
+- Mayor volumen de trabajos: complete unrated (3001).
+- Mayor facturación total: complete unrated (76555899.85).
+- Mayor ticket promedio: user canceled (10838.33).
+- Menor ticket promedio: complete unrated (8959.15).
+- Orden por volumen de trabajos: complete unrated (3001) > pro canceled (929) > complete rated (855) > user canceled (723) > needs scheduling (508)."
+7f3e5329-8bb3-4330-85d9-e05bf3abdbf0,2025-10-22T05:32:33.235911+00:00,2025-10-22T05:33:56.995382+00:00,execution_accuracy,correct,1.0,La respuesta del modelo coincide con la referencia.,1895,580,¿Cuál es la tasa de aprobación de estimates?,"Resultado y lectura ejecutiva
+- Tasa de aprobación de estimaciones: 17.18% (3,701 aprobadas de 21,544). Esto implica que el 82.82% de los grupos de estimaciones no avanza a aprobación, confirmando una pérdida relevante en el funnel antes del cierre y una oportunidad clara de mejora en conversión.
+- Nota de precisión: el extracto no especifica periodo de medición ni segmentaciones (canal, segmento, owner, ticket), lo que limita el contexto. Sugerido para próximos reportes: añadir ventana temporal, definición exacta de “grupo de estimaciones” y comparativo vs. periodo anterior/benchmark interno.
+
+Sobre “volumen de ventas promedio KPI”
+- Este extracto no incluye ese KPI. Para calcularlo en clean.fct_sales se requiere confirmar:
+  - Periodo de análisis (p. ej., últimos 3/6/12 meses).
+  - Unidad de cálculo: ticket promedio por trabajo, por cliente o por oportunidad.
+  - Estado de la venta: emitidas vs. cobradas (y si se excluyen cancelaciones, devoluciones e impuestos).
+  - Moneda y tipo de cambio (si aplica).
+
+Recomendaciones accionables
+1) Ejecutar un análisis de no aprobación segmentado (precio, propuesta, canal, owner, vertical) para identificar las 3 causas principales y lanzar pruebas específicas (ajuste de precio/propuesta y cadencia de follow-ups) con objetivo de elevar la aprobación.
+2) Definir y documentar la especificación del KPI de “volumen de ventas promedio” y automatizar su cálculo semanal en un dashboard, con meta y alerta cuando varíe ±X% vs. el promedio de las últimas 8 semanas.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","Interpretación del KPI kpi_approved_estimates_rate:
+
+- Valor oficial del KPI (tasa de aprobación): 17.18% (approval_rate_pct).
+- Universo medido: 21,544 grupos de estimaciones (total_estimate_groups).
+- Aprobados: 3,701 grupos de estimaciones (approved_estimate_groups).
+- Cálculo: 3,701 / 21,544 = 17.18%.
+- Lectura: Del total de grupos de estimaciones registrados, el 17.18% fueron aprobados (3,701 de 21,544)."
+7f3e5329-8bb3-4330-85d9-e05bf3abdbf0,2025-10-22T05:32:33.235911+00:00,2025-10-22T05:33:56.995382+00:00,kpi_correctness,correct,1.0,La respuesta del modelo coincide con la referencia.,1932,589,¿Cuál es la tasa de aprobación de estimates?,"Resultado y lectura ejecutiva
+- Tasa de aprobación de estimaciones: 17.18% (3,701 aprobadas de 21,544). Esto implica que el 82.82% de los grupos de estimaciones no avanza a aprobación, confirmando una pérdida relevante en el funnel antes del cierre y una oportunidad clara de mejora en conversión.
+- Nota de precisión: el extracto no especifica periodo de medición ni segmentaciones (canal, segmento, owner, ticket), lo que limita el contexto. Sugerido para próximos reportes: añadir ventana temporal, definición exacta de “grupo de estimaciones” y comparativo vs. periodo anterior/benchmark interno.
+
+Sobre “volumen de ventas promedio KPI”
+- Este extracto no incluye ese KPI. Para calcularlo en clean.fct_sales se requiere confirmar:
+  - Periodo de análisis (p. ej., últimos 3/6/12 meses).
+  - Unidad de cálculo: ticket promedio por trabajo, por cliente o por oportunidad.
+  - Estado de la venta: emitidas vs. cobradas (y si se excluyen cancelaciones, devoluciones e impuestos).
+  - Moneda y tipo de cambio (si aplica).
+
+Recomendaciones accionables
+1) Ejecutar un análisis de no aprobación segmentado (precio, propuesta, canal, owner, vertical) para identificar las 3 causas principales y lanzar pruebas específicas (ajuste de precio/propuesta y cadencia de follow-ups) con objetivo de elevar la aprobación.
+2) Definir y documentar la especificación del KPI de “volumen de ventas promedio” y automatizar su cálculo semanal en un dashboard, con meta y alerta cuando varíe ±X% vs. el promedio de las últimas 8 semanas.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","Interpretación del KPI kpi_approved_estimates_rate:
+
+- Valor oficial del KPI (tasa de aprobación): 17.18% (approval_rate_pct).
+- Universo medido: 21,544 grupos de estimaciones (total_estimate_groups).
+- Aprobados: 3,701 grupos de estimaciones (approved_estimate_groups).
+- Cálculo: 3,701 / 21,544 = 17.18%.
+- Lectura: Del total de grupos de estimaciones registrados, el 17.18% fueron aprobados (3,701 de 21,544)."

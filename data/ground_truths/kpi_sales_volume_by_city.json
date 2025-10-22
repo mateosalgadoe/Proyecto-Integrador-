@@ -3,33 +3,24 @@
   "columns": [
     "city",
     "total_sales",
-    "avg_sale_volume",
     "n_sales"
   ],
   "type": "multi_value",
   "stats": {
     "total_sales": {
-      "min": 29567.09,
-      "max": 20537788.73,
-      "mean": 2046930.1995,
-      "median": 260018.19,
-      "std": 4917120.2764,
+      "min": 164482.88,
+      "max": 27992983.11,
+      "mean": 7199119.4317,
+      "median": 2997683.65,
+      "std": 9656927.0234,
       "type": "sum_total"
     },
-    "avg_sale_volume": {
-      "min": 2090.5431,
-      "max": 73276.4,
-      "mean": 11249.1088,
-      "median": 4841.2984,
-      "std": 16937.4251,
-      "type": "average"
-    },
     "n_sales": {
-      "min": 1.0,
-      "max": 4830.0,
-      "mean": 537.5,
-      "median": 37.0,
-      "std": 1224.363,
+      "min": 17.0,
+      "max": 3324.0,
+      "mean": 779.8333,
+      "median": 299.5,
+      "std": 1156.26,
       "type": "generic"
     }
   },

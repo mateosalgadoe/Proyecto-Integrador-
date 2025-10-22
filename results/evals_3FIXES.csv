@@ -1,0 +1,391 @@
+trace_id,started_at,ended_at,metric,verdict,score,justification,latency_ms,ttft_ms,question,model_output,ground_truth
+56d77806-aa98-47fb-b754-48bfd78299c0,2025-10-22T06:57:10.445474+00:00,2025-10-22T06:57:35.672971+00:00,execution_accuracy,correct,1.0,"La respuesta del modelo es correcta, ya que el valor proporcionado coincide con el valor de referencia.",2871,797,¿Cuál es el promedio global de ventas de RocknBlock?,"KPI: Ticket promedio por job (global)
+Valor del periodo: 9,231.61
+
+Definición y cálculo:
+- Ventas netas del periodo ÷ número de jobs cerrados en el mismo periodo. Debe excluir cancelaciones/devoluciones y aclarar el tratamiento de impuestos, propinas y descuentos.
+
+Lectura ejecutiva:
+- El valor representa el tamaño típico de cada operación en el periodo analizado. Sin meta ni comparación histórica, su lectura es descriptiva y no permite concluir mejora o deterioro del desempeño.
+
+Conclusión (sustentada en el resultado):
+- Con base en las ventas y el conteo de jobs del periodo, el ticket promedio global fue 9,231.61, lo que indica el ingreso medio por job en el periodo. Se requieren referencias (histórico y objetivo) para evaluar si el nivel es competitivo o si existe erosión de precio o mix.
+
+Mejoras de precisión y claridad:
+- Documentar moneda, alcance de “ventas netas” (con/descuentos, sin impuestos), definición de “job cerrado” y reglas para excluir outliers.
+- Asegurar la misma ventana temporal en numerador y denominador y especificar la cobertura geográfica.
+
+Recomendaciones accionables:
+- Implementar un tablero con serie mensual de 12–18 meses y desagregación por tipo de servicio, canal de lead y cuadrilla; activar alertas cuando la variación m/m supere ±5% o se desvíe del objetivo en ±3%.
+- Estandarizar el cálculo en un diccionario de métricas (moneda, exclusiones, tratamiento de impuestos/propinas y método de outliers, p. ej., IQR) y auditar datos cada mes para evitar sesgos por registros atípicos o cancelaciones.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""total_jobs_global"",
+    ""total_sales_global"",
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_jobs_global"": {
+      ""min"": 4679.0,
+      ""max"": 4679.0,
+      ""mean"": 4679.0,
+      ""median"": 4679.0,
+      ""std"": 0.0,
+      ""type"": ""sum_total""
+    },
+    ""total_sales_global"": {
+      ""min"": 43194716.59,
+      ""max"": 43194716.59,
+      ""mean"": 43194716.59,
+      ""median"": 43194716.59,
+      ""std"": 0.0,
+      ""type"": ""sum_total""
+    },
+    ""avg_sales_volume_global"": {
+      ""min"": 9231.61,
+      ""max"": 9231.61,
+      ""mean"": 9231.61,
+      ""median"": 9231.61,
+      ""std"": 0.0,
+      ""type"": ""average""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+56d77806-aa98-47fb-b754-48bfd78299c0,2025-10-22T06:57:10.445474+00:00,2025-10-22T06:57:35.672971+00:00,kpi_correctness,correct,1.0,La respuesta del modelo coincide con el valor de referencia.,1827,587,¿Cuál es el promedio global de ventas de RocknBlock?,"KPI: Ticket promedio por job (global)
+Valor del periodo: 9,231.61
+
+Definición y cálculo:
+- Ventas netas del periodo ÷ número de jobs cerrados en el mismo periodo. Debe excluir cancelaciones/devoluciones y aclarar el tratamiento de impuestos, propinas y descuentos.
+
+Lectura ejecutiva:
+- El valor representa el tamaño típico de cada operación en el periodo analizado. Sin meta ni comparación histórica, su lectura es descriptiva y no permite concluir mejora o deterioro del desempeño.
+
+Conclusión (sustentada en el resultado):
+- Con base en las ventas y el conteo de jobs del periodo, el ticket promedio global fue 9,231.61, lo que indica el ingreso medio por job en el periodo. Se requieren referencias (histórico y objetivo) para evaluar si el nivel es competitivo o si existe erosión de precio o mix.
+
+Mejoras de precisión y claridad:
+- Documentar moneda, alcance de “ventas netas” (con/descuentos, sin impuestos), definición de “job cerrado” y reglas para excluir outliers.
+- Asegurar la misma ventana temporal en numerador y denominador y especificar la cobertura geográfica.
+
+Recomendaciones accionables:
+- Implementar un tablero con serie mensual de 12–18 meses y desagregación por tipo de servicio, canal de lead y cuadrilla; activar alertas cuando la variación m/m supere ±5% o se desvíe del objetivo en ±3%.
+- Estandarizar el cálculo en un diccionario de métricas (moneda, exclusiones, tratamiento de impuestos/propinas y método de outliers, p. ej., IQR) y auditar datos cada mes para evitar sesgos por registros atípicos o cancelaciones.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume_global"",
+  ""columns"": [
+    ""total_jobs_global"",
+    ""total_sales_global"",
+    ""avg_sales_volume_global""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""total_jobs_global"": {
+      ""min"": 4679.0,
+      ""max"": 4679.0,
+      ""mean"": 4679.0,
+      ""median"": 4679.0,
+      ""std"": 0.0,
+      ""type"": ""sum_total""
+    },
+    ""total_sales_global"": {
+      ""min"": 43194716.59,
+      ""max"": 43194716.59,
+      ""mean"": 43194716.59,
+      ""median"": 43194716.59,
+      ""std"": 0.0,
+      ""type"": ""sum_total""
+    },
+    ""avg_sales_volume_global"": {
+      ""min"": 9231.61,
+      ""max"": 9231.61,
+      ""mean"": 9231.61,
+      ""median"": 9231.61,
+      ""std"": 0.0,
+      ""type"": ""average""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+3ba16bbc-fb73-40d8-98d4-0507a57093de,2025-10-22T06:58:11.962179+00:00,2025-10-22T07:00:00.161870+00:00,execution_accuracy,incorrect,0.0,La respuesta del modelo no es coherente con el ground truth. La respuesta del modelo se refiere a un KPI diferente y no proporciona información sobre los benchmarks de la industria.,2445,402,¿Cuáles son los benchmarks de industria?,"Estado del KPI: N/D (no disponible). En los datos recuperados no se encontró un campo ni un cálculo existente para “volumen de ventas promedio”, por lo que no hay un valor oficial reportable en este momento.
+
+Definiciones recomendadas para cálculo en clean.fct_sales:
+- Por transacción: total de ingresos netos del período dividido entre el número de ventas cerradas del período.
+- Promedio diario: total de ingresos netos del período dividido entre el número de días calendario del período.
+
+Criterios de precisión:
+- Ingresos netos: excluir impuestos; incluir descuentos; registrar devoluciones como montos negativos; excluir cancelaciones.
+- Identificador de venta: usar el campo canónico de transacción/venta (p. ej., sale_id) y contar transacciones únicas.
+- Período: definir explícitamente (p. ej., últimos 90 días) y mantener consistencia para comparaciones históricas.
+- Desglose: habilitar cortes por canal, zona y empleado (vía dim_housecallpro_employees).
+- Calidad de datos: controlar duplicados de sale_id, fechas nulas, días sin ventas (para el promedio diario decidir si se usan días calendario o solo días con operación; por defecto, días calendario para comparabilidad).
+
+Comparaciones sugeridas:
+- Versus el mismo período del año anterior y versus objetivo interno para evaluar desempeño y tendencia.
+
+Recomendaciones accionables:
+1) Alinear y formalizar la definición del KPI y el período de referencia (por transacción vs. diario; días calendario vs. días con operación).
+2) Implementar el cálculo en clean.fct_sales y publicar un tablero con tendencia y cortes por canal/zona/empleado, incluyendo comparación YoY y contra objetivo.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+3ba16bbc-fb73-40d8-98d4-0507a57093de,2025-10-22T06:58:11.962179+00:00,2025-10-22T07:00:00.161870+00:00,kpi_correctness,incorrect,0.0,"La respuesta del modelo no es coherente con el ground truth. El ground truth proporciona una estructura de datos detallada con definiciones y estadísticas para varios KPIs, mientras que la respuesta del modelo se centra en la ausencia de datos para un KPI específico y ofrece sugerencias para su cálculo.",3527,620,¿Cuáles son los benchmarks de industria?,"Estado del KPI: N/D (no disponible). En los datos recuperados no se encontró un campo ni un cálculo existente para “volumen de ventas promedio”, por lo que no hay un valor oficial reportable en este momento.
+
+Definiciones recomendadas para cálculo en clean.fct_sales:
+- Por transacción: total de ingresos netos del período dividido entre el número de ventas cerradas del período.
+- Promedio diario: total de ingresos netos del período dividido entre el número de días calendario del período.
+
+Criterios de precisión:
+- Ingresos netos: excluir impuestos; incluir descuentos; registrar devoluciones como montos negativos; excluir cancelaciones.
+- Identificador de venta: usar el campo canónico de transacción/venta (p. ej., sale_id) y contar transacciones únicas.
+- Período: definir explícitamente (p. ej., últimos 90 días) y mantener consistencia para comparaciones históricas.
+- Desglose: habilitar cortes por canal, zona y empleado (vía dim_housecallpro_employees).
+- Calidad de datos: controlar duplicados de sale_id, fechas nulas, días sin ventas (para el promedio diario decidir si se usan días calendario o solo días con operación; por defecto, días calendario para comparabilidad).
+
+Comparaciones sugeridas:
+- Versus el mismo período del año anterior y versus objetivo interno para evaluar desempeño y tendencia.
+
+Recomendaciones accionables:
+1) Alinear y formalizar la definición del KPI y el período de referencia (por transacción vs. diario; días calendario vs. días con operación).
+2) Implementar el cálculo en clean.fct_sales y publicar un tablero con tendencia y cortes por canal/zona/empleado, incluyendo comparación YoY y contra objetivo.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""industry_benchmarks"",
+  ""columns"": [
+    ""sector"",
+    ""gdp_growth_pct"",
+    ""sales_growth_sector_pct"",
+    ""avg_ticket_growth_sector_pct"",
+    ""inflation_pct"",
+    ""unemployment_pct"",
+    ""reference_date""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""gdp_growth_pct"": {
+      ""min"": 2.8,
+      ""max"": 2.8,
+      ""mean"": 2.8,
+      ""median"": 2.8,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""sales_growth_sector_pct"": {
+      ""min"": -0.02,
+      ""max"": -0.02,
+      ""mean"": -0.02,
+      ""median"": -0.02,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""avg_ticket_growth_sector_pct"": {
+      ""min"": 2.4,
+      ""max"": 2.4,
+      ""mean"": 2.4,
+      ""median"": 2.4,
+      ""std"": 0.0,
+      ""type"": ""average""
+    },
+    ""inflation_pct"": {
+      ""min"": 2.95,
+      ""max"": 2.95,
+      ""mean"": 2.95,
+      ""median"": 2.95,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    },
+    ""unemployment_pct"": {
+      ""min"": 4.11,
+      ""max"": 4.11,
+      ""mean"": 4.11,
+      ""median"": 4.11,
+      ""std"": 0.0,
+      ""type"": ""generic""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+6d5067ae-87d9-496a-92e3-898a044b94d8,2025-10-22T07:00:34.454581+00:00,2025-10-22T07:02:01.150977+00:00,execution_accuracy,incorrect,0.0,"La respuesta del modelo no es coherente con el ground truth, ya que no proporciona información sobre el promedio de ventas por ciudad.",2538,422,¿Cuál es el promedio de ventas por ciudad?,"avg_sale_volume: N/A — sin registros elegibles en el esquema clean
+
+Conclusión
+- La métrica no es calculable: la consulta a clean.fct_sales con los filtros vigentes devuelve 0 registros, por lo que avg_sale_volume se reporta como N/A.
+
+Impacto
+- No es posible comparar ciudades, analizar tendencias ni estimar la concentración de ingresos, generando un vacío de información para la toma de decisiones.
+
+Causas probables
+- Ausencia de datos en clean.fct_sales para el periodo/filtros consultados, exclusión total por filtros (fechas/ciudad/canal), o falla/atraso del pipeline ETL.
+- Mapeos de ubicaciones o normalización de nombres inconsistente entre dimensiones y hechos.
+
+Acciones inmediatas
+- Verificar existencia de registros en clean.fct_sales para el rango de fechas y filtros aplicados; probar sin filtros para descartar exclusiones accidentales.
+- Revisar la última ejecución del ETL y sus logs; reejecutar si presenta errores o atraso de carga.
+- Confirmar mapeos y llaves de unión (p. ej., date_key, city_id, channel_id) y la normalización de nombres en dimensiones antes del recálculo.
+- Publicar un chequeo de salud de datos: conteo de filas por tabla, fechas mín/máx, y porcentaje de nulos en campos clave (date_key, city_id, channel_id, amount).
+
+Una vez restablecidos los datos
+- Recalcular avg_sale_volume reportando tamaño de muestra, dispersión (p. ej., desviación estándar o p50/p95) y tendencia por ciudad y canal.
+- Incluir variación vs. periodo anterior y confirmar coherencia con métricas relacionadas (ingresos totales, número de transacciones).
+
+Recomendaciones accionables
+- Implementar monitoreo automático de frescura y completitud con alertas (SLA sugerido: llegada <24 h, row_count>0, fecha_máx dentro de 1 día).
+- Añadir pruebas de aserción en el pipeline y el dashboard para bloquear publicaciones si row_count=0 o fecha_máx está desactualizada, mostrando un estado de “Sin datos” con enlace a los logs.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume"",
+  ""columns"": [
+    ""city"",
+    ""n_sales"",
+    ""total_sales"",
+    ""avg_sale_volume""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""n_sales"": {
+      ""min"": 17.0,
+      ""max"": 3324.0,
+      ""mean"": 779.8333,
+      ""median"": 299.5,
+      ""std"": 1156.26,
+      ""type"": ""generic""
+    },
+    ""total_sales"": {
+      ""min"": 164482.88,
+      ""max"": 27992983.11,
+      ""mean"": 7199119.4317,
+      ""median"": 2997683.65,
+      ""std"": 9656927.0234,
+      ""type"": ""sum_total""
+    },
+    ""avg_sale_volume"": {
+      ""min"": 7931.04,
+      ""max"": 12406.31,
+      ""mean"": 10106.865,
+      ""median"": 10346.505,
+      ""std"": 1583.7411,
+      ""type"": ""average""
+    }
+  },
+  ""reference_metric"": ""median""
+}"
+6d5067ae-87d9-496a-92e3-898a044b94d8,2025-10-22T07:00:34.454581+00:00,2025-10-22T07:02:01.150977+00:00,kpi_correctness,incorrect,0.0,"La respuesta del modelo no es coherente con el ground truth. El modelo no proporciona un valor numérico para el promedio de ventas por ciudad, lo que indica que no se ha calculado correctamente el KPI.",3308,706,¿Cuál es el promedio de ventas por ciudad?,"avg_sale_volume: N/A — sin registros elegibles en el esquema clean
+
+Conclusión
+- La métrica no es calculable: la consulta a clean.fct_sales con los filtros vigentes devuelve 0 registros, por lo que avg_sale_volume se reporta como N/A.
+
+Impacto
+- No es posible comparar ciudades, analizar tendencias ni estimar la concentración de ingresos, generando un vacío de información para la toma de decisiones.
+
+Causas probables
+- Ausencia de datos en clean.fct_sales para el periodo/filtros consultados, exclusión total por filtros (fechas/ciudad/canal), o falla/atraso del pipeline ETL.
+- Mapeos de ubicaciones o normalización de nombres inconsistente entre dimensiones y hechos.
+
+Acciones inmediatas
+- Verificar existencia de registros en clean.fct_sales para el rango de fechas y filtros aplicados; probar sin filtros para descartar exclusiones accidentales.
+- Revisar la última ejecución del ETL y sus logs; reejecutar si presenta errores o atraso de carga.
+- Confirmar mapeos y llaves de unión (p. ej., date_key, city_id, channel_id) y la normalización de nombres en dimensiones antes del recálculo.
+- Publicar un chequeo de salud de datos: conteo de filas por tabla, fechas mín/máx, y porcentaje de nulos en campos clave (date_key, city_id, channel_id, amount).
+
+Una vez restablecidos los datos
+- Recalcular avg_sale_volume reportando tamaño de muestra, dispersión (p. ej., desviación estándar o p50/p95) y tendencia por ciudad y canal.
+- Incluir variación vs. periodo anterior y confirmar coherencia con métricas relacionadas (ingresos totales, número de transacciones).
+
+Recomendaciones accionables
+- Implementar monitoreo automático de frescura y completitud con alertas (SLA sugerido: llegada <24 h, row_count>0, fecha_máx dentro de 1 día).
+- Añadir pruebas de aserción en el pipeline y el dashboard para bloquear publicaciones si row_count=0 o fecha_máx está desactualizada, mostrando un estado de “Sin datos” con enlace a los logs.
+
+Espero que esta información sea útil para la toma de decisiones. Quedo a disposición para profundizar o apoyar en el diseño de acciones específicas.","{
+  ""kpi_name"": ""kpi_avg_sales_volume"",
+  ""columns"": [
+    ""city"",
+    ""n_sales"",
+    ""total_sales"",
+    ""avg_sale_volume""
+  ],
+  ""type"": ""multi_value"",
+  ""stats"": {
+    ""n_sales"": {
+      ""min"": 17.0,
+      ""max"": 3324.0,
+      ""mean"": 779.8333,
+      ""median"": 299.5,
+      ""std"": 1156.26,
+      ""type"": ""generic""
+    },
+    ""total_sales"": {
+      ""min"": 164482.88,
+      ""max"": 27992983.11,
+      ""mean"": 7199119.4317,
+      ""median"": 2997683.65,
+      ""std"": 9656927.0234,
+      ""type"": ""sum_total""
+    },
+    ""avg_sale_volume"": {
+      ""min"": 7931.04,
+      ""max"": 12406.31,
+      ""mean"": 10106.865,
+      ""median"": 10346.505,
+      ""std"": 1583.7411,
+      ""type"": ""average""
+    }
+  },
+  ""reference_metric"": ""median""
+}"

@@ -1,0 +1,39 @@
+{
+  "kpi_name": "kpi_avg_sales_per_rep",
+  "columns": [
+    "employee_id",
+    "employee_name",
+    "company_id",
+    "total_jobs",
+    "total_sales",
+    "avg_sale_per_job"
+  ],
+  "type": "multi_value",
+  "stats": {
+    "total_jobs": {
+      "min": 14.0,
+      "max": 298.0,
+      "mean": 128.6,
+      "median": 105.5,
+      "std": 82.9183,
+      "type": "sum_total"
+    },
+    "total_sales": {
+      "min": 393300.73,
+      "max": 3043818.84,
+      "mean": 1334204.5355,
+      "median": 1150060.27,
+      "std": 795695.5458,
+      "type": "sum_total"
+    },
+    "avg_sale_per_job": {
+      "min": 6266.65,
+      "max": 28092.91,
+      "mean": 11852.962,
+      "median": 10316.69,
+      "std": 4827.1396,
+      "type": "average"
+    }
+  },
+  "reference_metric": "median"
+}

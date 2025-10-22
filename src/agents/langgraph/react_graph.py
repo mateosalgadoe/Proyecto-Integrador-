@@ -149,15 +149,21 @@ Analiza la pregunta del usuario y devuelve un JSON con:
 [Guías de decisión MEJORADAS]
 - Usa "kpi_query" si la pregunta menciona:
   * Palabras como "KPI", "indicador", "métrica", "porcentaje", "ratio", "tasa", "volumen promedio", "eficiencia", "promedio de ventas"
-  * "benchmark", "benchmarks", "industria", "sector", "comparativa", "mercado", "industria de landscaping", "PIB", "crecimiento"  ← 🆕 AÑADIR "PIB", "crecimiento"
+  * "benchmark", "benchmarks", "industria", "sector", "comparativa", "mercado", "industria de landscaping", "PIB", "crecimiento"  ←  AÑADIR "PIB", "crecimiento"
   * "tasa de cierre", "closing rate", "conversión", "win rate"
   * "tendencia", "evolución", "serie temporal" (SOLO si menciona KPI o métricas específicas)
 - Usa "sql_query" si la pregunta pide:
   * Datos crudos, conteos, listados o exploraciones directas
   * Tendencias temporales sin mencionar KPIs (ej: "ventas por mes")
 - Usa "direct_answer" si es conceptual o fuera del dominio de datos.
-- **Si menciona "benchmark", "industria", "sector", "PIB" o "crecimiento", SIEMPRE usa "kpi_query".**  ← 🆕 REGLA EXPLÍCITA
+- **Si menciona "benchmark", "industria", "sector", "PIB" o "crecimiento", SIEMPRE usa "kpi_query".**  ←  REGLA EXPLÍCITA
 - Si hay duda entre SQL y KPI, prefiere "kpi_query".
+
+REGLAS OBLIGATORIAS ADICIONALES:
+- Si la pregunta contiene "por ciudad", "por empleado", "distribución" → SIEMPRE usa "kpi_query"
+- Si menciona "promedio de ventas por ciudad" → kpi_query con kpi_avg_sales_volume
+- Si menciona "total de ventas por ciudad" → kpi_query con kpi_sales_volume_by_city
+- NUNCA uses sql_query para métricas agregadas por dimensión
 
 [Pregunta del usuario]
 {state['question']}
@@ -234,7 +240,6 @@ def act_node(state: ReActState) -> ReActState:
 # ----------------------------
 # Nodo 3: Draft (síntesis)
 # ----------------------------
-
 @traceable(run_type="llm", name="Draft Node")
 def draft_node(state: ReActState) -> ReActState:
     if state.get("error"):
@@ -249,33 +254,44 @@ def draft_node(state: ReActState) -> ReActState:
     tool_result = state.get("tool_result", "")
     kpi_value = state.get("kpi_numeric_value")
     
-    # CRÍTICO: Instrucción explícita para usar datos reales
+    #  CAMBIO CRÍTICO: Instrucción más fuerte
     value_instruction = ""
     if kpi_value is not None:
-        value_instruction = f"\n\nVALOR KPI REAL A USAR: {kpi_value}\nEste es el valor exacto que debes citar y analizar."
+        value_instruction = f"""
+==================================================
+VALOR OFICIAL DEL KPI: {kpi_value}
+==================================================
+ESTE ES EL ÚNICO VALOR QUE DEBES USAR.
+NO uses números del contexto histórico.
+CITA EXACTAMENTE: {kpi_value}
+==================================================
+"""
     
     prompt = f"""
-Eres un analista de datos senior de RocknBlock. Redacta una respuesta clara y ejecutiva con base en el siguiente material:
+Eres un analista de datos senior de RocknBlock. Redacta una respuesta clara y ejecutiva.
+
+{value_instruction}
 
 [Contexto de negocio]
 {context}
 
 [Resultados obtenidos]
-{tool_result}{value_instruction}
+{tool_result}
 
 INSTRUCCIONES CRÍTICAS:
-- USA ÚNICAMENTE los datos y valores proporcionados arriba
-- Si hay un valor numérico específico, cítalo exactamente
-- NO inventes cifras ni interpretaciones sin datos de soporte
-- En español y orientado a decisiones
-- Interpreta hallazgos, destaca tendencias, outliers y próximos pasos
-- Sugiere al final una pregunta siguiente útil y una acción táctica
-- No incluyas firmas ni placeholders
+1. Si hay un valor numérico oficial arriba, ÚSALO TAL CUAL
+2. NO inventes cifras ni uses números del contexto
+3. Máximo 150 palabras
+4. En español, sin firmas
+5. Cita el valor exacto primero, luego interpreta
 """
     
     resp = llm.invoke(prompt)
     draft = strip_signature(resp.content.strip())
+    
+    # PRESERVAR kpi_numeric_value
     state["draft_answer"] = draft
+    state["kpi_numeric_value"] = kpi_value  
     return state
 
 # ----------------------------

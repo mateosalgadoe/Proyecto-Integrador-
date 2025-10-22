@@ -1,9 +1,36 @@
 {
   "kpi_name": "kpi_avg_sales_volume_global",
   "columns": [
+    "total_jobs_global",
+    "total_sales_global",
     "avg_sales_volume_global"
   ],
-  "type": "single_value",
-  "reference_metric": "single",
-  "value": 1141162.06
+  "type": "multi_value",
+  "stats": {
+    "total_jobs_global": {
+      "min": 4679.0,
+      "max": 4679.0,
+      "mean": 4679.0,
+      "median": 4679.0,
+      "std": 0.0,
+      "type": "sum_total"
+    },
+    "total_sales_global": {
+      "min": 43194716.59,
+      "max": 43194716.59,
+      "mean": 43194716.59,
+      "median": 43194716.59,
+      "std": 0.0,
+      "type": "sum_total"
+    },
+    "avg_sales_volume_global": {
+      "min": 9231.61,
+      "max": 9231.61,
+      "mean": 9231.61,
+      "median": 9231.61,
+      "std": 0.0,
+      "type": "average"
+    }
+  },
+  "reference_metric": "median"
 }

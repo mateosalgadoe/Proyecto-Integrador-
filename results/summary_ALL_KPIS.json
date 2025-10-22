@@ -1,16 +1,16 @@
 {
-  "since": "2025-10-21T02:47:09.177490+00:00",
+  "since": "2025-10-22T00:04:13.202300+00:00",
   "until": null,
   "counts": {
-    "total_traces": 3,
-    "total_rows": 6,
-    "execution_accuracy_rows": 3,
-    "kpi_correctness_rows": 3
+    "total_traces": 9,
+    "total_rows": 18,
+    "execution_accuracy_rows": 9,
+    "kpi_correctness_rows": 9
   },
   "metrics": {
     "execution_accuracy": 0.3333333333333333,
-    "kpi_correctness": 0.3333333333333333,
+    "kpi_correctness": 0.4444444444444444,
     "consistency_score": null,
-    "rmse": 931733.6710207919
+    "rmse": 4589259049502.971
   }
 }
